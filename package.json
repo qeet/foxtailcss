@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "homepage": "https://foxtailcss.com",
   "description": "A tiny, tailwind inspired, css utility library for use with any framework",
-  "main": "scss/foxtailcss.scss",
+  "main": "scss/foxtail.scss",
   "scripts": {
     "build": "npm-run-all build-sass build-postcss build-mini",
     "build-sass": "sass --style expanded --source-map --embed-sources --no-error-css scss/:dist/",
@@ -18,9 +18,7 @@
   "keywords": [
     "css",
     "sass",
-    "flexbox",
-    "grid",
-    "responsive",
+    "utility",
     "framework",
     "tailwind"
   ],
