@@ -1,0 +1,26 @@
+$OpacityVariants: (
+  focus-within: fw,
+  hover:        hv,
+  focus:        fc,
+  group-hover:  gh,
+) !default;
+
+#{$Id}.#{$P}opacity-0 {
+  opacity: 0;
+}
+#{$Id}.#{$P}opacity-\? {
+  opacity: var(--order)#{$I};
+}
+
+@each $variant, $prefix in $OpacityVariants {
+  @if $variant == 'group-hover' {
+      #{$Id}.#{$P}group:hover .#{$prefix}\:opacity-\? {
+        opacity: var(--#{$prefix}-opacity)#{$I};
+      }
+  }
+  @else {
+    #{$Id}.#{$prefix}\:opacity-\?:#{$variant} {
+      opacity: var(--#{$prefix}-opacity)#{$I};
+    }
+  }
+}
