@@ -15,12 +15,12 @@
     
     @each $variant, $prefix in $ColorVariants {
         @if $variant == 'group-hover' {
-            #{$Id}.group:hover .#{$dk}#{$prefix}\:#{$cls}-\? {
+            #{$Id}.#{$P}group:hover .#{$dk}#{$prefix}\:#{$cls}-\? {
                 #{$prop}: var(--#{$dkv}#{$prefix}-#{$cls})#{$I};
             }
         }
         @else if $variant == 'group-focus' {
-            #{$Id}.group:focus .#{$dk}#{$prefix}\:#{$cls}-\? {
+            #{$Id}.#{$P}group:focus .#{$dk}#{$prefix}\:#{$cls}-\? {
                 #{$prop}: var(--#{$dkv}#{$prefix}-#{$cls})#{$I};
             }
         }
