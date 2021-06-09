@@ -1,0 +1,41 @@
+$BorderWidth: (
+  0:  0px,
+  "": 1px,
+) !default;
+
+@each $name, $value in $BorderWidth {
+  @if ($name != "") {
+    $name: -#{$name};
+  } 
+  #{$Id}.#{$P}border#{$name} {
+    border-width: #{$value}#{$I};
+  }
+  #{$Id}.#{$P}border-t#{$name} {
+    border-top-width: #{$value}#{$I};
+  }
+  #{$Id}.#{$P}border-b#{$name} {
+    border-bottom-width: #{$value}#{$I};
+  }
+  #{$Id}.#{$P}border-l#{$name} {
+    border-left-width: #{$value}#{$I};
+  }
+  #{$Id}.#{$P}border-r#{$name} {
+    border-right-width: #{$value}#{$I};
+  }
+}
+
+#{$Id}.#{$P}border-w-\? {
+    border-width: var(--border-w)#{$I};
+}
+#{$Id}.#{$P}border-wt-\? {
+    border-top-width: var(--border-wt)#{$I};
+}
+#{$Id}.#{$P}border-wb-\? {
+    border-bottom-width: var(--border-wt)#{$I};
+}
+#{$Id}.#{$P}border-wl-\? {
+    border-left-width: var(--border-wl)#{$I};
+}
+#{$Id}.#{$P}border-wr-\? {
+    border-right-width: var(--border-wr)#{$I};
+}
