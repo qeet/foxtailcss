@@ -19,6 +19,6 @@
     --fx-ring-shadow: 0 0 transparent;
 }
 
-#fx-show-ring {
+#fx-shadow-extend {
     box-shadow: var(--fx-ring-offset-shadow,0 0 transparent),var(--fx-ring-shadow,0 0 transparent),var(--fx-shadow,0 0 transparent);
 }

@@ -6,18 +6,18 @@ $BoxShadowVariants: (
 @each $name, $value in $BoxShadow {
   #{$Id}.#{$P}#{$name} {
     --fx-shadow: #{$value}#{$I};
-    @extend #fx-show-ring;
+    @extend #fx-shadow-extend;
   }
 }
 
 #{$Id}.#{$P}shadow-\? {
     --fx-shadow: var(--shadow)#{$I};
-    @extend #fx-show-ring;
+    @extend #fx-shadow-extend;
 }
 
 @each $variant, $prefix in $BoxShadowVariants {
     #{$Id}.#{$prefix}\:shadow-\?:#{$variant} {
       --fx-shadow: var(--#{$prefix}-shadow)#{$I};
-      @extend #fx-show-ring;
+      @extend #fx-shadow-extend;
     }
 }

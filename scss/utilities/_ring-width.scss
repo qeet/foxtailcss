@@ -13,14 +13,14 @@ $RingWidth: (
             --fx-ring-width: #{$value};
             --fx-ring-shadow: var(--fx-ring-inset) 0 0 0 calc(var(--fx-ring-width) + var(--fx-ring-offset-width)) var(--fx-ring-color)#{$I};
         }
-        #{$Id}.#{$prefix}#{$name}#{$variant} {@extend #fx-show-ring};
+        #{$Id}.#{$prefix}#{$name}#{$variant} {@extend #fx-shadow-extend};
     }
 
     #{$Id}.#{$prefix}ring-w-\?#{$variant} {
         --fx-ring-width: var(--#{$var}ring-w);
         --fx-ring-shadow: var(--fx-ring-inset) 0 0 0 calc(var(--fx-ring-width) + var(--fx-ring-offset-width)) var(--fx-ring-color)#{$I};
     }
-    #{$Id}.#{$prefix}ring-w-\?#{$variant} {@extend #fx-show-ring};
+    #{$Id}.#{$prefix}ring-w-\?#{$variant} {@extend #fx-shadow-extend};
 
     #{$Id}.#{$prefix}ring-inset#{$variant} {
         --fx-ring-inset: inset
