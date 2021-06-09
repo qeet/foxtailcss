@@ -1,0 +1,29 @@
+$PlaceholderVariants: (
+    hover:          hv,
+    focus:          fc,
+) !default;
+
+@mixin placeholderColor($dk: '', $dkv: '') {
+
+    @if ($dk == '') {
+        #{$Id}.#{$P}placeholder-\?::placeholder {
+            color: var(--#{$dkv}placeholder)#{$I};
+        }
+    } @else {
+        #{$Id}.#{$dk}placeholder-\?::placeholder {
+            color: var(--#{$dkv}placeholder)#{$I};
+        }
+    }
+    
+    @each $variant, $prefix in $PlaceholderVariants {
+        #{$Id}.#{$dk}#{$prefix}\:placeholder-\?:#{$variant}::placeholder {
+            color: var(--#{$dkv}#{$prefix}-placeholder)#{$I};
+        }
+    }
+}
+
+@include placeholderColor();
+
+@media (prefers-color-scheme: dark) {
+    @include placeholderColor('dk\\:', 'dk-');
+}
