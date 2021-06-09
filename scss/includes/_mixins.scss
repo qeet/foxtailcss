@@ -19,6 +19,11 @@
                 #{$prop}: var(--#{$dkv}#{$prefix}-#{$cls})#{$I};
             }
         }
+        @else if $variant == 'group-focus' {
+            #{$Id}.group:focus .#{$dk}#{$prefix}\:#{$cls}-\? {
+                #{$prop}: var(--#{$dkv}#{$prefix}-#{$cls})#{$I};
+            }
+        }
         @else if $variant == 'class' {
             #{selector.append($ActiveClasses, ".#{$dk}#{$prefix}\\:#{$cls}-\\?")} {
                 #{$prop}: var(--#{$dkv}#{$prefix}-#{$cls})#{$I};
