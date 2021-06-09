@@ -4,4 +4,7 @@
         --#{$V}#{$name}: #{$value};
     }
     
+    @each $name, $value in $BoxShadow {
+        --#{$V}#{$name}: #{$value};
+    }   
 }
