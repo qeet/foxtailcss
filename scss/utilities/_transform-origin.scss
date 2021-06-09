@@ -10,6 +10,10 @@ $TransformOrigin: (
   top-left:     top left,
 ) !default;
 
+#{$Id}.#{$P}origin-\? {
+    transform-origin: var(--origin)#{$I};
+}
+
 @each $name, $value in $TransformOrigin {
   #{$Id}.#{$P}origin-#{$name} {
     transform-origin: #{$value}#{$I};
