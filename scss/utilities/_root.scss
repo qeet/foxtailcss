@@ -8,3 +8,17 @@
         --#{$V}#{$name}: #{$value};
     }   
 }
+
+* {
+    --fx-shadow: 0 0 transparent;
+    --fx-ring-inset: var(--fx-empty,/*!*/ /*!*/);
+    --fx-ring-offset-width: 0px;
+    --fx-ring-offset-color: #fff;
+    --fx-ring-color: rgba(59,130,246,0.5);
+    --fx-ring-offset-shadow: 0 0 transparent;
+    --fx-ring-shadow: 0 0 transparent;
+}
+
+#fx-show-ring {
+    box-shadow: var(--fx-ring-offset-shadow,0 0 transparent),var(--fx-ring-shadow,0 0 transparent),var(--fx-shadow,0 0 transparent);
+}

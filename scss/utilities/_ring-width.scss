@@ -1,0 +1,34 @@
+$RingWidth: (
+    ring:   3px,
+    ring-1: 1px,
+) !default;
+
+@mixin ringWidth($variant: '', $prefix: '', $var: '') {
+    @if ($prefix == '') {
+        $prefix: $P;
+    }
+
+    @each $name, $value in $RingWidth {
+        #{$Id}.#{$prefix}#{$name}#{$variant} {
+            --fx-ring-width: #{$value};
+            --fx-ring-shadow: var(--fx-ring-inset) 0 0 0 calc(var(--fx-ring-width) + var(--fx-ring-offset-width)) var(--fx-ring-color)#{$I};
+        }
+        #{$Id}.#{$prefix}#{$name}#{$variant} {@extend #fx-show-ring};
+    }
+
+    #{$Id}.#{$prefix}ring-w-\?#{$variant} {
+        --fx-ring-width: var(--#{$var}ring-w);
+        --fx-ring-shadow: var(--fx-ring-inset) 0 0 0 calc(var(--fx-ring-width) + var(--fx-ring-offset-width)) var(--fx-ring-color)#{$I};
+    }
+    #{$Id}.#{$prefix}ring-w-\?#{$variant} {@extend #fx-show-ring};
+
+    #{$Id}.#{$prefix}ring-inset#{$variant} {
+        --fx-ring-inset: inset
+    }
+}
+
+@include ringWidth();
+
+@each $variant, $prefix in $RingVariants {
+    @include ringWidth(':#{$variant}', '#{$prefix}\\:', '#{$prefix}-');
+}

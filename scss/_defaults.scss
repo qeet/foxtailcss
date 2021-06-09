@@ -38,6 +38,11 @@ $ActiveClasses: (
     "#{$Id}.active",
 ) !default;
 
+$RingVariants: (
+    hover: hv,
+    focus: fc,
+) !default;
+
 $BoxShadow: (
   shadow-sm:    "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
   shadow:       "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
@@ -48,17 +53,3 @@ $BoxShadow: (
   shadow-inner: "inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)",
   shadow-none:  "0 0 #0000",
 ) !default;
-
-* {
-    --fx-shadow: 0 0 transparent;
-    --fx-ring-inset: var(--fx-empty,/*!*/ /*!*/);
-    --fx-ring-offset-width: 0px;
-    --fx-ring-offset-color: #fff;
-    --fx-ring-color: rgba(59,130,246,0.5);
-    --fx-ring-offset-shadow: 0 0 transparent;
-    --fx-ring-shadow: 0 0 transparent;
-}
-
-#fx-show-ring {
-    box-shadow: var(--fx-ring-offset-shadow,0 0 transparent),var(--fx-ring-shadow,0 0 transparent),var(--fx-shadow,0 0 transparent);
-}
