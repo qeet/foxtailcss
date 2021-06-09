@@ -1,0 +1,20 @@
+$TransitionDuration: (
+  75:   75ms,
+  100:  100ms,
+  150:  150ms,
+  200:  200ms,
+  300:  300ms,
+  500:  500ms,
+  700:  700ms,
+  1000: 1000ms,
+) !default;
+
+#{$Id}.#{$P}duration-\? {
+    transition-duration: var(--duration)#{$I};
+}
+
+@each $name, $value in $TransitionDuration {
+  #{$Id}.#{$P}duration-#{$name} {
+    transition-duration: #{$value}#{$I};
+  }
+}
