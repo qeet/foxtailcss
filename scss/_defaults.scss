@@ -1,0 +1,38 @@
+$I: '' !default;
+$Id: '#x ' !default;
+$P: '\\:' !default;
+$V: 'fx-' !default;
+
+$Colors: (
+) !default;
+
+$ColorVariants: (
+    'odd':              'od',
+    'even':             'ev',
+    'visited':          'vs',
+    'checked':          'ch',
+    'valid':            'vl',
+    'invalid':          'in',
+    'focus-within':     'fw',
+    'hover':            'hv',
+    'focus':            'fc',
+    'focus-visible':    'fv',
+    'active':           'ac',
+    'disabled':         'ds',
+    'group-hover':      'gh',
+    'class':            'cl',
+    'group-class':      'gc',
+) !default;
+
+$PseudoVariants: (
+    'hover':            'hv',
+) !default;
+
+$PseudoElements: (
+  before: bf,
+  after:  af,
+) !default;
+
+$ActiveClasses: (
+    "#{$Id}.active",
+) !default;

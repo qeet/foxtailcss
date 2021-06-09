@@ -1,0 +1,7 @@
+:root {
+
+    @each $name, $value in $Colors {
+        --#{$V}#{$name}: #{$value};
+    }
+    
+}
