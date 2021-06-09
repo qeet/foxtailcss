@@ -1,0 +1,24 @@
+@mixin ringOffsetColor($dk: '', $dkv: '') {
+    
+    @if ($dk == '') {
+        #{$Id}.#{$P}ring-offset-\? {
+            --fx-ring-offset-color: var(--#{$dkv}ring-offset)#{$I};
+        }
+    } @else {
+        #{$Id}.#{$dk}ring-offset-\? {
+            --fx-ring-offset-color: var(--#{$dkv}ring-offset)#{$I};
+        }
+    }
+    
+    @each $variant, $prefix in $RingVariants {
+        #{$Id}.#{$dk}#{$prefix}\:ring-offset-\?:#{$variant} {
+            --fx-ring-offset-color: var(--#{$dkv}#{$prefix}-ring-offset)#{$I};
+        }
+    }
+}
+
+@include ringOffsetColor();
+
+@media (prefers-color-scheme: dark) {
+    @include ringOffsetColor('dk\\:', 'dk-');
+}
