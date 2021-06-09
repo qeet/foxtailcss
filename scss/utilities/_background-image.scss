@@ -1,0 +1,13 @@
+$BackgroundImageVariants: (
+  hover:        hv,
+) !default;
+
+#{$Id}.#{$P}bg-image-\? {
+    background-image: var(--bg-image)#{$I};
+}
+
+@each $variant, $prefix in $BackgroundImageVariants {
+  #{$Id}.#{$prefix}\:bg-image-\?:#{$variant} {
+    background-image: var(--#{$prefix}-bg-image)#{$I};
+  }
+}
