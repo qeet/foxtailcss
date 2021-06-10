@@ -28,15 +28,11 @@ $BorderWidth: (
 #{$Id}.#{$P}border-w-\? {
     border-width: var(--border-w)#{$I};
 }
-#{$Id}.#{$P}border-wt-\? {
-    border-top-width: var(--border-wt)#{$I};
-}
-#{$Id}.#{$P}border-wb-\? {
-    border-bottom-width: var(--border-wt)#{$I};
-}
-#{$Id}.#{$P}border-wl-\? {
-    border-left-width: var(--border-wl)#{$I};
-}
-#{$Id}.#{$P}border-wr-\? {
-    border-right-width: var(--border-wr)#{$I};
+
+@each $screen, $width in $Screens {
+  @media (min-width: #{$width}) {
+    #{$Id}.#{$screen}\:border-w-\? {
+        border-width: var(--#{$screen}-border-w)#{$I};
+    }
+  }
 }

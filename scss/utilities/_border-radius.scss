@@ -16,3 +16,11 @@ $BorderRadius: (
 #{$Id}.#{$P}rounded-\? {
     border-radius: var(--rounded)#{$I};
 }
+
+@each $screen, $width in $Screens {
+  @media (min-width: #{$width}) {
+    #{$Id}.#{$screen}\:rounded-\? {
+        border-radius: var(--#{$screen}-rounded)#{$I};
+    }
+  }
+}
