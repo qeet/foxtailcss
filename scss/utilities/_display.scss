@@ -18,3 +18,11 @@ $Display: (
 #{$Id}.#{$P}display-\? {
   display: var(--display)#{$I};
 }
+
+@each $screen, $width in $Screens {
+  @media (min-width: #{$width}) {
+    #{$Id}.#{$screen}\:display-\? {
+        display: var(--#{$screen}-display)#{$I};
+    }
+  }
+}

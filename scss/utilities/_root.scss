@@ -9,6 +9,10 @@
     }   
 }
 
+*, ::after, ::before {
+    border: 0 solid #e5e7eb;
+}
+
 * {
     --fx-shadow: 0 0 transparent;
     --fx-ring-inset: var(--fx-empty,/*!*/ /*!*/);
