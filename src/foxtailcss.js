@@ -47,7 +47,35 @@ var UflexDirection = (p, n) => {
   return {"flex-direction":Hargs(p, 1)}
 }
 
-var UgridCols = (p, n) => ({"grid-template-columns":"repeat(" + p[2] + ", minmax(0, 1fr))"})
+var UflexGrowShrink = (p, n) => ({["flex-" + p[1]]: p[2] == "0" ? "0" : "1"})
+
+const Lorder = {
+  "first": "-9999",
+  "last": "9999",
+  "none": "0",
+}
+var Uorder = (p, n) => {
+  var r = Lorder[p[1]]
+  if (!r) r = p[1]
+  return {"order": r}
+
+}
+
+var UgridTemplate = (p, n) => {
+  if (p[1] == "cols") p[1] = "columns"
+  var r = p[2] == "none" ? "none" : "repeat(" + p[2] + ", minmax(0, 1fr))"
+  return {["grid-template-" + p[1]]: r}
+}
+var UgridSpan = (p, n) => {
+  if (p[0] == "col") p[0] = "column"
+  var r = p[2] == "full" ? "1 / -1" : "span " + p[2] + " / " + "span " + p[2]
+  if (p[1] == "auto") r = "auto"
+  return {["grid-" + p[0]]: r}
+}
+var UgridStartEnd = (p, n) => {
+  if (p[0] == "col") p[0] = "column"
+  return {["grid-" + p[0] + "-" + p[1]]: p[2]}
+}
 
 var Utable = (p, n) => {
   if (p[1] == "auto" || p[1] == "fixed") return {"table-layout": p[1]}
@@ -91,7 +119,16 @@ const lookup = {
   "flex": Udisplay,
   "flow-root": Udisplay,
   "grid": Udisplay,
-  "grid-cols": UgridCols,
+  "grid-cols": UgridTemplate,
+  "grid-rows":UgridTemplate,
+  "col-span": UgridSpan,
+  "row-span": UgridSpan,
+  "col-auto": UgridSpan,
+  "row-auto": UgridSpan,
+  "col-start": UgridStartEnd,
+  "col-end": UgridStartEnd,
+  "row-start": UgridStartEnd,
+  "row-end": UgridStartEnd,
   "contents": Udisplay,
   "list-item": Udisplay,
   "hidden": Udisplay,
@@ -107,6 +144,11 @@ const lookup = {
 
   "flex-row": UflexDirection,
   "flex-col": UflexDirection,
+
+  "order": Uorder,
+
+  "flex-grow": UflexGrowShrink,
+  "flex-shrink": UflexGrowShrink,
 
   "m": Umargin,
   "mx": UmarginX,
