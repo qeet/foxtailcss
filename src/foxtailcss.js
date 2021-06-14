@@ -1,6 +1,25 @@
 console.log("Hello From Foxtail")
 
 
+const Lcolor = {
+  'blue': 'EFF6FFDBEAFEBFDBFE93C5FD60A5FA3B82F62563EB1D4ED81E40AF1E3A8A' 
+}
+var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ","   
+var Hcolor = (v, o, h) => {
+  if (!o) o = 1
+  if (v == "black") return h ? "#000000" : "rgba(0, 0, 0," + o + ")"
+  if (v == "white") return h ? "#ffffff" : "rgba(255, 255, 255," + o + ")"
+  var p = v.split("-")
+  var c = Lcolor[p[0]]
+  if (c) {
+    var s = parseInt(p[1])/100
+    s = s < 1 ? 0 : s*6
+    s = c.substring(s, s+6)
+    if (h) return "#" + s
+    return "rgba(" + Hcomp(s, 0) + Hcomp(s, 2) + Hcomp(s, 4) + o + ")"
+  }
+}
+
 var Hpercent = (v) => {
   if (v == "full") return "100%"
   if (v.indexOf("/") > -1) {
@@ -27,7 +46,53 @@ var HspacingPercent = (v) => {
   if (!r) r = Hpercent(v)
   return r
 }
-var Hargs = (p, f) => p.slice(f).join("-")
+var Hopacity = (v) => (parseInt(v)/100).toString()
+
+var Hargs = (p, f, d) => p.slice(f).join(d ? d : '-')
+
+var LbackgroundAttachment = ['fixed','local','scroll']
+var LbackgroundPosition = ['bottom','center','left','right','top']
+var LbackgroundSize = ['auto', 'cover', 'contain']
+
+var Ubackground = (p, n) => {
+  var p1 = p[1]
+  if (p1 == "no" && p[2] == "repeat") return {"background-repeat": "no-repeat"}
+  if (p1 == "none") return {"background-image": "none"}
+  if (LbackgroundAttachment.includes(p1)) return {"background-attachment": p1}
+  if (LbackgroundPosition.includes(p1)) return {"background-position": Hargs(p, 1, ' ')}
+  if (LbackgroundSize.includes(p1)) return {"background-size": p1}
+  var bc = "background-color"
+  if (p1 == "transparent") return {[bc]:"transparent"}
+  if (p1 == "current") return {[bc]: "currentColor"}
+  return {[bc]:Hcolor(Hargs(p, 1), "var(--tw-bg-opacity)"), "--tw-bg-opacity": "1"}
+}
+var UbackgroundOpacity = (p, n) =>  ({"--tw-bg-opacity":Hopacity(p[2])})
+
+const LbackgroudnGradient = {
+  "t": "top", "tr": "top right", "r": "right", "br": "bottom right", 
+  "b": "bottom", "bl": "bottom left", "l": "left", "tl": "top left"
+}
+var UbackgroundGradient = (p, n) => ({"background-image": "linear-gradient(to " + 
+                        LbackgroudnGradient[p[3]] + ", var(--tw-gradient-stops))"})
+var Ufrom = (p, n) => ({"--tw-gradient-from": Hcolor(Hargs(p, 1), 1, true),
+    "--tw-gradient-stops": "var(--tw-gradient-from), var(--tw-gradient-to, " + Hcolor(Hargs(p, 1), "0") +")"
+})
+var Uto = (p, n) => ({"--tw-gradient-to": Hcolor(Hargs(p, 1), 1, true)})
+var Uvia = (p, n) => ({"--tw-gradient-stops": "var(--tw-gradient-from), " +  Hcolor(Hargs(p, 1), 1, true) +  ", var(--tw-gradient-to, " + Hcolor(Hargs(p, 1), "0")  + ")"})
+
+var UbackgroundRepeat = (p, n) => {
+  var prop = "background-repeat"
+  if (p[2] == "round" || p[2] == "space") return {[prop]: p[2]}
+  return {[prop]: Hargs(p, 1)}
+}
+
+const LbackgroundClip = {
+  "border":"border-box",
+  "padding":"padding-box",
+  "content":"content-box",
+  "text": "text"
+}
+var UbackgroundClip = (p, n) => ({"background-clip":LbackgroundClip[p[2]]})
 
 var Udisplay = (p, n) => ({"display":Hargs(p, 0)})
 var Uinline = (p, n) => ({"display":Hargs(p, 0)})
@@ -114,6 +179,14 @@ var UwidthHeight = (p, n) => {
 }
 
 const lookup = {
+  "bg": Ubackground,
+  "bg-opacity": UbackgroundOpacity,
+  "bg-clip": UbackgroundClip,
+  "bg-repeat": UbackgroundRepeat,
+  "bg-gradient-to": UbackgroundGradient,
+  "from": Ufrom,
+  "to": Uto,
+  "via": Uvia,
   "block": Udisplay,
   "inline": Uinline,
   "flex": Udisplay,
@@ -175,7 +248,19 @@ const lookup = {
   "sticky": Uposition,
 }
 
+variants = (c, n) => {
+  var parts = c.split(":")
+  var i=0, len=parts.length-1
+  while (i < len) {
+    n.pseudo = parts[i]
+    i++
+  }
+  return parts[parts.length-1]
+}
+
 compile = (c) => {
+  var node = {}
+  c = variants(c, node)
   var parts = c.split("-")
   var i = parts.length;
   while (i > 0) {
@@ -183,7 +268,8 @@ compile = (c) => {
     s = s.join("-")
     var fn = lookup[s]
     if (fn) {
-     return fn(parts);
+     node.props = fn(parts);
+     return node
     }
     i--;
   }
@@ -203,8 +289,10 @@ insertStyles = () => {
   var s = ""
   for (const [key, value] of Object.entries(Rules)) {
     if (!value) continue;
-    s += "." + key + " {"
-    for (const [p, v] of Object.entries(value)) {
+    s += "." + key.replace(":", "\\:")
+    if (value.pseudo) s += ":" + value.pseudo 
+    s += " {"
+    for (const [p, v] of Object.entries(value.props)) {
       s += p + ":" + v + ";"
     }
     s += "}\n"
@@ -234,7 +322,8 @@ compilePage = () => {
     }
     i++
   }
-  addClass("flex-wrap-reverse")
+
+  console.log(Hcolor("blue-100"))
 
   insertStyles()
 
