@@ -46,7 +46,7 @@ var HspacingPercent = (v) => {
   if (!r) r = Hpercent(v)
   return r
 }
-var Hopacity = (v) => (parseInt(v)/100).toString()
+var Hfloat = (v) => (parseInt(v)/100).toString()
 
 var Hargs = (p, f, d) => p.slice(f).join(d ? d : '-')
 
@@ -66,7 +66,7 @@ var Ubackground = (p, n) => {
   if (p1 == "current") return {[bc]: "currentColor"}
   return {[bc]:Hcolor(Hargs(p, 1), "var(--tw-bg-opacity)"), "--tw-bg-opacity": "1"}
 }
-var UbackgroundOpacity = (p, n) =>  ({"--tw-bg-opacity":Hopacity(p[2])})
+var UbackgroundOpacity = (p, n) =>  ({"--tw-bg-opacity":Hfloat(p[2])})
 
 const LbackgroudnGradient = {
   "t": "top", "tr": "top right", "r": "right", "br": "bottom right", 
@@ -178,8 +178,68 @@ var UwidthHeight = (p, n) => {
   return {[prop]: r}
 }
 
+var Uappearance = (p) => ({[p0]: p1})
+var Ucursor = (p) => ({[p0]: Hargs(p, 1)})
+var Uoutline = (p) => {
+  var o = "2px solid transparent"
+  if (p[1] == "white") o = "2px dotted white"
+  if (p[1] == "black") o = "2px dotted black"
+  return {"outline": o, "outline-offset": "2px"}
+}
+var UpointerEvents = (p) => ({"pointer-events": p[2]})
+const Lresize = {
+  "none": "none", "y": "vertical", "x": "horizontal"
+}
+var Uresize = (p) => {
+  if (p.length == 1) return {[p[0]]: "both"}
+  return {[p[0]]: Lresize[p[1]]}
+}
+var UuserSelect = (p) => ({"user-select": p[1]})
+
+var Utransform = (p) => {
+  if (p[1] == "none") return {"transform": "none"}
+  var t = "translateX(var(--tw-translate-x)) translateY(var(--tw-translate-y))"
+  if (p[1] == "gpu") t = "translate3d(var(--tw-translate-x), var(--tw-translate-y), 0)"
+  return {"--tw-translate-x": "0", "--tw-translate-y": "0", "--tw-rotate": "0", "--tw-skew-x": "0",
+          "--tw-skew-y": "0", "--tw-scale-x": "1", "--tw-scale-y": "1", 
+          "transform": t + " rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))"
+  }
+}
+var UtransformOrigin = (p) => ({"transform-origin": Hargs(p, 1, ' ')})
+
+var Uscale = (p) => {
+  var v
+  if (p[1] == "x") {
+    v = Hfloat(p[2])
+    return {"--tw-scale-x": v}
+  } 
+  else if (p[1] == "y") {
+    v = Hfloat(p[2])
+    return {"--tw-scale-y": v}
+  }
+  else {
+    v = Hfloat(p[1])
+    return {"--tw-scale-x": v, "--tw-scale-y": v}
+  }
+}
+var Urotate = (p) => ({"--tw-rotate": p[1] + "deg"})
+var Utranslate = (p) => ({["--tw-translate-"+p[1]]: HspacingPercent(p[2])})
+var Uskew = (p) => ({["--tw-skew-"+p[1]]: p[2] + "deg"})
+
 const lookup = {
+  "appearance-none": Uappearance,
+  "cursor": Ucursor,
+  "outline": Uoutline,
+  "pointer-events": UpointerEvents,
+  "resize": Uresize,
+  "select": UuserSelect,
   "bg": Ubackground,
+  "transform": Utransform,
+  "origin": UtransformOrigin,
+  "scale": Uscale,
+  "rotate": Urotate,
+  "translate": Utranslate,
+  "skew": Uskew,
   "bg-opacity": UbackgroundOpacity,
   "bg-clip": UbackgroundClip,
   "bg-repeat": UbackgroundRepeat,
