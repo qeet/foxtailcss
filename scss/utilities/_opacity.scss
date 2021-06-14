@@ -8,6 +8,7 @@ $OpacityVariants: (
 #{$Id}.#{$P}opacity-0 {
   opacity: 0;
 }
+
 #{$Id}.#{$P}opacity-\? {
   opacity: var(--order)#{$I};
 }
