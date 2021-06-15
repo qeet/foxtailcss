@@ -324,7 +324,52 @@ var UblendMode = (p) => {
 
 var Uopacity = (p) =>  ({"opacity":Hfloat(p[2])})
 
+var UboxDecorationBreak = (p) =>({"box-decoration-break": p[1]})
+var UboxSizing = (p) =>({"box-sizing": p[1]+"-box"})
+var UclearFloat = (p) =>({[p[0]]: p[1]})
+var Uisolation = (p) =>({"isolation": p[1] ? "auto" : "isolate"})
+const LobjectFit = [ "contain", "cover", "fill", "none", "scale" ]
+var UobjectFitPosition = (p) => {
+  if (LobjectFit.includes(p[1]))  return {"object-fit": Hargs(p, 1)}
+  return {"object-position": Hargs(p, 1, ' ')}
+}
+var Uoverflow = (p) => {
+  if (p.length == 2) return {"overflow": p[1]}
+  return {["overflow-"+p[1]]: p[2]}  
+}
+var Uoverscroll = (p) => {
+  if (p.length == 2) return {"overscroll-behavior": p[1]}
+  return {["overscroll-behavior-"+p[1]]: p[2]}  
+}
+var Uinset = (p) => {
+  var v = p.length == 2 ? HspacingPercent(p[1]) : HspacingPercent(p[2])
+  if (p.length == 2) return {"top": v, "bottom": v, "right": v, "left": v}
+  if (p[1] == "x") return {"right": v, "left": v}
+  return {"top": v, "bottom": v}  
+}
+var UtopRightBottomLeft = (p) => ({[p[0]]: HspacingPercent(p[1])}) 
+
+var Uvisibility = (p) => ({"visibility": p[0] == "visible" ? p[0] : "hidden"})
+
+var Uzindex = (p) => ({"z-index": p[1]})
+
 const lookup = {
+  "z": Uzindex,
+  "visible": Uvisibility,
+  "invisible": Uvisibility,
+  "top": UtopRightBottomLeft,
+  "bottom": UtopRightBottomLeft,
+  "right": UtopRightBottomLeft,
+  "left": UtopRightBottomLeft,
+  "inset": Uinset,
+  "overscroll": Uoverscroll,
+  "overflow": Uoverflow,
+  "object": UobjectFitPosition,
+  "isolation": Uisolation,
+  "float": UclearFloat,
+  "clear": UclearFloat,
+  "decoration": UboxDecorationBreak,
+  "box": UboxSizing,
   "opacity": Uopacity,
   "mix-blend": UblendMode,
   "bg-blend": UblendMode,
