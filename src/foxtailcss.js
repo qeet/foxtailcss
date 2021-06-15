@@ -68,7 +68,7 @@ var Ubackground = (p, n) => {
   if (p1 == "current") return {[bc]: "currentColor"}
   return {[bc]:Hcolor(Hargs(p, 1), "var(--tw-bg-opacity)"), "--tw-bg-opacity": "1"}
 }
-var UbackgroundOpacity = (p, n) =>  ({"--tw-bg-opacity":Hfloat(p[2])})
+var UcolorOpacity = (p, n) =>  ({["--tw-" + p[0] + "-opacity"]:Hfloat(p[2])})
 
 const LbackgroudnGradient = {
   "t": "top", "tr": "top right", "r": "right", "br": "bottom right", 
@@ -365,7 +365,25 @@ LboxShadow = {
 }
 var UboxShadow = (p) => ({"--tw-shadow": LboxShadow[p[1] ? p[1] : ""]})
 
+var Uring = (p) => {
+  if (p[1] == "inset") return {"--tw-ring-inset": "inset"}
+  if (p.length == 1 || !isNaN(p[1])) {
+    var v = p[1] ? p[1] : "3"
+    return {"--tw-ring-shadow": "var(--tw-ring-inset) 0 0 0 calc(" + v + "px + var(--tw-ring-offset-width)) var(--tw-ring-color)",
+    "--tw-ring-offset-shadow": "var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)"}
+  }
+  return {"--tw-ring-color": Hcolor(Hargs(p, 1), "var(--tw-ring-opacity)"), "--tw-ring-opacity": "1"}
+}
+
+var UringOffset = (p) => {
+  if (!isNaN(p[2])) return {"--tw-ring-offset-width": p[2] + "px"}
+  return {"--tw-ring-offset-color": Hcolor(Hargs(p, 2), "", true)}
+}
+
 const lookup = {
+  "ring-offset": UringOffset,
+  "ring-opacity": UcolorOpacity,
+  "ring": Uring,
   "shadow": UboxShadow,
   "z": Uzindex,
   "visible": Uvisibility,
@@ -405,7 +423,7 @@ const lookup = {
   "rotate": Urotate,
   "translate": Utranslate,
   "skew": Uskew,
-  "bg-opacity": UbackgroundOpacity,
+  "bg-opacity": UcolorOpacity,
   "bg-clip": UbackgroundClip,
   "bg-repeat": UbackgroundRepeat,
   "bg-gradient-to": UbackgroundGradient,
@@ -500,16 +518,21 @@ variants = (c, n) => {
 }
 
 escapeClass = (c) => {
-  return c.replace(":", "\\:")
+  return "." + c.replace(":", "\\:")
 }
 
 var ShadowClasses = []
+
+addShadowClass = (c) => {
+  c = escapeClass(c)
+  if (!ShadowClasses.includes(c)) ShadowClasses.push(c)
+}
 
 compile = (c) => {
   var node = {}
   var bc = variants(c, node)
   var parts = bc.split("-")
-  if (parts[0] == "shadow") ShadowClasses.push("." + escapeClass(c))
+  if (parts[0] == "shadow" || parts[0] == "ring") addShadowClass(c)
   var i = parts.length;
   while (i > 0) {
     var s = parts.slice(0, i)
@@ -555,7 +578,7 @@ insertStyles = () => {
   }
   for (const [key, value] of Object.entries(Rules)) {
     if (!value) continue;
-    s += "." + escapeClass(key)
+    s += escapeClass(key)
     if (value.pseudo) s += ":" + value.pseudo 
     s += " {"
     for (const [p, v] of Object.entries(value.props)) {
