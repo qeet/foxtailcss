@@ -495,8 +495,70 @@ var UplaceholderOpacity = (p, n) => {
   n.element = "placeholder"
   return UcolorOpacity(p, n)
 }
+var Ufilter = (p, n) => {
+  if (p.length == 1) return {"filter": "var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)"}
+  return {"filter": "none"}  
+}
+var UbackdropFilter = (p, n) => {
+  if (p.length == 2) return {"backdrop-filter": ""}
+  return {"backdrop-filter": "none"}  
+}
+const Lblur = {
+  "0": "0", "sm": "4px", "": "8px", "md": "12px", "lg": "16px",
+  "xl": "24px", "2xl": "40px","3xl": "64px"
+}
+var Ublur = (p) => {
+  var t = "", s = 1
+  if (p[0] =="backdrop") {t = "-backdrop"; s = 2}
+  return {["--tw" + t + "-blur"]: Lblur[p[s] ? p[s] : ""]}
+}
+var UfilterFloat = (p) => {
+  var t = "", s = 1
+  if (p[0] =="backdrop") {t = "-backdrop"; s = 2}
+  return {["--tw" + t + "-" +p[0]]: p[0] + "(" + Hfloat(p[s]) + ")"}
+}  
+const LdropShadow = {
+  "sm" : "(0 1px 1px rgba(0,0,0,0.05))",
+  "": "(0 1px 2px rgba(0, 0, 0, 0.1)) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.06))",
+  "md": "(0 4px 3px rgba(0, 0, 0, 0.07)) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.06))",
+  "lg": "(0 10px 8px rgba(0, 0, 0, 0.04)) drop-shadow(0 4px 3px rgba(0, 0, 0, 0.1))",
+  "xl": "(0 20px 13px rgba(0, 0, 0, 0.03)) drop-shadow(0 8px 5px rgba(0, 0, 0, 0.08))",
+  "2xl": "(0 25px 25px rgba(0, 0, 0, 0.15))",
+  "none": "(0 0 #0000)"
+}
+var UdropShadow = (p) => ({"--tw-drop-shadow": "drop-shadow" + LdropShadow[p[2] ? p[2] : ""]})  
+var UgrayscaleInvertSepia = (p) => {
+  var t = "", s = 1
+  if (p[0] =="backdrop") {t = "-backdrop"; s = 2}
+  return {["--tw" + t + "-" + p[0]]: p[0] + "(" + (p[s] ? "0" : "1") + ")"}
+} 
+var UhueRotate = (p) => {
+  var t = "", s = 2
+  if (p[0] =="backdrop") {t = "-backdrop"; s = 3}
+  return {["--tw" + t + "-hue-rotate"]: "hue-rotate("+p[s]+"deg)"}
+}   
 
 const lookup = {
+  "backdrop-opacity":UfilterFloat,
+  "sepia":UgrayscaleInvertSepia,
+  "backdrop-sepia":UgrayscaleInvertSepia,
+  "saturate": UfilterFloat,
+  "backdrop-saturate": UfilterFloat,
+  "invert":UgrayscaleInvertSepia,
+  "backdrop-invert":UgrayscaleInvertSepia,
+  "hue-rotate": UhueRotate,
+  "backdrop-hue-rotate": UhueRotate,
+  "grayscale":UgrayscaleInvertSepia,
+  "backdrop-grayscale":UgrayscaleInvertSepia,
+  "drop-shadow": UdropShadow,
+  "contrast": UfilterFloat,
+  "backdrop-contrast": UfilterFloat,
+  "brightness": UfilterFloat,
+  "backdrop-brightness": UfilterFloat,
+  "blur": Ublur,
+  "backdrop-blur": Ublur,
+  "backdrop-filter": UbackdropFilter,
+  "filter": Ufilter,
   "placeholder": UplaceholderColor,
   "placeholder-opacity": UplaceholderOpacity,
   "break": UwordBreak,
