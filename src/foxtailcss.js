@@ -407,8 +407,82 @@ var UborderWidth = (p) => {
   var s = LborderWidth[p[1]]
   return {["border-" + s + "-width"]: p[2] ? p[2] : "1" + "px" }
 }
+const Lanimation = {
+  "none": "none",
+  "spin": "spin 1s linear infinite",
+  "ping": "ping 1s cubic-bezier(0, 0, 0.2, 1) infinite",
+  "pulse": "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+  "bounce": "bounce 1s infinite"
+}
+var Uanimation = (p) => ({"animation": Lanimation[p[1]]})
+const LfontFamily = {
+  "sans": 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+  "serif": 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
+  "mono": 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace'
+}
+const LfontWeight = {
+  "thin": "100", "extralight": "200", "light": "300", "normal": "400",
+  "medium": "500", "semibold": "600", "bold": "700", "extrabold": "800", "black": "900"
+}
+var Ufont =(p) => {
+  var v = LfontFamily[p[1]]
+  if (v) return {"font-family": v}
+  return {"font-weight": LfontWeight[p[1]]}
+}
+var UfontSmoothing = (p) => {
+  var web = "antialiased", moz = "grayscale"
+  if (p[1]) web = "auto", moz = "auto"
+  return {"-webkit-font-smoothing": web, "-moz-osx-font-smoothing": moz}
+}
+var UfontStyle = (p) => {
+  var v = "italic"
+  if (p[1]) v = "normal"
+  return {"font-style": v}
+}
+var UfontVariantNumeric = (p) => ({"font-variant-numeric": Hargs(p,0)}) 
+
+const LletterSpacing = {
+  "tighter": "-0.05", "tight": "-0.025", "normal": "0",
+  "wide": "0.025", "wider": "0.05", "widest": "0.1"
+}
+var UletterSpacing = (p) => ({"letter-spacing": LletterSpacing[p[1]] + "em"}) 
+
+const llineHeight = {
+  "3": ".75rem", "4": "1rem", "5": "1.25rem", "6": "1.5rem", "7": "1.75rem", "8": "2rem",
+  "9": "2.25rem", "10": "2.5rem", "none": "1", "tight": "1.25", "snug": "1.375",
+  "normal": "1.5", "relaxed": "1.625", "loose": "2"
+}
+var UlineHeight = (p) => ({"line-height": llineHeight[p[1]]})
+
+const LfontSize = {
+  "xs": ["0.75", "1rem"], "sm": ["0.875", "1.25rem"], "base": ["1", "1.5rem"],
+  "lg": ["1.125", "1.75rem"], "xl": ["1.25", "1.75rem"], "2xl": ["1.5", "2rem"],
+  "3xl": ["1.875", "2.25rem"], "4xl": ["2.25", "2.5rem"], "5xl": ["3", "1"],
+  "6xl": ["3.75", "1"], "7xl": ["4.5", "1"], "8xl": ["6", "1"],"9xl": ["8", "1"]
+}
+var Utext = (p) => {
+  return {"font-size": LfontSize[p[1]][0]+"rem", "line-height": LfontSize[p[1]][1]}
+}
 
 const lookup = {
+  "text": Utext,
+  "leading": UlineHeight,
+  "tracking": UletterSpacing,
+  "normal-nums": UfontVariantNumeric,
+  "ordinal": UfontVariantNumeric,
+  "slashed-zero": UfontVariantNumeric, 
+  "lining-nums": UfontVariantNumeric,
+  "oldstyle-nums": UfontVariantNumeric, 
+  "proportional-nums": UfontVariantNumeric,
+  "tabular-nums": UfontVariantNumeric, 
+  "diagonal-fractions": UfontVariantNumeric, 
+  "stacked-fractions": UfontVariantNumeric,
+  "italic": UfontStyle,
+  "not-italic": UfontStyle,
+  "antialiased": UfontSmoothing,
+  "subpixel-antialiased": UfontSmoothing,
+  "font": Ufont,
+  "animation": Uanimation,
   "border-t": UborderWidth,
   "border-r": UborderWidth,
   "border-b": UborderWidth,
@@ -596,6 +670,14 @@ insertBaseStyles = () => {
   var style = document.createElement("style");
   document.head.append(style);
   style.textContent = `
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+@keyframes bounce { 0%, 100% { transform: translateY(-25%); animationTimingFunction: cubic-bezier(0.8, 0, 1, 1); }
+  50% { transform: translateY(0); animationTimingFunction: cubic-bezier(0, 0, 0.2, 1); } }
+
+*, ::after, ::before { border: 0 solid #e5e7eb; }
+
 * {
 --tw-shadow: 0 0 transparent;
 --tw-ring-inset: var(--tw-empty,/*!*/ /*!*/);
