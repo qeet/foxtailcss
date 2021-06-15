@@ -543,9 +543,22 @@ var UhueRotate = (p) => {
   var t = "", s = 2
   if (p[0] =="backdrop") {t = "-backdrop"; s = 3}
   return {["--tw" + t + "-hue-rotate"]: "hue-rotate("+p[s]+"deg)"}
-}   
+}
+var UfillStroke = (p) => ({[p[0]]: "currentColor"})  
+var UstrokeWidth = (p) => ({"stroke-width": p[1]}) 
+var UscreenReaders = (p) => {
+  if (p[0] == "sr") return {"position": "absolute", "width": "1px", "height": "1px", "padding": "0",
+  "margin": "-1px", "overflow": "hidden", "clip": "rect(0, 0, 0, 0)", "white-space": "nowrap", "border-width": "0"}
+  return {"position": "static", "width": "auto", "height": "auto", "padding": "0", "margin": "0",
+  "overflow": "visible", "clip": "auto", "white-space": "normal"}
+}
 
 const lookup = {
+  "sr-only": UscreenReaders,
+  "not-sr-only": UscreenReaders,
+  "stroke": UstrokeWidth,
+  "stroke-current": UfillStroke,
+  "fill-current": UfillStroke,
   "backdrop-opacity":UfilterFloat,
   "sepia":UgrayscaleInvertSepia,
   "backdrop-sepia":UgrayscaleInvertSepia,
