@@ -353,7 +353,20 @@ var Uvisibility = (p) => ({"visibility": p[0] == "visible" ? p[0] : "hidden"})
 
 var Uzindex = (p) => ({"z-index": p[1]})
 
+LboxShadow = {
+  "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+  "": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+  "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+  "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+  "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+  "2xl": "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+  "inner": "inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)",
+  "none": "0 0 #0000"
+}
+var UboxShadow = (p) => ({"--tw-shadow": LboxShadow[p[1] ? p[1] : ""]})
+
 const lookup = {
+  "shadow": UboxShadow,
   "z": Uzindex,
   "visible": Uvisibility,
   "invisible": Uvisibility,
@@ -486,10 +499,17 @@ variants = (c, n) => {
   return parts[parts.length-1]
 }
 
+escapeClass = (c) => {
+  return c.replace(":", "\\:")
+}
+
+var ShadowClasses = []
+
 compile = (c) => {
   var node = {}
-  c = variants(c, node)
-  var parts = c.split("-")
+  var bc = variants(c, node)
+  var parts = bc.split("-")
+  if (parts[0] == "shadow") ShadowClasses.push("." + escapeClass(c))
   var i = parts.length;
   while (i > 0) {
     var s = parts.slice(0, i)
@@ -513,11 +533,29 @@ addClass = (c) => {
   }
 }
 
+insertBaseStyles = () => {
+  var style = document.createElement("style");
+  document.head.append(style);
+  style.textContent = `
+* {
+--tw-shadow: 0 0 transparent;
+--tw-ring-inset: var(--tw-empty,/*!*/ /*!*/);
+--tw-ring-offset-width: 0px;
+--tw-ring-offset-color: #fff;
+--tw-ring-color: rgba(59,130,246,0.5);
+--tw-ring-offset-shadow: 0 0 transparent;
+--tw-ring-shadow: 0 0 transparent;
+}`;
+}
+
 insertStyles = () => {
   var s = ""
+  if (ShadowClasses.length > 0) {
+    s += ShadowClasses.join(",") + "{box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);}"
+  }
   for (const [key, value] of Object.entries(Rules)) {
     if (!value) continue;
-    s += "." + key.replace(":", "\\:")
+    s += "." + escapeClass(key)
     if (value.pseudo) s += ":" + value.pseudo 
     s += " {"
     for (const [p, v] of Object.entries(value.props)) {
@@ -553,6 +591,7 @@ compilePage = () => {
 
   console.log(Hcolor("blue-100"))
 
+  insertBaseStyles()
   insertStyles()
 
   console.log(`Processed ${total} classes`);
