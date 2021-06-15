@@ -1,6 +1,8 @@
 console.log("Hello From Foxtail")
 
-
+const Lscreens = {
+  "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px"
+}
 const Lcolor = {
   'blue': 'EFF6FFDBEAFEBFDBFE93C5FD60A5FA3B82F62563EB1D4ED81E40AF1E3A8A' 
 }
@@ -209,7 +211,7 @@ var UmarginL = (p, n) => ({"margin-left":Hspacing(p[1])})
 var UmarginR = (p, n) => ({"margin-right":Hspacing(p[1])})
 
 const LwidthHeight = {
-  "screen": "100vw",
+  "screen": "100vh",
   "min": "min-content",
   "max": "max-content",
 }
@@ -217,8 +219,35 @@ var UwidthHeight = (p, n) => {
   var prop = p[0] == "w" ? "width" : "height" 
   var r = HspacingPercent(p[1])
   if (!r) r = LwidthHeight[p[1]]
-  if (p[0] = "h" && p[1] == "screen") r = "100vh"
+  if (p[0] = "w" && p[1] == "screen") r = "100vw"
   return {[prop]: r}
+}
+var UminWdithHeight = (p) => {
+  var prop = p[1] == "w" ? "min-width" : "min-height" 
+  var r = HspacingPercent(p[2])
+  if (!r) r = LwidthHeight[p[2]]
+  return {[prop]: r}
+}
+const LmaxWidth = {
+  "0":"0", "xs":"20", "sm":"24", "md":"28", "lg":"32", "xl":"36", "2xl":"42",
+  "3xl":"48", "4xl":"56", "5xl":"64", "6xl":"72", "7xl":"80"
+}
+var UmaxWidth = (p) => {
+  var s = p[2]
+  var v = LmaxWidth[s]
+  if (v) v += "rem"
+  else if (s == "none") v = "none"
+  else if (s == "prose") v = "65ch"
+  else {
+    v = LwidthHeight[s]
+    if (!v) v = Lscreens[s]
+  }
+  return {"max-width": v}
+}
+var UmaxHeight = (p) => { 
+  var r = HspacingPercent(p[2])
+  if (!r) r = LwidthHeight[p[2]]
+  return {"max-height": r}
 }
 
 var Uappearance = (p) => ({[p0]: p1})
@@ -281,15 +310,26 @@ const Ltransition = {
 var Utransition = (p) => ({"transition-property": Ltransition[p[1] ? p[1] : ""], 
 "transition-timing-function": "cubic-bezier(0.4, 0, 0.2, 1)","transition-duration": "150ms"})
 var UdelayDuration = (p) => ({["transition-" + p[0]]: p[1] + "ms"})
-const Lease = {
-  "linear": "linear",
-  "in": "cubic-bezier(0.4, 0, 1, 1)",
-  "out": "cubic-bezier(0, 0, 0.2, 1)",
-  "in-out": "cubic-bezier(0.4, 0, 0.2, 1)"
+const Lease = { "linear": "linear", "in": "cubic-bezier(0.4, 0, 1, 1)",
+  "out": "cubic-bezier(0, 0, 0.2, 1)", "in-out": "cubic-bezier(0.4, 0, 0.2, 1)"
 }
 var Uease = (p) => ({"transition-timing-function": Lease[p[1]]})
 
+var UborderCollapse = (p) => ({"border-collapse": p[1]})
+
+var UblendMode = (p) => {
+  if (p[0] == "bg") p[0] = "background" 
+  return {[p[0]+"-blend-mode"]: Hargs(p, 2)}
+}
+
+var Uopacity = (p) =>  ({"opacity":Hfloat(p[2])})
+
 const lookup = {
+  "opacity": Uopacity,
+  "mix-blend": UblendMode,
+  "bg-blend": UblendMode,
+  "border-collapse": UborderCollapse,
+  "border-separate": UborderCollapse,
   "transition": Utransition,
   "duration": UdelayDuration,
   "delay": UdelayDuration,
@@ -379,6 +419,10 @@ const lookup = {
   "pr": UpaddingR,
   "h": UwidthHeight,
   "w": UwidthHeight,
+  "min-w": UminWdithHeight,
+  "min-h": UminWdithHeight,
+  "max-w": UmaxWidth,
+  "max-h": UmaxHeight,
 
   "static": Uposition,
   "fixed": Uposition,
