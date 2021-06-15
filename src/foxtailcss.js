@@ -269,7 +269,31 @@ var Urotate = (p) => ({"--tw-rotate": p[1] + "deg"})
 var Utranslate = (p) => ({["--tw-translate-"+p[1]]: HspacingPercent(p[2])})
 var Uskew = (p) => ({["--tw-skew-"+p[1]]: p[2] + "deg"})
 
+const Ltransition = {
+  "none": "none",
+  "all": "all",
+  "": "background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter",
+  "colors": "background-color, border-color, color, fill, stroke",
+  "opacity": "opacity",
+  "shadow" : "box-shadow",
+  "transform": "transform",
+}
+var Utransition = (p) => ({"transition-property": Ltransition[p[1] ? p[1] : ""], 
+"transition-timing-function": "cubic-bezier(0.4, 0, 0.2, 1)","transition-duration": "150ms"})
+var UdelayDuration = (p) => ({["transition-" + p[0]]: p[1] + "ms"})
+const Lease = {
+  "linear": "linear",
+  "in": "cubic-bezier(0.4, 0, 1, 1)",
+  "out": "cubic-bezier(0, 0, 0.2, 1)",
+  "in-out": "cubic-bezier(0.4, 0, 0.2, 1)"
+}
+var Uease = (p) => ({"transition-timing-function": Lease[p[1]]})
+
 const lookup = {
+  "transition": Utransition,
+  "duration": UdelayDuration,
+  "delay": UdelayDuration,
+  "ease": Uease,
   "appearance-none": Uappearance,
   "cursor": Ucursor,
   "outline": Uoutline,
