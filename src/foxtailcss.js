@@ -21,6 +21,12 @@ var Hcolor = (v, o, h) => {
     return "rgba(" + Hcomp(s, 0) + Hcomp(s, 2) + Hcomp(s, 4) + o + ")"
   }
 }
+var HisColor = (v) => Lcolor[v] || v == "black" || v == "white" || v == "transparent" || v == "current"
+var HcolorUtil = (col, prop, name) => {
+  if (col == "transparent") return {[prop]:"transparent"}
+  if (col == "current") return {[prop]: "currentColor"}
+  return {[prop]: Hcolor(col, "var(--tw-" + name + "-opacity)"), ["--tw-"+ name +"-opacity"]: "1"}
+}  
 
 var Hpercent = (v) => {
   if (v == "full") return "100%"
@@ -63,10 +69,7 @@ var Ubackground = (p, n) => {
   if (LbackgroundAttachment.includes(p1)) return {"background-attachment": p1}
   if (LbackgroundPosition.includes(p1)) return {"background-position": Hargs(p, 1, ' ')}
   if (LbackgroundSize.includes(p1)) return {"background-size": p1}
-  var bc = "background-color"
-  if (p1 == "transparent") return {[bc]:"transparent"}
-  if (p1 == "current") return {[bc]: "currentColor"}
-  return {[bc]:Hcolor(Hargs(p, 1), "var(--tw-bg-opacity)"), "--tw-bg-opacity": "1"}
+  return HcolorUtil(Hargs(p, 1), "background-color", "bg")
 }
 var UcolorOpacity = (p, n) =>  ({["--tw-" + p[0] + "-opacity"]:Hfloat(p[2])})
 
@@ -367,20 +370,53 @@ var UboxShadow = (p) => ({"--tw-shadow": LboxShadow[p[1] ? p[1] : ""]})
 
 var Uring = (p) => {
   if (p[1] == "inset") return {"--tw-ring-inset": "inset"}
-  if (p.length == 1 || !isNaN(p[1])) {
+  if (!HisColor(p[1])) {
     var v = p[1] ? p[1] : "3"
     return {"--tw-ring-shadow": "var(--tw-ring-inset) 0 0 0 calc(" + v + "px + var(--tw-ring-offset-width)) var(--tw-ring-color)",
     "--tw-ring-offset-shadow": "var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)"}
   }
-  return {"--tw-ring-color": Hcolor(Hargs(p, 1), "var(--tw-ring-opacity)"), "--tw-ring-opacity": "1"}
+  return HcolorUtil(Hargs(p, 1), "--tw-ring-color", "ring")
 }
 
 var UringOffset = (p) => {
-  if (!isNaN(p[2])) return {"--tw-ring-offset-width": p[2] + "px"}
+  if (!HisColor(p[2])) return {"--tw-ring-offset-width": p[2] + "px"}
   return {"--tw-ring-offset-color": Hcolor(Hargs(p, 2), "", true)}
+}
+const LborderRadius = {
+  "0": "0px", "sm": "0.125rem", "": "0.25rem", "md": "0.375rem", "lg": " 0.5rem",
+  "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px"
+}
+var UborderRadius = (p) => {
+  v = LborderRadius[p[1] ? p[1] : ""]
+  if (v) return {"border-radius": v}
+  v = LborderRadius[p[2] ? p[2] : ""] 
+  var d = p[1], props = {}
+  if (d == "t" || d == "l" || d == "tl") props["border-top-left-radius"] = v
+  if (d == "t" || d == "r" || d == "tr") props["border-top-right-radius"] = v
+  if (d == "r" || d == "b" || d == "br") props["border-bottom-right-radius"] = v
+  if (d == "b" || d == "l" || d == "bl") props["border-bottom-left-radius"] = v  
+  return props
+}
+var Uborder = (p) => {
+  if (HisColor(p[1]))  return HcolorUtil(Hargs(p, 1), "border-color", "border")
+  if (!p[1] || !isNaN(p[1])) return {"border-width": p[1] ? p[1] : "1" + "px"}
+  return {"border-style": p[1]}
+}
+const LborderWidth = { "t": "top", "r": "right", "b": "bottom", "l": "left" }
+var UborderWidth = (p) => {
+  var s = LborderWidth[p[1]]
+  return {["border-" + s + "-width"]: p[2] ? p[2] : "1" + "px" }
 }
 
 const lookup = {
+  "border-t": UborderWidth,
+  "border-r": UborderWidth,
+  "border-b": UborderWidth,
+  "border-l": UborderWidth,
+  "border": Uborder,
+  "rounded": UborderRadius,
+  "border-opacity": UcolorOpacity,
+  "text-opacity": UcolorOpacity,
   "ring-offset": UringOffset,
   "ring-opacity": UcolorOpacity,
   "ring": Uring,
