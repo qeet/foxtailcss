@@ -141,6 +141,49 @@ var UgridStartEnd = (p, n) => {
   if (p[0] == "col") p[0] = "column"
   return {["grid-" + p[0] + "-" + p[1]]: p[2]}
 }
+var UgridAutoFlow= (p, n) => {
+  if (p[2] == "col") p[2] = "column"
+  return {"grid-auto-flow": Hargs(p, 2, ' ')}
+}
+const LgridAuto = {
+  "auto": "auto", "min": "min-content", "max": "max-content", "fr": "minmax(0, 1fr)"
+}
+var UgridAuto = (p, n) => {
+  if (p[1] == "cols") p[1] = "columns"
+  return {["grid-auto-" + p[1]]: LgridAuto[p[2]]}
+}
+var Ugap = (p, n) => {
+  var v, prop
+  if (p.length == 2) {
+    prop = "gap"
+    v = Hspacing(p[1])
+  }
+  else {
+    v = Hspacing(p[2])
+    prop = p[1] == "x" ? "column-gap" : "row-gap"
+  }
+  return {[prop]: v}
+}
+const LflexContent = {
+  "center": "center", "start": "start", "end": "end", "between": "space-between",
+  "around":  "space-around", "evenly":  "space-evenly", "stretch": "stretch"
+}
+var UflexContent = (p, n) => {
+  var prop = "align-content", s=1
+  if (p[0] == "justify") prop = "justify-content"
+  else if (p[0] == "place") {
+    prop = "place-content"
+    s = 2
+  }
+  return {[prop]: LflexContent[p[s]]}
+}
+var UjustifyPlaceSelfItems = (p, n) => ({[p[0] + "-" + p[1]]: p[2]})
+var UalignSelfItems = (p, n) => {
+  var v = p[1]
+  if (p[1] == "start") v = "flex-start"
+  else if (p[1] == "end") v = "flex-end"
+  return {["align-"+p[0]]: v}
+}
 
 var Utable = (p, n) => {
   if (p[1] == "auto" || p[1] == "fixed") return {"table-layout": p[1]}
@@ -252,8 +295,10 @@ const lookup = {
   "flex": Udisplay,
   "flow-root": Udisplay,
   "grid": Udisplay,
+  "auto": UgridAuto,
   "grid-cols": UgridTemplate,
   "grid-rows":UgridTemplate,
+  "grid-flow": UgridAutoFlow,
   "col-span": UgridSpan,
   "row-span": UgridSpan,
   "col-auto": UgridSpan,
@@ -262,7 +307,17 @@ const lookup = {
   "col-end": UgridStartEnd,
   "row-start": UgridStartEnd,
   "row-end": UgridStartEnd,
+  "gap": Ugap,
+  "justify": UflexContent,
+  "content": UflexContent,
+  "place-content": UflexContent,
   "contents": Udisplay,
+  "justify-items": UjustifyPlaceSelfItems,
+  "place-items": UjustifyPlaceSelfItems,
+  "justify-self": UjustifyPlaceSelfItems,
+  "place-self": UjustifyPlaceSelfItems,
+  "align-items": UalignSelfItems,
+  "align-self": UalignSelfItems,
   "list-item": Udisplay,
   "hidden": Udisplay,
   "table": Utable,
