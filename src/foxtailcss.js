@@ -461,10 +461,58 @@ const LfontSize = {
   "6xl": ["3.75", "1"], "7xl": ["4.5", "1"], "8xl": ["6", "1"],"9xl": ["8", "1"]
 }
 var Utext = (p) => {
-  return {"font-size": LfontSize[p[1]][0]+"rem", "line-height": LfontSize[p[1]][1]}
+  if (HisColor(p[1])) return HcolorUtil(Hargs(p, 1), "color", "text")
+  var v = LfontSize[p[1]]
+  if (v) return {"font-size": v[0]+"rem", "line-height": v[1]}
+  return {"text-align": p[1]}
+}
+var UlistTypePosition = (p) => {
+  if (p[1] =="inside" || p[1] == "outside") return {"list-style-position": p[1]}
+  return {"list-style-type": p[1]}
+}
+
+var UtextDecoration = (p) => ({"text-decoration":  p[0] =="no" ? "none" : Hargs(p, 0)})
+var UtextTransform = (p) => ({"text-transform":  p[0] =="normal" ? "none" : p[0]})
+var UtextOverflow = (p) => {
+  var prop = "text-overflow"
+  if (p[0] == "truncate") return {"overflow": "hidden", [prop]: "ellipsis", "white-space": "nowrap"}
+  if (p[1] == "clip") return {[prop]: "clip"}
+  return {[prop]: "ellipsis"}
+}
+var UverticalAlign = (p) => ({"vertical-align": Hargs(p, 1)})
+var Uwhitespace = (p) => ({"white-space": Hargs(p, 1)})
+var UwordBreak = (p) => {
+  var prop = "word-break"
+  if (p[1] == "normal") return {"overflow-wrap": "normal", [prop]: "normal"}
+  if (p[1] == "words") return {[prop]: "break-word"}
+  return {[prop]: "break-all"}
+}
+var UplaceholderColor = (p, n) => {
+  n.element = "placeholder"
+  return HcolorUtil(Hargs(p, 1), "color", "placeholder")
+}
+var UplaceholderOpacity = (p, n) => {
+  n.element = "placeholder"
+  return UcolorOpacity(p, n)
 }
 
 const lookup = {
+  "placeholder": UplaceholderColor,
+  "placeholder-opacity": UplaceholderOpacity,
+  "break": UwordBreak,
+  "whitespace": Uwhitespace,
+  "align": UverticalAlign,
+  "truncate": UtextOverflow,
+  "overflow-ellipsis": UtextOverflow,
+  "overflow-clip": UtextOverflow,
+  "uppercase": UtextTransform,
+  "lowercase": UtextTransform,
+  "capitalize": UtextTransform, 
+  "normal-case": UtextTransform,
+  "underline": UtextDecoration,
+  "line-through": UtextDecoration,
+  "no-underline": UtextDecoration,
+  "list": UlistTypePosition,
   "text": Utext,
   "leading": UlineHeight,
   "tracking": UletterSpacing,
@@ -649,7 +697,7 @@ compile = (c) => {
     s = s.join("-")
     var fn = lookup[s]
     if (fn) {
-     node.props = fn(parts);
+     node.props = fn(parts, node);
      return node
     }
     i--;
@@ -697,7 +745,8 @@ insertStyles = () => {
   for (const [key, value] of Object.entries(Rules)) {
     if (!value) continue;
     s += escapeClass(key)
-    if (value.pseudo) s += ":" + value.pseudo 
+    if (value.pseudo) s += ":" + value.pseudo
+    if (value.element) s += "::" + value.element  
     s += " {"
     for (const [p, v] of Object.entries(value.props)) {
       s += p + ":" + v + ";"
