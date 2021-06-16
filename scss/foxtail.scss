@@ -1,7 +1,4 @@
 @charset "utf-8";
 
-@import "defaults";
-@import "includes/mixins";
-@import "colors/tailwind";
-
-@import "utilities/all";
+@import "base/all";
+@import "components/all";
