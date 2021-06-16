@@ -1,0 +1,54 @@
+// Name:            Dropdown
+// Description:     Component to create dropdown menus
+//
+// Component:       `uk-dropdown`
+//
+// Adopted:         `uk-dropdown-nav`
+//
+// Modifiers:       `uk-dropdown-top-*`
+//                  `uk-dropdown-bottom-*`
+//                  `uk-dropdown-left-*`
+//                  `uk-dropdown-right-*`
+//                  `uk-dropdown-stack`
+//                  `uk-dropdown-grid`
+//
+// States:          `uk-active`
+//
+// ========================================================================
+
+
+// Variables
+// ========================================================================
+
+$dropdown-z-index:                              $global-z-index + 20 !default;
+$dropdown-width:                                200px !default;
+$dropdown-margin:                               10px !default;
+
+/* ========================================================================
+   Component: Dropdown
+ ========================================================================== */
+
+/*
+ * 1. Hide by default
+ * 2. Set position
+ * 3. Set a default width
+ */
+
+.uk-dropdown {
+    /* 1 */
+    display: none;
+    /* 2 */
+    position: absolute;
+    z-index: $dropdown-z-index;
+    /* 3 */
+    width: $dropdown-width;
+    background-color: #FFFFFF;
+}
+
+/* Show */
+.uk-dropdown.uk-open { display: block; }
+
+[class*='uk-dropdown-top'] { margin-top: (-$dropdown-margin); }
+[class*='uk-dropdown-bottom'] { margin-top: $dropdown-margin; }
+[class*='uk-dropdown-left'] { margin-left: (-$dropdown-margin); }
+[class*='uk-dropdown-right'] { margin-left: $dropdown-margin; }
