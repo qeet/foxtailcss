@@ -1,19 +1,44 @@
 'use strict';
 
+/*
+ * Lookups
+ */
+const L_screens = { "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px" };
+
 const L_objectFit = [ "contain", "cover", "fill", "none", "scale" ];
 
+
+
+/* 
+ * Utilities
+ */
 var U_boxDecorationBreak = (p) => ({"box-decoration-break": p[1], "-webkit-box-decoration-break": p[1]});
+
 var U_boxSizing = (p) => ({"box-sizing": p[1]+"-box"});
-var U_display = (p, n) => ({display: p[0] == "hidden" ? "none" : Hargs(p, 0)});
+
+var U_display = (p) => ({display: p[0] == "hidden" ? "none" : Hargs(p, 0)});
+
+var U_visibility = (p) => ({visibility: p[0] == "visible" ? p[0] : "hidden"});
+
+var U_position = (p) => ({position: p[0]});
+
+var U_zindex = (p) => ({"z-index": p[1]});
+
 var U_clearFloat = (p) => ({[p[0]]: p[1]});
+
 var U_isolation = (p) => ({isolation: p[1] ? "auto" : "isolate"});
+
 var U_objectFitPosition = (p) => {
   if (L_objectFit.includes(p[1]))  return {"object-fit": Hargs(p, 1)}
   return {"object-position": Hargs(p, 1, " ")}
 };
-const Lscreens = {
-  "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px"
+
+var U_overScrollFlow = (p) => {
+  var n = p[0] == "overflow" ? p[0] : p[0] + "-behavior";
+  if (p.length == 2) return {[n]: p[1]}
+  return {[n + "-" + p[1]]: p[2]}  
 };
+
 const Lcolor = {
   'gray':   'F9FAFBF3F4F6E5E7EBD1D5DB9CA3AF6B72804B55633741511F2937111827',
   'red':    'FEF2F2FEE2E2FECACAFCA5A5F87171EF4444DC2626B91C1C991B1B7F1D1D',
@@ -22,8 +47,9 @@ const Lcolor = {
   'blue':   'EFF6FFDBEAFEBFDBFE93C5FD60A5FA3B82F62563EB1D4ED81E40AF1E3A8A',
   'indigo': 'EEF2FFE0E7FFC7D2FEA5B4FC818CF86366F14F46E54338CA3730A3312E81',
   'purple': 'F5F3FFEDE9FEDDD6FEC4B5FDA78BFA8B5CF67C3AED6D28D95B21B64C1D95',
-  'pink':   'FDF2F8FCE7F3FBCFE8F9A8D4F472B6EC4899DB2777DB27779D174D831843'  
+  'pink':   'FDF2F8FCE7F3FBCFE8F9A8D4F472B6EC4899DB2777DB27779D174D831843',
 };
+
 var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";   
 var Hcolor = (v, o, h) => {
   if (!o) o = 1;
@@ -214,7 +240,7 @@ var Utable = (p, n) => {
   return {"display":Hargs(p, 0)}
 };
 
-var Uposition = (p, n) => ({"position":p[0]});
+
 
 var Upadding = (p, n) => ({"padding":Hspacing(p[1])});
 var UpaddingX = (p, n) => ({"padding-left":Hspacing(p[1]), "padding-right":Hspacing(p[1])});
@@ -262,7 +288,7 @@ var UmaxWidth = (p) => {
   else if (s == "prose") v = "65ch";
   else {
     v = LwidthHeight[s];
-    if (!v) v = Lscreens[s];
+    if (!v) v = L_screens[s];
   }
   return {"max-width": v}
 };
@@ -346,17 +372,6 @@ var UblendMode = (p) => {
 
 var Uopacity = (p) =>  ({"opacity":Hfloat(p[2])});
 
-
-
-
-var Uoverflow = (p) => {
-  if (p.length == 2) return {"overflow": p[1]}
-  return {["overflow-"+p[1]]: p[2]}  
-};
-var Uoverscroll = (p) => {
-  if (p.length == 2) return {"overscroll-behavior": p[1]}
-  return {["overscroll-behavior-"+p[1]]: p[2]}  
-};
 var Uinset = (p) => {
   var v = p.length == 2 ? HspacingPercent(p[1]) : HspacingPercent(p[2]);
   if (p.length == 2) return {"top": v, "bottom": v, "right": v, "left": v}
@@ -365,9 +380,9 @@ var Uinset = (p) => {
 };
 var UtopRightBottomLeft = (p) => ({[p[0]]: HspacingPercent(p[1])}); 
 
-var Uvisibility = (p) => ({"visibility": p[0] == "visible" ? p[0] : "hidden"});
 
-var Uzindex = (p) => ({"z-index": p[1]});
+
+
 
 const LboxShadow = {
   "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
@@ -562,21 +577,31 @@ var UscreenReaders = (p) => {
 };
 
 const lookup = {
-  block: U_display,
-  box: U_boxSizing,
-  clear: U_clearFloat,
-  contents: U_display,
-  decoration: U_boxDecorationBreak,
-  flex: U_display,
-  float: U_clearFloat,
-  "flow-root": U_display,
-  grid: U_display,
-  hidden: U_display,
-  isolate: U_isolation,
-  isolation: U_isolation,
-  "list-item": U_display,
-  object: U_objectFitPosition,
-
+  absolute:     U_position,
+  block:        U_display,
+  box:          U_boxSizing,
+  clear:        U_clearFloat,
+  contents:     U_display,
+  decoration:   U_boxDecorationBreak,
+  fixed:        U_position,
+  flex:         U_display,
+  float:        U_clearFloat,
+  "flow-root":  U_display,
+  grid:         U_display,
+  hidden:       U_display,
+  invisible:    U_visibility,
+  isolate:      U_isolation,
+  isolation:    U_isolation,
+  "list-item":  U_display,
+  object:       U_objectFitPosition,
+  relative:     U_position,
+  static:       U_position,
+  sticky:       U_position,
+  overflow:     U_overScrollFlow,
+  overscroll:   U_overScrollFlow,
+  visible:      U_visibility,
+  z:            U_zindex,  
+  
 
 
   "sr-only": UscreenReaders,
@@ -650,16 +675,15 @@ const lookup = {
   "ring-opacity": UcolorOpacity,
   "ring": Uring,
   "shadow": UboxShadow,
-  "z": Uzindex,
-  "visible": Uvisibility,
-  "invisible": Uvisibility,
+
+ 
   "top": UtopRightBottomLeft,
   "bottom": UtopRightBottomLeft,
   "right": UtopRightBottomLeft,
   "left": UtopRightBottomLeft,
   "inset": Uinset,
-  "overscroll": Uoverscroll,
-  "overflow": Uoverflow,
+  
+  
  
 
  
@@ -759,11 +783,7 @@ const lookup = {
   "max-w": UmaxWidth,
   "max-h": UmaxHeight,
 
-  "static": Uposition,
-  "fixed": Uposition,
-  "absolute": Uposition,
-  "relative": Uposition,
-  "sticky": Uposition,
+ 
 };
 
 var variants = (c, n) => {
@@ -849,6 +869,40 @@ var tests = [
   ["object-right-bottom", {"object-position": "right bottom"}],
   ["object-right-top", {"object-position": "right top"}],
   ["object-top", {"object-position": "top"}],
+  ["overflow-auto", {"overflow": "auto"}],
+  ["overflow-hidden", {"overflow": "hidden"}],
+  ["overflow-visible",  {"overflow": "visible"}],
+  ["overflow-scroll", {"overflow": "scroll"}],
+  ["overflow-x-auto", {"overflow-x": "auto"}],
+  ["overflow-y-auto", {"overflow-y": "auto"}],
+  ["overflow-x-hidden", {"overflow-x": "hidden"}],
+  ["overflow-y-hidden", {"overflow-y": "hidden"}],
+  ["overflow-x-visible", {"overflow-x": "visible"}],
+  ["overflow-y-visible", {"overflow-y": "visible"}],
+  ["overflow-x-scroll", {"overflow-x": "scroll"}],
+  ["overflow-y-scroll", {"overflow-y": "scroll"}],
+  ["overscroll-auto", {"overscroll-behavior": "auto"}],
+  ["overscroll-contain", {"overscroll-behavior": "contain"}],
+  ["overscroll-none", {"overscroll-behavior": "none"}],
+  ["overscroll-y-auto", {"overscroll-behavior-y": "auto"}],
+  ["overscroll-y-contain", {"overscroll-behavior-y": "contain"}],
+  ["overscroll-y-none", {"overscroll-behavior-y": "none"}],
+  ["overscroll-x-auto", {"overscroll-behavior-x": "auto"}],
+  ["overscroll-x-contain", {"overscroll-behavior-x": "contain"}],
+  ["overscroll-x-none", {"overscroll-behavior-x": "none"}],
+  ["static", {"position": "static"}],
+  ["fixed", {"position": "fixed"}],
+  ["absolute", {"position": "absolute"}],
+  ["relative", {"position": "relative"}],
+  ["sticky",  {"position": "sticky"}],
+  ["visible", {"visibility": "visible"}],
+  ["invisible", {"visibility": "hidden"}],
+  ["z-0", {"z-index": "0"}],
+  ["z-10",  {"z-index": "10"}],
+  ["z-auto",  {"z-index": "auto"}],
+  ["z-1000",  {"z-index": "1000"}],
+  ["inset-0", {"top": "0", "right": "0", "bottom": "0", "left": "0"}],
+  ["inset-px", {"top": "1px", "right": "1px", "bottom": "1px", "left": "1px"}],
   ["xxxx", false],
 ];
 

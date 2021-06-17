@@ -23,8 +23,9 @@
     'blue':   'EFF6FFDBEAFEBFDBFE93C5FD60A5FA3B82F62563EB1D4ED81E40AF1E3A8A',
     'indigo': 'EEF2FFE0E7FFC7D2FEA5B4FC818CF86366F14F46E54338CA3730A3312E81',
     'purple': 'F5F3FFEDE9FEDDD6FEC4B5FDA78BFA8B5CF67C3AED6D28D95B21B64C1D95',
-    'pink':   'FDF2F8FCE7F3FBCFE8F9A8D4F472B6EC4899DB2777DB27779D174D831843'  
+    'pink':   'FDF2F8FCE7F3FBCFE8F9A8D4F472B6EC4899DB2777DB27779D174D831843',
   };
+
   var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";   
   var Hcolor = (v, o, h) => {
     if (!o) o = 1;
@@ -876,7 +877,6 @@
     insertStyles();
 
     els = document.getElementsByClassName("fx-cloak");
-    console.log(els);
     var i = 0, len = els.length;
     while (i < len) {
       els[i].classList.remove("fx-cloak");
