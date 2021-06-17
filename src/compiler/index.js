@@ -1,6 +1,7 @@
 
 var U_boxDecorationBreak = (p) => ({"box-decoration-break": p[1], "-webkit-box-decoration-break": p[1]})
 var U_boxSizing = (p) => ({"box-sizing": p[1]+"-box"})
+var U_display = (p, n) => ({"display": p[0] == "hidden" ? "none" : Hargs(p, 0)})
 
 const Lscreens = {
   "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px"
@@ -108,7 +109,8 @@ const LbackgroundClip = {
 }
 var UbackgroundClip = (p, n) => ({"background-clip":LbackgroundClip[p[2]]})
 
-var Udisplay = (p, n) => ({"display":Hargs(p, 0)})
+
+
 var Uinline = (p, n) => ({"display":Hargs(p, 0)})
 
 const Lflex = {
@@ -556,9 +558,15 @@ var UscreenReaders = (p) => {
 }
 
 const lookup = {
-  "decoration": U_boxDecorationBreak,
+  "block": U_display,
   "box": U_boxSizing,
-
+  "contents": U_display,
+  "decoration": U_boxDecorationBreak,
+  "flex": U_display,
+  "flow-root": U_display,
+  "grid": U_display,
+  "hidden": U_display,
+  "list-item": U_display,
 
 
   "sr-only": UscreenReaders,
@@ -675,11 +683,9 @@ const lookup = {
   "from": Ufrom,
   "to": Uto,
   "via": Uvia,
-  "block": Udisplay,
+  
   "inline": Uinline,
-  "flex": Udisplay,
-  "flow-root": Udisplay,
-  "grid": Udisplay,
+
   "auto": UgridAuto,
   "grid-cols": UgridTemplate,
   "grid-rows":UgridTemplate,
@@ -696,15 +702,14 @@ const lookup = {
   "justify": UflexContent,
   "content": UflexContent,
   "place-content": UflexContent,
-  "contents": Udisplay,
+ 
   "justify-items": UjustifyPlaceSelfItems,
   "place-items": UjustifyPlaceSelfItems,
   "justify-self": UjustifyPlaceSelfItems,
   "place-self": UjustifyPlaceSelfItems,
   "align-items": UalignSelfItems,
   "align-self": UalignSelfItems,
-  "list-item": Udisplay,
-  "hidden": Udisplay,
+ 
   "table": Utable,
 
 

@@ -2,6 +2,7 @@
 
 var U_boxDecorationBreak = (p) => ({"box-decoration-break": p[1], "-webkit-box-decoration-break": p[1]});
 var U_boxSizing = (p) => ({"box-sizing": p[1]+"-box"});
+var U_display = (p, n) => ({"display": p[0] == "hidden" ? "none" : Hargs(p, 0)});
 
 const Lscreens = {
   "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px"
@@ -109,7 +110,8 @@ const LbackgroundClip = {
 };
 var UbackgroundClip = (p, n) => ({"background-clip":LbackgroundClip[p[2]]});
 
-var Udisplay = (p, n) => ({"display":Hargs(p, 0)});
+
+
 var Uinline = (p, n) => ({"display":Hargs(p, 0)});
 
 const Lflex = {
@@ -557,9 +559,15 @@ var UscreenReaders = (p) => {
 };
 
 const lookup = {
-  "decoration": U_boxDecorationBreak,
+  "block": U_display,
   "box": U_boxSizing,
-
+  "contents": U_display,
+  "decoration": U_boxDecorationBreak,
+  "flex": U_display,
+  "flow-root": U_display,
+  "grid": U_display,
+  "hidden": U_display,
+  "list-item": U_display,
 
 
   "sr-only": UscreenReaders,
@@ -676,11 +684,9 @@ const lookup = {
   "from": Ufrom,
   "to": Uto,
   "via": Uvia,
-  "block": Udisplay,
+  
   "inline": Uinline,
-  "flex": Udisplay,
-  "flow-root": Udisplay,
-  "grid": Udisplay,
+
   "auto": UgridAuto,
   "grid-cols": UgridTemplate,
   "grid-rows":UgridTemplate,
@@ -697,15 +703,14 @@ const lookup = {
   "justify": UflexContent,
   "content": UflexContent,
   "place-content": UflexContent,
-  "contents": Udisplay,
+ 
   "justify-items": UjustifyPlaceSelfItems,
   "place-items": UjustifyPlaceSelfItems,
   "justify-self": UjustifyPlaceSelfItems,
   "place-self": UjustifyPlaceSelfItems,
   "align-items": UalignSelfItems,
   "align-self": UalignSelfItems,
-  "list-item": Udisplay,
-  "hidden": Udisplay,
+ 
   "table": Utable,
 
 
@@ -788,6 +793,27 @@ var tests = [
   ["box-border", {"box-sizing": "border-box"}],
   ["box-content", {"box-sizing": "content-box"}],
   ["box-xxx", {"box-sizing": "xxx-box"}],
+  ["inline-block", {"display": "inline-block"}],
+  ["inline",  {"display": "inline"}],
+  ["flex",  {"display": "flex"}],
+  ["inline-flex", {"display": "inline-flex"}],
+  ["table", {"display": "table"}],
+  ["inline-table", {"display": "inline-table"}],
+  ["table-caption", {"display": "table-caption"}],
+  ["table-cell", {"display": "table-cell"}],
+  ["table-column", {"display": "table-column"}],
+  ["table-column-group", {"display": "table-column-group"}],
+  ["table-footer-group", {"display": "table-footer-group"}],
+  ["table-header-group", {"display": "table-header-group"}],
+  ["table-row-group", {"display": "table-row-group"}],
+  ["table-row", {"display": "table-row"}],
+  ["flow-root", {"display": "flow-root"}],
+  ["grid", {"display": "grid"}],
+  ["inline-grid", {"display": "inline-grid"}],
+  ["contents", {"display": "contents"}],
+  ["list-item", {"display": "list-item"}],
+  ["hidden",  {"display": "none"}],
+  ["xxxx", false],
 ];
 
 var ntests = tests.length;
@@ -798,7 +824,7 @@ for (var i=0; i<ntests;i++) {
   var got = n.props;
 
   if (!expected) {
-    if (expected !== got) {
+    if (expected !== n) {
       console.log("Test Failed!!! - " + t[0]);
       console.log(got);
       continue;
@@ -813,4 +839,4 @@ for (var i=0; i<ntests;i++) {
   }
 }
 
-console.log("Finished");
+console.log(`Processed ${ntests} tests`);
