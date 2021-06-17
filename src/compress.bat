@@ -1,0 +1,1 @@
+terser foxtailcss.js -c -m > foxtailcss.min.js

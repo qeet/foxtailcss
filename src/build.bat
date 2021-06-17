@@ -1,0 +1,1 @@
+rollup browser.js --file foxtailcss.js --format iife
