@@ -1,1 +1,1 @@
-terser foxtailcss.js -c -m > foxtailcss.min.js
+terser ../dist/foxtailcss.js -c -m > ../dist/foxtailcss.min.js

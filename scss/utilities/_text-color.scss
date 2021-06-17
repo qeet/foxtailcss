@@ -1,5 +1,0 @@
-@include colorMixin('text', 'color');
-
-@media (prefers-color-scheme: dark) {
-    @include colorMixin('text', 'color', 'dk\\:', 'dk-');
-}

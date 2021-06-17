@@ -77,6 +77,13 @@ var compilePage = () => {
   insertBaseStyles()
   insertStyles()
 
+  els = document.getElementsByClassName("fx-cloak")
+  var i = 0, len = els.length;
+  while (i < len) {
+    els[i].classList.remove("fx-cloak")
+    i++;
+  }
+
   console.log(`Processed ${total} classes`);
 
   console.log(`Unique ${Object.keys(Rules).length}`)

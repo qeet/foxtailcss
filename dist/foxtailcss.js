@@ -1,9 +1,17 @@
 (function () {
   'use strict';
 
+  const L_objectFit = [ "contain", "cover", "fill", "none", "scale" ];
+
   var U_boxDecorationBreak = (p) => ({"box-decoration-break": p[1], "-webkit-box-decoration-break": p[1]});
   var U_boxSizing = (p) => ({"box-sizing": p[1]+"-box"});
-
+  var U_display = (p, n) => ({display: p[0] == "hidden" ? "none" : Hargs(p, 0)});
+  var U_clearFloat = (p) => ({[p[0]]: p[1]});
+  var U_isolation = (p) => ({isolation: p[1] ? "auto" : "isolate"});
+  var U_objectFitPosition = (p) => {
+    if (L_objectFit.includes(p[1]))  return {"object-fit": Hargs(p, 1)}
+    return {"object-position": Hargs(p, 1, " ")}
+  };
   const Lscreens = {
     "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px"
   };
@@ -110,7 +118,8 @@
   };
   var UbackgroundClip = (p, n) => ({"background-clip":LbackgroundClip[p[2]]});
 
-  var Udisplay = (p, n) => ({"display":Hargs(p, 0)});
+
+
   var Uinline = (p, n) => ({"display":Hargs(p, 0)});
 
   const Lflex = {
@@ -338,13 +347,9 @@
 
   var Uopacity = (p) =>  ({"opacity":Hfloat(p[2])});
 
-  var UclearFloat = (p) =>({[p[0]]: p[1]});
-  var Uisolation = (p) =>({"isolation": p[1] ? "auto" : "isolate"});
-  const LobjectFit = [ "contain", "cover", "fill", "none", "scale" ];
-  var UobjectFitPosition = (p) => {
-    if (LobjectFit.includes(p[1]))  return {"object-fit": Hargs(p, 1)}
-    return {"object-position": Hargs(p, 1, ' ')}
-  };
+
+
+
   var Uoverflow = (p) => {
     if (p.length == 2) return {"overflow": p[1]}
     return {["overflow-"+p[1]]: p[2]}  
@@ -558,8 +563,20 @@
   };
 
   const lookup = {
-    "decoration": U_boxDecorationBreak,
-    "box": U_boxSizing,
+    block: U_display,
+    box: U_boxSizing,
+    clear: U_clearFloat,
+    contents: U_display,
+    decoration: U_boxDecorationBreak,
+    flex: U_display,
+    float: U_clearFloat,
+    "flow-root": U_display,
+    grid: U_display,
+    hidden: U_display,
+    isolate: U_isolation,
+    isolation: U_isolation,
+    "list-item": U_display,
+    object: U_objectFitPosition,
 
 
 
@@ -644,10 +661,9 @@
     "inset": Uinset,
     "overscroll": Uoverscroll,
     "overflow": Uoverflow,
-    "object": UobjectFitPosition,
-    "isolation": Uisolation,
-    "float": UclearFloat,
-    "clear": UclearFloat,
+   
+
+   
     "opacity": Uopacity,
     "mix-blend": UblendMode,
     "bg-blend": UblendMode,
@@ -677,11 +693,9 @@
     "from": Ufrom,
     "to": Uto,
     "via": Uvia,
-    "block": Udisplay,
+    
     "inline": Uinline,
-    "flex": Udisplay,
-    "flow-root": Udisplay,
-    "grid": Udisplay,
+
     "auto": UgridAuto,
     "grid-cols": UgridTemplate,
     "grid-rows":UgridTemplate,
@@ -698,15 +712,14 @@
     "justify": UflexContent,
     "content": UflexContent,
     "place-content": UflexContent,
-    "contents": Udisplay,
+   
     "justify-items": UjustifyPlaceSelfItems,
     "place-items": UjustifyPlaceSelfItems,
     "justify-self": UjustifyPlaceSelfItems,
     "place-self": UjustifyPlaceSelfItems,
     "align-items": UalignSelfItems,
     "align-self": UalignSelfItems,
-    "list-item": Udisplay,
-    "hidden": Udisplay,
+   
     "table": Utable,
 
 
@@ -775,6 +788,9 @@
       var fn = lookup[s];
       if (fn) {
        node.props = fn(parts, node);
+       for (const [key, value] of Object.entries(node.props)) {
+          if (!value) return false;
+       }
        return node
       }
       i--;
@@ -858,6 +874,14 @@
 
     insertBaseStyles();
     insertStyles();
+
+    els = document.getElementsByClassName("fx-cloak");
+    console.log(els);
+    var i = 0, len = els.length;
+    while (i < len) {
+      els[i].classList.remove("fx-cloak");
+      i++;
+    }
 
     console.log(`Processed ${total} classes`);
 

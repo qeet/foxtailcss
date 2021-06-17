@@ -1,9 +1,16 @@
 'use strict';
 
+const L_objectFit = [ "contain", "cover", "fill", "none", "scale" ];
+
 var U_boxDecorationBreak = (p) => ({"box-decoration-break": p[1], "-webkit-box-decoration-break": p[1]});
 var U_boxSizing = (p) => ({"box-sizing": p[1]+"-box"});
-var U_display = (p, n) => ({"display": p[0] == "hidden" ? "none" : Hargs(p, 0)});
-
+var U_display = (p, n) => ({display: p[0] == "hidden" ? "none" : Hargs(p, 0)});
+var U_clearFloat = (p) => ({[p[0]]: p[1]});
+var U_isolation = (p) => ({isolation: p[1] ? "auto" : "isolate"});
+var U_objectFitPosition = (p) => {
+  if (L_objectFit.includes(p[1]))  return {"object-fit": Hargs(p, 1)}
+  return {"object-position": Hargs(p, 1, " ")}
+};
 const Lscreens = {
   "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px"
 };
@@ -339,13 +346,9 @@ var UblendMode = (p) => {
 
 var Uopacity = (p) =>  ({"opacity":Hfloat(p[2])});
 
-var UclearFloat = (p) =>({[p[0]]: p[1]});
-var Uisolation = (p) =>({"isolation": p[1] ? "auto" : "isolate"});
-const LobjectFit = [ "contain", "cover", "fill", "none", "scale" ];
-var UobjectFitPosition = (p) => {
-  if (LobjectFit.includes(p[1]))  return {"object-fit": Hargs(p, 1)}
-  return {"object-position": Hargs(p, 1, ' ')}
-};
+
+
+
 var Uoverflow = (p) => {
   if (p.length == 2) return {"overflow": p[1]}
   return {["overflow-"+p[1]]: p[2]}  
@@ -559,15 +562,21 @@ var UscreenReaders = (p) => {
 };
 
 const lookup = {
-  "block": U_display,
-  "box": U_boxSizing,
-  "contents": U_display,
-  "decoration": U_boxDecorationBreak,
-  "flex": U_display,
+  block: U_display,
+  box: U_boxSizing,
+  clear: U_clearFloat,
+  contents: U_display,
+  decoration: U_boxDecorationBreak,
+  flex: U_display,
+  float: U_clearFloat,
   "flow-root": U_display,
-  "grid": U_display,
-  "hidden": U_display,
+  grid: U_display,
+  hidden: U_display,
+  isolate: U_isolation,
+  isolation: U_isolation,
   "list-item": U_display,
+  object: U_objectFitPosition,
+
 
 
   "sr-only": UscreenReaders,
@@ -651,10 +660,9 @@ const lookup = {
   "inset": Uinset,
   "overscroll": Uoverscroll,
   "overflow": Uoverflow,
-  "object": UobjectFitPosition,
-  "isolation": Uisolation,
-  "float": UclearFloat,
-  "clear": UclearFloat,
+ 
+
+ 
   "opacity": Uopacity,
   "mix-blend": UblendMode,
   "bg-blend": UblendMode,
@@ -779,6 +787,9 @@ function compile(c) {
     var fn = lookup[s];
     if (fn) {
      node.props = fn(parts, node);
+     for (const [key, value] of Object.entries(node.props)) {
+        if (!value) return false;
+     }
      return node
     }
     i--;
@@ -790,6 +801,8 @@ var tests = [
   ["decoration-slice", {"box-decoration-break": "slice", "-webkit-box-decoration-break": "slice"}],
   ["decoration-clone", {"box-decoration-break": "clone", "-webkit-box-decoration-break": "clone"}],
   ["decoration-xxx", {"box-decoration-break": "xxx", "-webkit-box-decoration-break": "xxx"}],
+  ["decoration-", false],
+  ["decoration", false],
   ["box-border", {"box-sizing": "border-box"}],
   ["box-content", {"box-sizing": "content-box"}],
   ["box-xxx", {"box-sizing": "xxx-box"}],
@@ -813,6 +826,29 @@ var tests = [
   ["contents", {"display": "contents"}],
   ["list-item", {"display": "list-item"}],
   ["hidden",  {"display": "none"}],
+  ["float-right", {"float": "right"}],
+  ["float-left",  {"float": "left"}],
+  ["float-none",  {"float": "none"}],
+  ["clear-left",  {"clear": "left"}],
+  ["clear-right", {"clear": "right"}],
+  ["clear-both", {"clear": "both"}],
+  ["clear-none",  {"clear": "none"}],
+  ["isolate", {"isolation": "isolate"}],
+  ["isolation-auto", {"isolation": "auto"}],
+  ["object-contain",  {"object-fit": "contain"}],
+  ["object-cover",  {"object-fit": "cover"}],
+  ["object-fill", {"object-fit": "fill"}],
+  ["object-none", {"object-fit": "none"}],
+  ["object-scale-down", {"object-fit": "scale-down"}],
+  ["object-bottom", {"object-position": "bottom"}],
+  ["object-center", {"object-position": "center"}],
+  ["object-left", {"object-position": "left"}],
+  ["object-left-bottom", {"object-position": "left bottom"}],
+  ["object-left-top", {"object-position": "left top"}],
+  ["object-right", {"object-position": "right"}],
+  ["object-right-bottom", {"object-position": "right bottom"}],
+  ["object-right-top", {"object-position": "right top"}],
+  ["object-top", {"object-position": "top"}],
   ["xxxx", false],
 ];
 
@@ -826,9 +862,15 @@ for (var i=0; i<ntests;i++) {
   if (!expected) {
     if (expected !== n) {
       console.log("Test Failed!!! - " + t[0]);
-      console.log(got);
+      console.log(n);
       continue;
     }
+  }
+
+  if (!n && expected) {
+    console.log("Test Failed!!! - " + t[0]);
+    console.log(n);
+    continue;
   }
 
   for (const [key, value] of Object.entries(expected)) {

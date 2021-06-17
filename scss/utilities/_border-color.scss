@@ -1,5 +1,0 @@
-@include colorMixin('border', 'border-color');
-
-@media (prefers-color-scheme: dark) {
-    @include colorMixin('border', 'border-color', 'dk\\:', 'dk-');
-}

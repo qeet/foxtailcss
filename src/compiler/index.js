@@ -1,8 +1,14 @@
+const L_objectFit = [ "contain", "cover", "fill", "none", "scale" ]
 
 var U_boxDecorationBreak = (p) => ({"box-decoration-break": p[1], "-webkit-box-decoration-break": p[1]})
 var U_boxSizing = (p) => ({"box-sizing": p[1]+"-box"})
-var U_display = (p, n) => ({"display": p[0] == "hidden" ? "none" : Hargs(p, 0)})
-
+var U_display = (p, n) => ({display: p[0] == "hidden" ? "none" : Hargs(p, 0)})
+var U_clearFloat = (p) => ({[p[0]]: p[1]})
+var U_isolation = (p) => ({isolation: p[1] ? "auto" : "isolate"})
+var U_objectFitPosition = (p) => {
+  if (L_objectFit.includes(p[1]))  return {"object-fit": Hargs(p, 1)}
+  return {"object-position": Hargs(p, 1, " ")}
+}
 const Lscreens = {
   "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px"
 }
@@ -338,13 +344,9 @@ var UblendMode = (p) => {
 
 var Uopacity = (p) =>  ({"opacity":Hfloat(p[2])})
 
-var UclearFloat = (p) =>({[p[0]]: p[1]})
-var Uisolation = (p) =>({"isolation": p[1] ? "auto" : "isolate"})
-const LobjectFit = [ "contain", "cover", "fill", "none", "scale" ]
-var UobjectFitPosition = (p) => {
-  if (LobjectFit.includes(p[1]))  return {"object-fit": Hargs(p, 1)}
-  return {"object-position": Hargs(p, 1, ' ')}
-}
+
+
+
 var Uoverflow = (p) => {
   if (p.length == 2) return {"overflow": p[1]}
   return {["overflow-"+p[1]]: p[2]}  
@@ -558,15 +560,21 @@ var UscreenReaders = (p) => {
 }
 
 const lookup = {
-  "block": U_display,
-  "box": U_boxSizing,
-  "contents": U_display,
-  "decoration": U_boxDecorationBreak,
-  "flex": U_display,
+  block: U_display,
+  box: U_boxSizing,
+  clear: U_clearFloat,
+  contents: U_display,
+  decoration: U_boxDecorationBreak,
+  flex: U_display,
+  float: U_clearFloat,
   "flow-root": U_display,
-  "grid": U_display,
-  "hidden": U_display,
+  grid: U_display,
+  hidden: U_display,
+  isolate: U_isolation,
+  isolation: U_isolation,
   "list-item": U_display,
+  object: U_objectFitPosition,
+
 
 
   "sr-only": UscreenReaders,
@@ -650,10 +658,9 @@ const lookup = {
   "inset": Uinset,
   "overscroll": Uoverscroll,
   "overflow": Uoverflow,
-  "object": UobjectFitPosition,
-  "isolation": Uisolation,
-  "float": UclearFloat,
-  "clear": UclearFloat,
+ 
+
+ 
   "opacity": Uopacity,
   "mix-blend": UblendMode,
   "bg-blend": UblendMode,
@@ -778,6 +785,9 @@ export function compile(c) {
     var fn = lookup[s]
     if (fn) {
      node.props = fn(parts, node);
+     for (const [key, value] of Object.entries(node.props)) {
+        if (!value) return false;
+     }
      return node
     }
     i--;
