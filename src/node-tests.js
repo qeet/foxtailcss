@@ -1,5 +1,8 @@
 'use strict';
 
+var U_boxDecorationBreak = (p) => ({"box-decoration-break": p[1], "-webkit-box-decoration-break": p[1]});
+var U_boxSizing = (p) => ({"box-sizing": p[1]+"-box"});
+
 const Lscreens = {
   "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px"
 };
@@ -334,8 +337,6 @@ var UblendMode = (p) => {
 
 var Uopacity = (p) =>  ({"opacity":Hfloat(p[2])});
 
-var UboxDecorationBreak = (p) =>({"box-decoration-break": p[1]});
-var UboxSizing = (p) =>({"box-sizing": p[1]+"-box"});
 var UclearFloat = (p) =>({[p[0]]: p[1]});
 var Uisolation = (p) =>({"isolation": p[1] ? "auto" : "isolate"});
 const LobjectFit = [ "contain", "cover", "fill", "none", "scale" ];
@@ -556,6 +557,11 @@ var UscreenReaders = (p) => {
 };
 
 const lookup = {
+  "decoration": U_boxDecorationBreak,
+  "box": U_boxSizing,
+
+
+
   "sr-only": UscreenReaders,
   "not-sr-only": UscreenReaders,
   "stroke": UstrokeWidth,
@@ -641,8 +647,6 @@ const lookup = {
   "isolation": Uisolation,
   "float": UclearFloat,
   "clear": UclearFloat,
-  "decoration": UboxDecorationBreak,
-  "box": UboxSizing,
   "opacity": Uopacity,
   "mix-blend": UblendMode,
   "bg-blend": UblendMode,
@@ -778,9 +782,12 @@ function compile(c) {
 }
 
 var tests = [
-  ["decoration-slice", {"box-decoration-break": "slice"}],
-  ["decoration-clone", {"box-decoration-break": "clone"}],
-  ["decoration-xxx", {"box-decoration-break": "xxx"}],
+  ["decoration-slice", {"box-decoration-break": "slice", "-webkit-box-decoration-break": "slice"}],
+  ["decoration-clone", {"box-decoration-break": "clone", "-webkit-box-decoration-break": "clone"}],
+  ["decoration-xxx", {"box-decoration-break": "xxx", "-webkit-box-decoration-break": "xxx"}],
+  ["box-border", {"box-sizing": "border-box"}],
+  ["box-content", {"box-sizing": "content-box"}],
+  ["box-xxx", {"box-sizing": "xxx-box"}],
 ];
 
 var ntests = tests.length;
@@ -790,9 +797,18 @@ for (var i=0; i<ntests;i++) {
   var expected = t[1];
   var got = n.props;
 
+  if (!expected) {
+    if (expected !== got) {
+      console.log("Test Failed!!! - " + t[0]);
+      console.log(got);
+      continue;
+    }
+  }
+
   for (const [key, value] of Object.entries(expected)) {
     if (got[key] != value) {
       console.log("Test Failed!!! - " + t[0]);
+      console.log(got);
     }
   }
 }

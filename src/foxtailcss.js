@@ -1,7 +1,8 @@
 (function () {
   'use strict';
 
-  console.log("Hello From Foxtail");
+  var U_boxDecorationBreak = (p) => ({"box-decoration-break": p[1], "-webkit-box-decoration-break": p[1]});
+  var U_boxSizing = (p) => ({"box-sizing": p[1]+"-box"});
 
   const Lscreens = {
     "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px"
@@ -337,8 +338,6 @@
 
   var Uopacity = (p) =>  ({"opacity":Hfloat(p[2])});
 
-  var UboxDecorationBreak = (p) =>({"box-decoration-break": p[1]});
-  var UboxSizing = (p) =>({"box-sizing": p[1]+"-box"});
   var UclearFloat = (p) =>({[p[0]]: p[1]});
   var Uisolation = (p) =>({"isolation": p[1] ? "auto" : "isolate"});
   const LobjectFit = [ "contain", "cover", "fill", "none", "scale" ];
@@ -559,6 +558,11 @@
   };
 
   const lookup = {
+    "decoration": U_boxDecorationBreak,
+    "box": U_boxSizing,
+
+
+
     "sr-only": UscreenReaders,
     "not-sr-only": UscreenReaders,
     "stroke": UstrokeWidth,
@@ -644,8 +648,6 @@
     "isolation": Uisolation,
     "float": UclearFloat,
     "clear": UclearFloat,
-    "decoration": UboxDecorationBreak,
-    "box": UboxSizing,
     "opacity": Uopacity,
     "mix-blend": UblendMode,
     "bg-blend": UblendMode,
