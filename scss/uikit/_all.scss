@@ -1,6 +1,10 @@
 @charset "utf-8";
 
 $global-z-index: 1000 !default;
+$global-gutter: 30px !default;
+$global-medium-gutter: 40px !default;
+$global-background: #fff !default;
+$global-small-margin: 10px !default;
 
 :root {
   --uk-breakpoint-s: 640px;
@@ -12,6 +16,7 @@ $global-z-index: 1000 !default;
 
 @import "animation";
 @import "dropdown";
+@import "modal";
 @import "sortable";
 
 
