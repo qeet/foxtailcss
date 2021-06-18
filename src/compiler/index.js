@@ -37,6 +37,13 @@ var U_overScrollFlow = (p) => {
   return {[n + "-" + p[1]]: p[2]}  
 }
 
+var U_inset = (p, n) => {
+  var v = p.length == 2 ? HspacingPercent(p[1], n) : HspacingPercent(p[2], n)
+  if (p.length == 2) return {"top": v, "bottom": v, "right": v, "left": v}
+  if (p[1] == "x") return {"right": v, "left": v}
+  return {"top": v, "bottom": v}  
+}
+
 const Lcolor = {
   'gray':   'F9FAFBF3F4F6E5E7EBD1D5DB9CA3AF6B72804B55633741511F2937111827',
   'red':    'FEF2F2FEE2E2FECACAFCA5A5F87171EF4444DC2626B91C1C991B1B7F1D1D',
@@ -70,11 +77,11 @@ var HcolorUtil = (col, prop, name) => {
   return {[prop]: Hcolor(col, "var(--tw-" + name + "-opacity)"), ["--tw-"+ name +"-opacity"]: "1"}
 }  
 
-var Hpercent = (v) => {
-  if (v == "full") return "100%"
+var Hpercent = (v, n) => {
+  if (v == "full") return n.minus + "100%"
   if (v.indexOf("/") > -1) {
     var p = v.split("/")
-    return (parseInt(p[0]) / parseInt(p[1])) * 100 + "%"
+    return n.minus + (parseInt(p[0]) / parseInt(p[1])) * 100 + "%"
   }
 }
 const Lspacing = {
@@ -84,16 +91,16 @@ const Lspacing = {
   '36': '9','40': '10','44': '11','48': '12','52': '13','56': '14','60': '15','64': '16','72': '18',
   '80': '20','96': '24',
 }
-var Hspacing = (v) => {
+var Hspacing = (v, n) => {
   if (v == "0" || v == "auto") return v
-  if (v == "px") return "1px"
+  if (v == "px") return n.minus + "1px"
   v = Lspacing[v]
-  if (v) v = v +"rem"
+  if (v) v = n.minus + v +"rem"
   return v
 }
-var HspacingPercent = (v) => {
-  var r = Hspacing(v)
-  if (!r) r = Hpercent(v)
+var HspacingPercent = (v, n) => {
+  var r = Hspacing(v, n)
+  if (!r) r = Hpercent(v, n)
   return r
 }
 var Hfloat = (v) => (parseInt(v)/100).toString()
@@ -204,10 +211,10 @@ var Ugap = (p, n) => {
   var v, prop
   if (p.length == 2) {
     prop = "gap"
-    v = Hspacing(p[1])
+    v = Hspacing(p[1], n)
   }
   else {
-    v = Hspacing(p[2])
+    v = Hspacing(p[2], n)
     prop = p[1] == "x" ? "column-gap" : "row-gap"
   }
   return {[prop]: v}
@@ -240,21 +247,21 @@ var Utable = (p, n) => {
 
 
 
-var Upadding = (p, n) => ({"padding":Hspacing(p[1])})
-var UpaddingX = (p, n) => ({"padding-left":Hspacing(p[1]), "padding-right":Hspacing(p[1])})
+var Upadding = (p, n) => ({"padding":Hspacing(p[1], n)})
+var UpaddingX = (p, n) => ({"padding-left":Hspacing(p[1], n), "padding-right":Hspacing(p[1], n)})
 var UpaddingY = (p, n) => ({"padding-top":Hspacing(p[1]), "padding-bottom":Hspacing(p[1])})
-var UpaddingT = (p, n) => ({"padding-top":Hspacing(p[1])})
-var UpaddingB = (p, n) => ({"padding-bottom":Hspacing(p[1])})
-var UpaddingL = (p, n) => ({"padding-left":Hspacing(p[1])})
-var UpaddingR = (p, n) => ({"padding-right":Hspacing(p[1])})
+var UpaddingT = (p, n) => ({"padding-top":Hspacing(p[1], n)})
+var UpaddingB = (p, n) => ({"padding-bottom":Hspacing(p[1], n)})
+var UpaddingL = (p, n) => ({"padding-left":Hspacing(p[1], n)})
+var UpaddingR = (p, n) => ({"padding-right":Hspacing(p[1], n)})
 
-var Umargin = (p, n) => ({"margin":Hspacing(p[1])})
-var UmarginX = (p, n) => ({"margin-left":Hspacing(p[1]), "margin-right":Hspacing(p[1])})
-var UmarginY = (p, n) => ({"margin-top":Hspacing(p[1]), "margin-bottom":Hspacing(p[1])})
-var UmarginT = (p, n) => ({"margin-top":Hspacing(p[1])})
-var UmarginB = (p, n) => ({"margin-bottom":Hspacing(p[1])})
-var UmarginL = (p, n) => ({"margin-left":Hspacing(p[1])})
-var UmarginR = (p, n) => ({"margin-right":Hspacing(p[1])})
+var Umargin = (p, n) => ({"margin":Hspacing(p[1], n)})
+var UmarginX = (p, n) => ({"margin-left":Hspacing(p[1], n), "margin-right":Hspacing(p[1], n)})
+var UmarginY = (p, n) => ({"margin-top":Hspacing(p[1], n), "margin-bottom":Hspacing(p[1], n)})
+var UmarginT = (p, n) => ({"margin-top":Hspacing(p[1], n)})
+var UmarginB = (p, n) => ({"margin-bottom":Hspacing(p[1], n)})
+var UmarginL = (p, n) => ({"margin-left":Hspacing(p[1], n)})
+var UmarginR = (p, n) => ({"margin-right":Hspacing(p[1], n)})
 
 const LwidthHeight = {
   "screen": "100vh",
@@ -263,15 +270,15 @@ const LwidthHeight = {
 }
 var UwidthHeight = (p, n) => {
   var prop = p[0] == "w" ? "width" : "height" 
-  var r = HspacingPercent(p[1])
+  var r = HspacingPercent(p[1], n)
   if (!r) r = LwidthHeight[p[1]]
   if (p[0] = "w" && p[1] == "screen") r = "100vw"
   return {[prop]: r}
 }
-var UminWdithHeight = (p) => {
+var UminWdithHeight = (p, n) => {
   var prop = p[1] == "w" ? "min-width" : "min-height" 
-  var r = HspacingPercent(p[2])
-  if (!r) r = LwidthHeight[p[2]]
+  var r = HspacingPercent(p[2], n)
+  if (!r) r = LwidthHeight[p[2], n]
   return {[prop]: r}
 }
 const LmaxWidth = {
@@ -290,8 +297,8 @@ var UmaxWidth = (p) => {
   }
   return {"max-width": v}
 }
-var UmaxHeight = (p) => { 
-  var r = HspacingPercent(p[2])
+var UmaxHeight = (p, n) => { 
+  var r = HspacingPercent(p[2], n)
   if (!r) r = LwidthHeight[p[2]]
   return {"max-height": r}
 }
@@ -341,7 +348,7 @@ var Uscale = (p) => {
   }
 }
 var Urotate = (p) => ({"--tw-rotate": p[1] + "deg"})
-var Utranslate = (p) => ({["--tw-translate-"+p[1]]: HspacingPercent(p[2])})
+var Utranslate = (p, n) => ({["--tw-translate-"+p[1]]: HspacingPercent(p[2], n)})
 var Uskew = (p) => ({["--tw-skew-"+p[1]]: p[2] + "deg"})
 
 const Ltransition = {
@@ -370,13 +377,8 @@ var UblendMode = (p) => {
 
 var Uopacity = (p) =>  ({"opacity":Hfloat(p[2])})
 
-var Uinset = (p) => {
-  var v = p.length == 2 ? HspacingPercent(p[1]) : HspacingPercent(p[2])
-  if (p.length == 2) return {"top": v, "bottom": v, "right": v, "left": v}
-  if (p[1] == "x") return {"right": v, "left": v}
-  return {"top": v, "bottom": v}  
-}
-var UtopRightBottomLeft = (p) => ({[p[0]]: HspacingPercent(p[1])}) 
+
+var UtopRightBottomLeft = (p, n) => ({[p[0]]: HspacingPercent(p[1], n)}) 
 
 
 
@@ -587,6 +589,7 @@ const lookup = {
   "flow-root":  U_display,
   grid:         U_display,
   hidden:       U_display,
+  inset:        U_inset,
   invisible:    U_visibility,
   isolate:      U_isolation,
   isolation:    U_isolation,
@@ -679,7 +682,7 @@ const lookup = {
   "bottom": UtopRightBottomLeft,
   "right": UtopRightBottomLeft,
   "left": UtopRightBottomLeft,
-  "inset": Uinset,
+  
   
   
  
@@ -784,7 +787,7 @@ const lookup = {
  
 }
 
-var variants = (c, n) => {
+var compileVariants = (c, n) => {
   var parts = c.split(":")
   var i=0, len=parts.length-1
   while (i < len) {
@@ -794,9 +797,23 @@ var variants = (c, n) => {
   return parts[parts.length-1]
 }
 
+var classMod = (c, n) => {
+  if (c.charAt(0) == "!") {
+    n.important = true
+    c = c.substring(1)
+  }
+  if (c.charAt(0) == "-") {
+    n.minus = "-"
+    c = c.substring(1)
+  }
+  return c
+}
+
 export function compile(c) {
-  var node = {}
-  var c = variants(c, node)
+  var node = {minus: ""}
+  var c = compileVariants(c, node)
+  c = classMod(c, node)
+
   var parts = c.split("-")
   var i = parts.length;
   while (i > 0) {
