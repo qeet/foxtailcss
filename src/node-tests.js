@@ -5,8 +5,22 @@
  */
 const L_screens = { "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px" };
 
+const L_color = {
+  'gray':   'F9FAFBF3F4F6E5E7EBD1D5DB9CA3AF6B72804B55633741511F2937111827',
+  'red':    'FEF2F2FEE2E2FECACAFCA5A5F87171EF4444DC2626B91C1C991B1B7F1D1D',
+  'yellow': 'FFFBEBFEF3C7FDE68AFCD34DFBBF24F59E0BD97706B4530992400E78350F',
+  'green':  'ECFDF5D1FAE5A7F3D06EE7B734D39910B981059669047857065F46064E3B', 
+  'blue':   'EFF6FFDBEAFEBFDBFE93C5FD60A5FA3B82F62563EB1D4ED81E40AF1E3A8A',
+  'indigo': 'EEF2FFE0E7FFC7D2FEA5B4FC818CF86366F14F46E54338CA3730A3312E81',
+  'pink':   'FDF2F8FCE7F3FBCFE8F9A8D4F472B6EC4899DB2777DB27779D174D831843',
+  'purple': 'F5F3FFEDE9FEDDD6FEC4B5FDA78BFA8B5CF67C3AED6D28D95B21B64C1D95',
+};
+
 const L_objectFit = [ "contain", "cover", "fill", "none", "scale" ];
 
+const L_flex = { "1":  "1 1 0%", "auto": "1 1 auto", "initial": "0 1 auto", "none": "none" };
+
+const L_order = {first: "-9999", last: "9999", none: "0"};
 
 
 /* 
@@ -46,15 +60,27 @@ var U_inset = (p, n) => {
   return {"top": v, "bottom": v}  
 };
 
-const Lcolor = {
-  'gray':   'F9FAFBF3F4F6E5E7EBD1D5DB9CA3AF6B72804B55633741511F2937111827',
-  'red':    'FEF2F2FEE2E2FECACAFCA5A5F87171EF4444DC2626B91C1C991B1B7F1D1D',
-  'yellow': 'FFFBEBFEF3C7FDE68AFCD34DFBBF24F59E0BD97706B4530992400E78350F',
-  'green':  'ECFDF5D1FAE5A7F3D06EE7B734D39910B981059669047857065F46064E3B', 
-  'blue':   'EFF6FFDBEAFEBFDBFE93C5FD60A5FA3B82F62563EB1D4ED81E40AF1E3A8A',
-  'indigo': 'EEF2FFE0E7FFC7D2FEA5B4FC818CF86366F14F46E54338CA3730A3312E81',
-  'purple': 'F5F3FFEDE9FEDDD6FEC4B5FDA78BFA8B5CF67C3AED6D28D95B21B64C1D95',
-  'pink':   'FDF2F8FCE7F3FBCFE8F9A8D4F472B6EC4899DB2777DB27779D174D831843',
+var U_flexDirection = (p) => {
+  if (p[1] == "col") p[1] = "column";
+  return {"flex-direction": Hargs(p, 1)}
+};
+
+var U_flexWrap = (p) => ({"flex-wrap": Hargs(p, 1)});
+
+var U_flex = (p) => ({"flex": L_flex[p[1]]});
+
+var U_flexGrowShrink = (p) => ({["flex-" + p[1]]: p[2] == "0" ? "0" : "1"});
+
+var U_order = (p) => {
+  var r = L_order[p[1]];
+  return {"order": r ? r : p[1]}
+
+};
+
+var U_gridTemplate = (p) => {
+  if (p[1] == "cols") p[1] = "columns";
+  var r = p[2] == "none" ? "none" : "repeat(" + p[2] + ", minmax(0, 1fr))";
+  return {["grid-template-" + p[1]]: r}
 };
 
 var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";   
@@ -63,7 +89,7 @@ var Hcolor = (v, o, h) => {
   if (v == "black") return h ? "#000000" : "rgba(0, 0, 0," + o + ")"
   if (v == "white") return h ? "#ffffff" : "rgba(255, 255, 255," + o + ")"
   var p = v.split("-");
-  var c = Lcolor[p[0]];
+  var c = L_color[p[0]];
   if (c) {
     var s = parseInt(p[1])/100;
     s = s < 1 ? 0 : s*6;
@@ -72,7 +98,7 @@ var Hcolor = (v, o, h) => {
     return "rgba(" + Hcomp(s, 0) + Hcomp(s, 2) + Hcomp(s, 4) + o + ")"
   }
 };
-var HisColor = (v) => Lcolor[v] || v == "black" || v == "white" || v == "transparent" || v == "current";
+var HisColor = (v) => L_color[v] || v == "black" || v == "white" || v == "transparent" || v == "current";
 var HcolorUtil = (col, prop, name) => {
   if (col == "transparent") return {[prop]:"transparent"}
   if (col == "current") return {[prop]: "currentColor"}
@@ -154,40 +180,18 @@ var UbackgroundClip = (p, n) => ({"background-clip":LbackgroundClip[p[2]]});
 
 var Uinline = (p, n) => ({"display":Hargs(p, 0)});
 
-const Lflex = {
-  "1":  "1 1 0%",
-  "auto": "1 1 auto",
-  "initial": "0 1 auto",
-  "none": "none",
-};
-var Uflex = (p, n) => ({"flex":Lflex[p[1]]});
 
-var UflexWrap = (p, n) => ({"flex-wrap":Hargs(p, 1)});
 
-var UflexDirection = (p, n) => {
-  if (p[1] == "col") p[1] = "column";
-  return {"flex-direction":Hargs(p, 1)}
-};
 
-var UflexGrowShrink = (p, n) => ({["flex-" + p[1]]: p[2] == "0" ? "0" : "1"});
 
-const Lorder = {
-  "first": "-9999",
-  "last": "9999",
-  "none": "0",
-};
-var Uorder = (p, n) => {
-  var r = Lorder[p[1]];
-  if (!r) r = p[1];
-  return {"order": r}
 
-};
 
-var UgridTemplate = (p, n) => {
-  if (p[1] == "cols") p[1] = "columns";
-  var r = p[2] == "none" ? "none" : "repeat(" + p[2] + ", minmax(0, 1fr))";
-  return {["grid-template-" + p[1]]: r}
-};
+
+
+
+
+
+
 var UgridSpan = (p, n) => {
   if (p[0] == "col") p[0] = "column";
   var r = p[2] == "full" ? "1 / -1" : "span " + p[2] + " / " + "span " + p[2];
@@ -251,7 +255,7 @@ var Utable = (p, n) => {
 
 var Upadding = (p, n) => ({"padding":Hspacing(p[1], n)});
 var UpaddingX = (p, n) => ({"padding-left":Hspacing(p[1], n), "padding-right":Hspacing(p[1], n)});
-var UpaddingY = (p, n) => ({"padding-top":Hspacing(p[1]), "padding-bottom":Hspacing(p[1])});
+var UpaddingY = (p, n) => ({"padding-top":Hspacing(p[1], n), "padding-bottom":Hspacing(p[1], n)});
 var UpaddingT = (p, n) => ({"padding-top":Hspacing(p[1], n)});
 var UpaddingB = (p, n) => ({"padding-bottom":Hspacing(p[1], n)});
 var UpaddingL = (p, n) => ({"padding-left":Hspacing(p[1], n)});
@@ -579,31 +583,44 @@ var UscreenReaders = (p) => {
 };
 
 const lookup = {
-  absolute:     U_position,
-  block:        U_display,
-  box:          U_boxSizing,
-  clear:        U_clearFloat,
-  contents:     U_display,
-  decoration:   U_boxDecorationBreak,
-  fixed:        U_position,
-  flex:         U_display,
-  float:        U_clearFloat,
-  "flow-root":  U_display,
-  grid:         U_display,
-  hidden:       U_display,
-  inset:        U_inset,
-  invisible:    U_visibility,
-  isolate:      U_isolation,
-  isolation:    U_isolation,
-  "list-item":  U_display,
-  object:       U_objectFitPosition,
-  relative:     U_position,
-  static:       U_position,
-  sticky:       U_position,
-  overflow:     U_overScrollFlow,
-  overscroll:   U_overScrollFlow,
-  visible:      U_visibility,
-  z:            U_zindex,  
+  absolute:       U_position,
+  block:          U_display,
+  box:            U_boxSizing,
+  clear:          U_clearFloat,
+  contents:       U_display,
+  decoration:     U_boxDecorationBreak,
+  fixed:          U_position,
+  flex:           U_display,
+  "flex-col":     U_flexDirection,
+  "flex-row":     U_flexDirection,
+  "flex-nowrap":  U_flexWrap,
+  "flex-wrap":    U_flexWrap,
+  "flex-1":       U_flex,
+  "flex-auto":    U_flex,
+  "flex-initial": U_flex,
+  "flex-none":    U_flex,
+  "flex-grow":    U_flexGrowShrink,
+  "flex-shrink":  U_flexGrowShrink,
+  float:          U_clearFloat,
+  "flow-root":    U_display,
+  grid:           U_display,
+  "grid-cols":    U_gridTemplate,
+  "grid-rows":    U_gridTemplate,
+  hidden:         U_display,
+  inset:          U_inset,
+  invisible:      U_visibility,
+  isolate:        U_isolation,
+  isolation:      U_isolation,
+  "list-item":    U_display,
+  object:         U_objectFitPosition,
+  order:          U_order,
+  relative:       U_position,
+  static:         U_position,
+  sticky:         U_position,
+  overflow:       U_overScrollFlow,
+  overscroll:     U_overScrollFlow,
+  visible:        U_visibility,
+  z:              U_zindex,  
   
 
 
@@ -723,8 +740,7 @@ const lookup = {
   "inline": Uinline,
 
   "auto": UgridAuto,
-  "grid-cols": UgridTemplate,
-  "grid-rows":UgridTemplate,
+  
   "grid-flow": UgridAutoFlow,
   "col-span": UgridSpan,
   "row-span": UgridSpan,
@@ -749,21 +765,13 @@ const lookup = {
   "table": Utable,
 
 
-  "flex-wrap": UflexWrap,
+  
 
-  "flex-1": Uflex,
-  "flex-auto": Uflex,
-  "flex-initial": Uflex,
-  "flex-none": Uflex,
+ 
+ 
+  
 
-  "flex-row": UflexDirection,
-  "flex-col": UflexDirection,
-
-  "order": Uorder,
-
-  "flex-grow": UflexGrowShrink,
-  "flex-shrink": UflexGrowShrink,
-
+ 
   "m": Umargin,
   "mx": UmarginX,
   "my": UmarginY,
@@ -799,7 +807,7 @@ var compileVariants = (c, n) => {
   return parts[parts.length-1]
 };
 
-var classMod = (c, n) => {
+var classPrefix = (c, n) => {
   if (c.charAt(0) == "!") {
     n.important = true;
     c = c.substring(1);
@@ -812,24 +820,19 @@ var classMod = (c, n) => {
 };
 
 function compile(c) {
-  var node = {minus: ""};
-  var c = compileVariants(c, node);
-  c = classMod(c, node);
+  var node = {class: c, minus: "", priority: 0};
+  var c = classPrefix(compileVariants(c, node), node);
 
   var parts = c.split("-");
-  var i = parts.length;
-  while (i > 0) {
-    var s = parts.slice(0, i);
-    s = s.join("-");
-    var fn = lookup[s];
+  for (var i=parts.length; i > 0; i--) {
+    var fn = lookup[parts.slice(0, i).join("-")];
     if (fn) {
-     node.props = fn(parts, node);
-     for (const [key, value] of Object.entries(node.props)) {
+      node.props = fn(parts, node);
+      for (const [key, value] of Object.entries(node.props)) {
         if (!value) return false;
-     }
-     return node
+      }
+      return node
     }
-    i--;
   }
   return false
 }
@@ -931,6 +934,7 @@ var tests = [
   ["-inset-1/2", {"top": "-50%", "right": "-50%", "bottom": "-50%", "left": "-50%"}],
   ["inset-full", {"top": "100%", "right": "100%", "bottom": "100%", "left": "100%"}],
   ["-inset-full", {"top": "-100%", "right": "-100%", "bottom": "-100%", "left": "-100%"}],
+  ["inset-9/10", {"top": "90%", "right": "90%", "bottom": "90%", "left": "90%"}],
 
   ["inset-x-auto", {"right": "auto", "left": "auto"}],
   ["-inset-x-auto", {"right": "auto", "left": "auto"}],
@@ -944,7 +948,93 @@ var tests = [
   ["-inset-x-1/2", {"right": "-50%", "left": "-50%"}],
   ["inset-x-full", {"right": "100%", "left": "100%"}],
   ["-inset-x-full", {"right": "-100%", "left": "-100%"}],
+
+  ["inset-y-auto", {"top": "auto", "bottom": "auto"}],
+  ["-inset-y-auto", {"top": "auto", "bottom": "auto"}],
+  ["inset-y-0", {"top": "0", "bottom": "0"}],
+  ["inset-y-px", {"top": "1px", "bottom": "1px"}],
+  ["-inset-y-0", {"top": "0", "bottom": "0"}],
+  ["-inset-y-px", {"top": "-1px", "bottom": "-1px"}],
+  ["inset-y-1", {"top": "0.25rem", "bottom": "0.25rem"}],
+  ["-inset-y-1", {"top": "-0.25rem", "bottom": "-0.25rem"}],
+  ["inset-y-1/2", {"top": "50%", "bottom": "50%"}],
+  ["-inset-y-1/2", {"top": "-50%", "bottom": "-50%"}],
+  ["inset-y-full", {"top": "100%", "bottom": "100%"}],
+  ["-inset-y-full", {"top": "-100%", "bottom": "-100%"}],
+
+  ["top-auto", {"top": "auto"}],
+  ["-top-auto", {"top": "auto"}],
+  ["top-0", {"top": "0"}],
+  ["top-px", {"top": "1px"}],
+  ["-top-0", {"top": "0"}],
+  ["-top-px", {"top": "-1px"}],
+  ["top-1", {"top": "0.25rem"}],
+  ["-top-1", {"top": "-0.25rem"}],
+  ["top-1/2", {"top": "50%"}],
+  ["-top-1/2", {"top": "-50%"}],
+  ["top-full", {"top": "100%"}],
+  ["-top-full", {"top": "-100%"}],
+
+  ["bottom-auto", {"bottom": "auto"}],
+  ["-bottom-auto", {"bottom": "auto"}],
+  ["bottom-0", {"bottom": "0"}],
+  ["bottom-px", {"bottom": "1px"}],
+  ["-bottom-0", {"bottom": "0"}],
+  ["-bottom-px", {"bottom": "-1px"}],
+  ["bottom-1", {"bottom": "0.25rem"}],
+  ["-bottom-1", {"bottom": "-0.25rem"}],
+  ["bottom-1/2", {"bottom": "50%"}],
+  ["-bottom-1/2", {"bottom": "-50%"}],
+  ["bottom-full", {"bottom": "100%"}],
+  ["-bottom-full", {"bottom": "-100%"}],
+
+  ["left-1", {"left": "0.25rem"}],
+  ["right-1", {"right": "0.25rem"}],
+
+  ["flex-row", {"flex-direction": "row"}],
+  ["flex-row-reverse", {"flex-direction": "row-reverse"}],
+  ["flex-col", {"flex-direction": "column"}],
+  ["flex-col-reverse", {"flex-direction": "column-reverse"}],
+
+  ["flex-wrap", {"flex-wrap": "wrap"}], 
+  ["flex-wrap-reverse", {"flex-wrap": "wrap-reverse"}],
+  ["flex-nowrap", {"flex-wrap": "nowrap"}],
+
+  ["flex-1", {"flex": "1 1 0%"}],
+  ["flex-auto", {"flex": "1 1 auto"}],
+  ["flex-initial", {"flex": "0 1 auto"}],
+  ["flex-none", {"flex": "none"}],
+
+  ["flex-grow-0", {"flex-grow": "0"}],
+  ["flex-grow", {"flex-grow": "1"}],
+  ["flex-shrink-0", {"flex-shrink": "0"}],
+  ["flex-shrink", {"flex-shrink": "1"}],
+
+  ["order-12",  {"order": "12"}],
+  ["order-first", {"order": "-9999"}],
+  ["order-last",  {"order": "9999"}],
+  ["order-none",  {"order": "0"}],
+
+  ["grid-cols-12", {"grid-template-columns": "repeat(12, minmax(0, 1fr))"}],
+  ["grid-cols-none", {"grid-template-columns": "none"}],
+  ["grid-cols-21", {"grid-template-columns": "repeat(21, minmax(0, 1fr))"}],
+
+  ["grid-rows-12", {"grid-template-rows": "repeat(12, minmax(0, 1fr))"}],
+  ["grid-rows-none", {"grid-template-rows": "none"}],
+  ["grid-rows-21", {"grid-template-rows": "repeat(21, minmax(0, 1fr))"}],
+
+  ["col-auto", {"grid-column": "auto"}],
+  ["col-span-1", {"grid-column": "span 1 / span 1"}],
+  ["col-span-full", {"grid-column": "1 / -1"}],
+  ["col-start-2", {"grid-column-start": "2"}],
+  ["col-start-auto", {"grid-column-start": "auto"}],
+  ["col-end-2", {"grid-column-end": "2"}],
+  ["col-end-auto", {"grid-column-end": "auto"}],
+
   ["xxxx", false],
+  ["", false],
+  ["-", false],
+  ["!", false],
 ];
 
 var ntests = tests.length;

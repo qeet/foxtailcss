@@ -1,4 +1,4 @@
-import {compile} from "./compiler/index.js";
+import {compile, rule} from "./compiler/index.js";
 
 var Rules = {};
 
@@ -7,10 +7,6 @@ var addClass = (c) => {
   if (!(c in Rules)) {
     Rules[c] = compile(c);
   }
-}
-
-var escapeClass = (c) => {
-  return "." + c.replace(":", "\\:")
 }
 
 var insertBaseStyles = () => {
@@ -37,21 +33,13 @@ var insertBaseStyles = () => {
 }
 
 var insertStyles = () => {
-  var s = ""
+  var s = []
   for (const [key, value] of Object.entries(Rules)) {
-    if (!value) continue;
-    s += escapeClass(key)
-    if (value.pseudo) s += ":" + value.pseudo
-    if (value.element) s += "::" + value.element  
-    s += " {"
-    for (const [p, v] of Object.entries(value.props)) {
-      s += p + ":" + v + ";"
-    }
-    s += "}\n"
+    if (value) s.push(rule(value))
   }
   var style = document.createElement("style");
   document.head.append(style);
-  style.textContent = s;
+  style.textContent = s.join("");
 }
 
 var compilePage = () => {

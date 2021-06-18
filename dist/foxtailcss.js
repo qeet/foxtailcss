@@ -6,8 +6,24 @@
    */
   const L_screens = { "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px" };
 
+  const L_color = {
+    'gray':   'F9FAFBF3F4F6E5E7EBD1D5DB9CA3AF6B72804B55633741511F2937111827',
+    'red':    'FEF2F2FEE2E2FECACAFCA5A5F87171EF4444DC2626B91C1C991B1B7F1D1D',
+    'yellow': 'FFFBEBFEF3C7FDE68AFCD34DFBBF24F59E0BD97706B4530992400E78350F',
+    'green':  'ECFDF5D1FAE5A7F3D06EE7B734D39910B981059669047857065F46064E3B', 
+    'blue':   'EFF6FFDBEAFEBFDBFE93C5FD60A5FA3B82F62563EB1D4ED81E40AF1E3A8A',
+    'indigo': 'EEF2FFE0E7FFC7D2FEA5B4FC818CF86366F14F46E54338CA3730A3312E81',
+    'pink':   'FDF2F8FCE7F3FBCFE8F9A8D4F472B6EC4899DB2777DB27779D174D831843',
+    'purple': 'F5F3FFEDE9FEDDD6FEC4B5FDA78BFA8B5CF67C3AED6D28D95B21B64C1D95',
+  };
+
   const L_objectFit = [ "contain", "cover", "fill", "none", "scale" ];
 
+  const L_flex = { "1":  "1 1 0%", "auto": "1 1 auto", "initial": "0 1 auto", "none": "none" };
+
+  const L_media = { sm: 100, md: 200, lg: 300, xl: 400, "2xl": 500, dark: 10 };
+
+  const L_order = {first: "-9999", last: "9999", none: "0"};
 
 
   /* 
@@ -40,15 +56,34 @@
     return {[n + "-" + p[1]]: p[2]}  
   };
 
-  const Lcolor = {
-    'gray':   'F9FAFBF3F4F6E5E7EBD1D5DB9CA3AF6B72804B55633741511F2937111827',
-    'red':    'FEF2F2FEE2E2FECACAFCA5A5F87171EF4444DC2626B91C1C991B1B7F1D1D',
-    'yellow': 'FFFBEBFEF3C7FDE68AFCD34DFBBF24F59E0BD97706B4530992400E78350F',
-    'green':  'ECFDF5D1FAE5A7F3D06EE7B734D39910B981059669047857065F46064E3B', 
-    'blue':   'EFF6FFDBEAFEBFDBFE93C5FD60A5FA3B82F62563EB1D4ED81E40AF1E3A8A',
-    'indigo': 'EEF2FFE0E7FFC7D2FEA5B4FC818CF86366F14F46E54338CA3730A3312E81',
-    'purple': 'F5F3FFEDE9FEDDD6FEC4B5FDA78BFA8B5CF67C3AED6D28D95B21B64C1D95',
-    'pink':   'FDF2F8FCE7F3FBCFE8F9A8D4F472B6EC4899DB2777DB27779D174D831843',
+  var U_inset = (p, n) => {
+    var v = p.length == 2 ? HspacingPercent(p[1], n) : HspacingPercent(p[2], n);
+    if (p.length == 2) return {"top": v, "bottom": v, "right": v, "left": v}
+    if (p[1] == "x") return {"right": v, "left": v}
+    return {"top": v, "bottom": v}  
+  };
+
+  var U_flexDirection = (p) => {
+    if (p[1] == "col") p[1] = "column";
+    return {"flex-direction": Hargs(p, 1)}
+  };
+
+  var U_flexWrap = (p) => ({"flex-wrap": Hargs(p, 1)});
+
+  var U_flex = (p) => ({"flex": L_flex[p[1]]});
+
+  var U_flexGrowShrink = (p) => ({["flex-" + p[1]]: p[2] == "0" ? "0" : "1"});
+
+  var U_order = (p) => {
+    var r = L_order[p[1]];
+    return {"order": r ? r : p[1]}
+
+  };
+
+  var U_gridTemplate = (p) => {
+    if (p[1] == "cols") p[1] = "columns";
+    var r = p[2] == "none" ? "none" : "repeat(" + p[2] + ", minmax(0, 1fr))";
+    return {["grid-template-" + p[1]]: r}
   };
 
   var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";   
@@ -57,7 +92,7 @@
     if (v == "black") return h ? "#000000" : "rgba(0, 0, 0," + o + ")"
     if (v == "white") return h ? "#ffffff" : "rgba(255, 255, 255," + o + ")"
     var p = v.split("-");
-    var c = Lcolor[p[0]];
+    var c = L_color[p[0]];
     if (c) {
       var s = parseInt(p[1])/100;
       s = s < 1 ? 0 : s*6;
@@ -66,18 +101,18 @@
       return "rgba(" + Hcomp(s, 0) + Hcomp(s, 2) + Hcomp(s, 4) + o + ")"
     }
   };
-  var HisColor = (v) => Lcolor[v] || v == "black" || v == "white" || v == "transparent" || v == "current";
+  var HisColor = (v) => L_color[v] || v == "black" || v == "white" || v == "transparent" || v == "current";
   var HcolorUtil = (col, prop, name) => {
     if (col == "transparent") return {[prop]:"transparent"}
     if (col == "current") return {[prop]: "currentColor"}
     return {[prop]: Hcolor(col, "var(--tw-" + name + "-opacity)"), ["--tw-"+ name +"-opacity"]: "1"}
   };  
 
-  var Hpercent = (v) => {
-    if (v == "full") return "100%"
+  var Hpercent = (v, n) => {
+    if (v == "full") return n.minus + "100%"
     if (v.indexOf("/") > -1) {
       var p = v.split("/");
-      return (parseInt(p[0]) / parseInt(p[1])) * 100 + "%"
+      return n.minus + (parseInt(p[0]) / parseInt(p[1])) * 100 + "%"
     }
   };
   const Lspacing = {
@@ -87,16 +122,16 @@
     '36': '9','40': '10','44': '11','48': '12','52': '13','56': '14','60': '15','64': '16','72': '18',
     '80': '20','96': '24',
   };
-  var Hspacing = (v) => {
+  var Hspacing = (v, n) => {
     if (v == "0" || v == "auto") return v
-    if (v == "px") return "1px"
+    if (v == "px") return n.minus + "1px"
     v = Lspacing[v];
-    if (v) v = v +"rem";
+    if (v) v = n.minus + v +"rem";
     return v
   };
-  var HspacingPercent = (v) => {
-    var r = Hspacing(v);
-    if (!r) r = Hpercent(v);
+  var HspacingPercent = (v, n) => {
+    var r = Hspacing(v, n);
+    if (!r) r = Hpercent(v, n);
     return r
   };
   var Hfloat = (v) => (parseInt(v)/100).toString();
@@ -148,40 +183,18 @@
 
   var Uinline = (p, n) => ({"display":Hargs(p, 0)});
 
-  const Lflex = {
-    "1":  "1 1 0%",
-    "auto": "1 1 auto",
-    "initial": "0 1 auto",
-    "none": "none",
-  };
-  var Uflex = (p, n) => ({"flex":Lflex[p[1]]});
 
-  var UflexWrap = (p, n) => ({"flex-wrap":Hargs(p, 1)});
 
-  var UflexDirection = (p, n) => {
-    if (p[1] == "col") p[1] = "column";
-    return {"flex-direction":Hargs(p, 1)}
-  };
 
-  var UflexGrowShrink = (p, n) => ({["flex-" + p[1]]: p[2] == "0" ? "0" : "1"});
 
-  const Lorder = {
-    "first": "-9999",
-    "last": "9999",
-    "none": "0",
-  };
-  var Uorder = (p, n) => {
-    var r = Lorder[p[1]];
-    if (!r) r = p[1];
-    return {"order": r}
 
-  };
 
-  var UgridTemplate = (p, n) => {
-    if (p[1] == "cols") p[1] = "columns";
-    var r = p[2] == "none" ? "none" : "repeat(" + p[2] + ", minmax(0, 1fr))";
-    return {["grid-template-" + p[1]]: r}
-  };
+
+
+
+
+
+
   var UgridSpan = (p, n) => {
     if (p[0] == "col") p[0] = "column";
     var r = p[2] == "full" ? "1 / -1" : "span " + p[2] + " / " + "span " + p[2];
@@ -207,10 +220,10 @@
     var v, prop;
     if (p.length == 2) {
       prop = "gap";
-      v = Hspacing(p[1]);
+      v = Hspacing(p[1], n);
     }
     else {
-      v = Hspacing(p[2]);
+      v = Hspacing(p[2], n);
       prop = p[1] == "x" ? "column-gap" : "row-gap";
     }
     return {[prop]: v}
@@ -243,21 +256,21 @@
 
 
 
-  var Upadding = (p, n) => ({"padding":Hspacing(p[1])});
-  var UpaddingX = (p, n) => ({"padding-left":Hspacing(p[1]), "padding-right":Hspacing(p[1])});
-  var UpaddingY = (p, n) => ({"padding-top":Hspacing(p[1]), "padding-bottom":Hspacing(p[1])});
-  var UpaddingT = (p, n) => ({"padding-top":Hspacing(p[1])});
-  var UpaddingB = (p, n) => ({"padding-bottom":Hspacing(p[1])});
-  var UpaddingL = (p, n) => ({"padding-left":Hspacing(p[1])});
-  var UpaddingR = (p, n) => ({"padding-right":Hspacing(p[1])});
+  var Upadding = (p, n) => ({"padding":Hspacing(p[1], n)});
+  var UpaddingX = (p, n) => ({"padding-left":Hspacing(p[1], n), "padding-right":Hspacing(p[1], n)});
+  var UpaddingY = (p, n) => ({"padding-top":Hspacing(p[1], n), "padding-bottom":Hspacing(p[1], n)});
+  var UpaddingT = (p, n) => ({"padding-top":Hspacing(p[1], n)});
+  var UpaddingB = (p, n) => ({"padding-bottom":Hspacing(p[1], n)});
+  var UpaddingL = (p, n) => ({"padding-left":Hspacing(p[1], n)});
+  var UpaddingR = (p, n) => ({"padding-right":Hspacing(p[1], n)});
 
-  var Umargin = (p, n) => ({"margin":Hspacing(p[1])});
-  var UmarginX = (p, n) => ({"margin-left":Hspacing(p[1]), "margin-right":Hspacing(p[1])});
-  var UmarginY = (p, n) => ({"margin-top":Hspacing(p[1]), "margin-bottom":Hspacing(p[1])});
-  var UmarginT = (p, n) => ({"margin-top":Hspacing(p[1])});
-  var UmarginB = (p, n) => ({"margin-bottom":Hspacing(p[1])});
-  var UmarginL = (p, n) => ({"margin-left":Hspacing(p[1])});
-  var UmarginR = (p, n) => ({"margin-right":Hspacing(p[1])});
+  var Umargin = (p, n) => ({"margin":Hspacing(p[1], n)});
+  var UmarginX = (p, n) => ({"margin-left":Hspacing(p[1], n), "margin-right":Hspacing(p[1], n)});
+  var UmarginY = (p, n) => ({"margin-top":Hspacing(p[1], n), "margin-bottom":Hspacing(p[1], n)});
+  var UmarginT = (p, n) => ({"margin-top":Hspacing(p[1], n)});
+  var UmarginB = (p, n) => ({"margin-bottom":Hspacing(p[1], n)});
+  var UmarginL = (p, n) => ({"margin-left":Hspacing(p[1], n)});
+  var UmarginR = (p, n) => ({"margin-right":Hspacing(p[1], n)});
 
   const LwidthHeight = {
     "screen": "100vh",
@@ -266,15 +279,15 @@
   };
   var UwidthHeight = (p, n) => {
     var prop = p[0] == "w" ? "width" : "height"; 
-    var r = HspacingPercent(p[1]);
+    var r = HspacingPercent(p[1], n);
     if (!r) r = LwidthHeight[p[1]];
     if (p[0] = p[1] == "screen") r = "100vw";
     return {[prop]: r}
   };
-  var UminWdithHeight = (p) => {
+  var UminWdithHeight = (p, n) => {
     var prop = p[1] == "w" ? "min-width" : "min-height"; 
-    var r = HspacingPercent(p[2]);
-    if (!r) r = LwidthHeight[p[2]];
+    var r = HspacingPercent(p[2], n);
+    if (!r) r = LwidthHeight[p[2], n];
     return {[prop]: r}
   };
   const LmaxWidth = {
@@ -293,8 +306,8 @@
     }
     return {"max-width": v}
   };
-  var UmaxHeight = (p) => { 
-    var r = HspacingPercent(p[2]);
+  var UmaxHeight = (p, n) => { 
+    var r = HspacingPercent(p[2], n);
     if (!r) r = LwidthHeight[p[2]];
     return {"max-height": r}
   };
@@ -344,7 +357,7 @@
     }
   };
   var Urotate = (p) => ({"--tw-rotate": p[1] + "deg"});
-  var Utranslate = (p) => ({["--tw-translate-"+p[1]]: HspacingPercent(p[2])});
+  var Utranslate = (p, n) => ({["--tw-translate-"+p[1]]: HspacingPercent(p[2], n)});
   var Uskew = (p) => ({["--tw-skew-"+p[1]]: p[2] + "deg"});
 
   const Ltransition = {
@@ -373,13 +386,8 @@
 
   var Uopacity = (p) =>  ({"opacity":Hfloat(p[2])});
 
-  var U_inset = (p) => {
-    var v = p.length == 2 ? HspacingPercent(p[1]) : HspacingPercent(p[2]);
-    if (p.length == 2) return {"top": v, "bottom": v, "right": v, "left": v}
-    if (p[1] == "x") return {"right": v, "left": v}
-    return {"top": v, "bottom": v}  
-  };
-  var UtopRightBottomLeft = (p) => ({[p[0]]: HspacingPercent(p[1])}); 
+
+  var UtopRightBottomLeft = (p, n) => ({[p[0]]: HspacingPercent(p[1], n)}); 
 
 
 
@@ -578,31 +586,44 @@
   };
 
   const lookup = {
-    absolute:     U_position,
-    block:        U_display,
-    box:          U_boxSizing,
-    clear:        U_clearFloat,
-    contents:     U_display,
-    decoration:   U_boxDecorationBreak,
-    fixed:        U_position,
-    flex:         U_display,
-    float:        U_clearFloat,
-    "flow-root":  U_display,
-    grid:         U_display,
-    hidden:       U_display,
-    inset:        U_inset,
-    invisible:    U_visibility,
-    isolate:      U_isolation,
-    isolation:    U_isolation,
-    "list-item":  U_display,
-    object:       U_objectFitPosition,
-    relative:     U_position,
-    static:       U_position,
-    sticky:       U_position,
-    overflow:     U_overScrollFlow,
-    overscroll:   U_overScrollFlow,
-    visible:      U_visibility,
-    z:            U_zindex,  
+    absolute:       U_position,
+    block:          U_display,
+    box:            U_boxSizing,
+    clear:          U_clearFloat,
+    contents:       U_display,
+    decoration:     U_boxDecorationBreak,
+    fixed:          U_position,
+    flex:           U_display,
+    "flex-col":     U_flexDirection,
+    "flex-row":     U_flexDirection,
+    "flex-nowrap":  U_flexWrap,
+    "flex-wrap":    U_flexWrap,
+    "flex-1":       U_flex,
+    "flex-auto":    U_flex,
+    "flex-initial": U_flex,
+    "flex-none":    U_flex,
+    "flex-grow":    U_flexGrowShrink,
+    "flex-shrink":  U_flexGrowShrink,
+    float:          U_clearFloat,
+    "flow-root":    U_display,
+    grid:           U_display,
+    "grid-cols":    U_gridTemplate,
+    "grid-rows":    U_gridTemplate,
+    hidden:         U_display,
+    inset:          U_inset,
+    invisible:      U_visibility,
+    isolate:        U_isolation,
+    isolation:      U_isolation,
+    "list-item":    U_display,
+    object:         U_objectFitPosition,
+    order:          U_order,
+    relative:       U_position,
+    static:         U_position,
+    sticky:         U_position,
+    overflow:       U_overScrollFlow,
+    overscroll:     U_overScrollFlow,
+    visible:        U_visibility,
+    z:              U_zindex,  
     
 
 
@@ -722,8 +743,7 @@
     "inline": Uinline,
 
     "auto": UgridAuto,
-    "grid-cols": UgridTemplate,
-    "grid-rows":UgridTemplate,
+    
     "grid-flow": UgridAutoFlow,
     "col-span": UgridSpan,
     "row-span": UgridSpan,
@@ -748,21 +768,13 @@
     "table": Utable,
 
 
-    "flex-wrap": UflexWrap,
+    
 
-    "flex-1": Uflex,
-    "flex-auto": Uflex,
-    "flex-initial": Uflex,
-    "flex-none": Uflex,
+   
+   
+    
 
-    "flex-row": UflexDirection,
-    "flex-col": UflexDirection,
-
-    "order": Uorder,
-
-    "flex-grow": UflexGrowShrink,
-    "flex-shrink": UflexGrowShrink,
-
+   
     "m": Umargin,
     "mx": UmarginX,
     "my": UmarginY,
@@ -788,35 +800,78 @@
    
   };
 
-  var variants = (c, n) => {
-    var parts = c.split(":");
-    var i=0, len=parts.length-1;
-    while (i < len) {
-      n.pseudo = parts[i];
-      i++;
+  var compileVariants = (c, n) => {
+    var v = c.split(":");
+    var len = v.length-1;
+    for (var i=0; i < len; i++) {
+      var curr = v[i];
+      var p = L_media[curr];
+      if (p) {
+        n.priority += (p*10);
+        n.media.push(curr);
+        continue
+      }
+      n.pseudo = v[i];
     }
-    return parts[parts.length-1]
+    return v[len]
+  };
+
+  var classPrefix = (c, n) => {
+    if (c.charAt(0) == "!") {
+      n.important = true;
+      c = c.substring(1);
+    }
+    if (c.charAt(0) == "-") {
+      n.minus = "-";
+      c = c.substring(1);
+    }
+    return c
   };
 
   function compile(c) {
-    var node = {};
-    var c = variants(c, node);
+    var node = {class: c, minus: "", priority: 0, media:[]};
+    var c = classPrefix(compileVariants(c, node), node);
+
     var parts = c.split("-");
-    var i = parts.length;
-    while (i > 0) {
-      var s = parts.slice(0, i);
-      s = s.join("-");
-      var fn = lookup[s];
+    for (var i=parts.length; i > 0; i--) {
+      var fn = lookup[parts.slice(0, i).join("-")];
       if (fn) {
-       node.props = fn(parts, node);
-       for (const [key, value] of Object.entries(node.props)) {
+        node.props = fn(parts, node);
+        for (const [key, value] of Object.entries(node.props)) {
           if (!value) return false;
-       }
-       return node
+        }
+        return node
       }
-      i--;
     }
     return false
+  }
+
+  var escapeClass = (c) => {
+    c = c.replace(/[^A-Za-z0-9_-]/g, "\\$&");
+    if (/^[0-9]/.test(c)) {
+      c = "\\" + c.charCodeAt(0).toString(16) + c.substring(1);
+    }
+    return "." + c
+  };
+
+  var P_Rule = (n) => {
+    var s = [escapeClass(n.class)];
+    if (n.pseudo) s.push(":" + n.pseudo);
+    if (n.element) s.push("::" + n.element);  
+    s.push("{");
+    for (const [p, v] of Object.entries(n.props)) {
+      s.push(p + ":" + v + ";");
+    }
+    s.push("}\n");
+    return s.join("")
+  };
+
+  function rule(n) {
+    var s = "";
+    if (n.media.length > 0) s = "@media (min-width: " + L_screens[n.media[0]] + "){";
+    s += P_Rule(n);
+    if (n.media.length > 0) s += "}";
+    return s 
   }
 
   var Rules = {};
@@ -826,10 +881,6 @@
     if (!(c in Rules)) {
       Rules[c] = compile(c);
     }
-  };
-
-  var escapeClass = (c) => {
-    return "." + c.replace(":", "\\:")
   };
 
   var insertBaseStyles = () => {
@@ -856,21 +907,13 @@
   };
 
   var insertStyles = () => {
-    var s = "";
+    var s = [];
     for (const [key, value] of Object.entries(Rules)) {
-      if (!value) continue;
-      s += escapeClass(key);
-      if (value.pseudo) s += ":" + value.pseudo;
-      if (value.element) s += "::" + value.element;  
-      s += " {";
-      for (const [p, v] of Object.entries(value.props)) {
-        s += p + ":" + v + ";";
-      }
-      s += "}\n";
+      if (value) s.push(rule(value));
     }
     var style = document.createElement("style");
     document.head.append(style);
-    style.textContent = s;
+    style.textContent = s.join("");
   };
 
   var compilePage = () => {
