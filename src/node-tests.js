@@ -103,6 +103,19 @@ var U_gridAuto = (p) => {
   return {["grid-auto-" + p[1]]: L_gridAuto[p[2]]}
 };
 
+var U_gap = (p, n) => {
+  var v, prop;
+  if (p.length == 2) {
+    prop = "gap";
+    v = Hspacing(p[1], n);
+  }
+  else {
+    v = Hspacing(p[2], n);
+    prop = p[1] == "x" ? "column-gap" : "row-gap";
+  }
+  return {[prop]: v}
+};
+
 var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";   
 var Hcolor = (v, o, h) => {
   if (!o) o = 1;
@@ -224,20 +237,9 @@ var UgridStartEnd = (p, n) => {
 };
 
 
-var Ugap = (p, n) => {
-  var v, prop;
-  if (p.length == 2) {
-    prop = "gap";
-    v = Hspacing(p[1], n);
-  }
-  else {
-    v = Hspacing(p[2], n);
-    prop = p[1] == "x" ? "column-gap" : "row-gap";
-  }
-  return {[prop]: v}
-};
+
 const LflexContent = {
-  "center": "center", "start": "start", "end": "end", "between": "space-between",
+  "center": "center", "start": "flex-start", "end": "flex-end", "between": "space-between",
   "around":  "space-around", "evenly":  "space-evenly", "stretch": "stretch"
 };
 var UflexContent = (p, n) => {
@@ -245,6 +247,7 @@ var UflexContent = (p, n) => {
   if (p[0] == "justify") prop = "justify-content";
   else if (p[0] == "place") {
     prop = "place-content";
+    if (p[2] == "start" || p[2] == "end") return {[prop]: p[2]} 
     s = 2;
   }
   return {[prop]: LflexContent[p[s]]}
@@ -615,6 +618,7 @@ const lookup = {
   "flex-shrink":  U_flexGrowShrink,
   float:          U_clearFloat,
   "flow-root":    U_display,
+  gap:            U_gap,
   grid:           U_display,
   "grid-cols":    U_gridTemplate,
   "grid-rows":    U_gridTemplate,
@@ -761,7 +765,7 @@ const lookup = {
   "col-end": UgridStartEnd,
   "row-start": UgridStartEnd,
   "row-end": UgridStartEnd,
-  "gap": Ugap,
+  
   "justify": UflexContent,
   "content": UflexContent,
   "place-content": UflexContent,
@@ -811,6 +815,15 @@ const lookup = {
  
 };
 
+var V_group = (c, n) => {
+  c = c.split("-");
+  var p = L_pseudo[c[1]];
+  if (p) {
+      n.priority += (p*10);
+      n.psel = ".group:" + c[1];
+  }
+};
+
 var V_type = (n, v, l, a) => {
   var p = l[v];
   if (p) {
@@ -828,7 +841,8 @@ var V_compile = (c, n) => {
     var curr = v[i];
     if (!V_type(n, curr, L_media, n.media)) {
       if (!V_type(n, curr, L_pseudo, n.pseudo)) {
-        n.element = curr;
+        if (curr.startsWith("group")) V_group(curr, n); 
+        else n.element = curr;
       }
     }
   }
@@ -1088,7 +1102,68 @@ var tests = [
   ["items-baseline", {"align-items": "baseline"}],
   ["items-stretch", {"align-items": "stretch"}],
 
+  ["gap-0", {"gap": "0"}],
+  ["gap-x-0", {"column-gap": "0"}],
+  ["gap-y-0", {"row-gap": "0"}],
+  ["gap-4", {"gap": "1rem"}],
+  ["gap-x-4", {"column-gap": "1rem"}],
+  ["gap-y-4", {"row-gap": "1rem"}],
 
+  ["justify-start", {"justify-content": "flex-start"}],
+  ["justify-end", {"justify-content": "flex-end"}],
+  ["justify-center",  {"justify-content": "center"}],
+  ["justify-between", {"justify-content": "space-between"}],
+  ["justify-around",  {"justify-content": "space-around"}],
+  ["justify-evenly",  {"justify-content": "space-evenly"}],
+
+  ["justify-items-start", {"justify-items": "start"}],    
+  ["justify-items-end", {"justify-items": "end"}],
+  ["justify-items-center",  {"justify-items": "center"}],
+  ["justify-items-stretch", {"justify-items": "stretch"}],
+
+  ["justify-self-auto", {"justify-self": "auto"}],
+  ["justify-self-start", {"justify-self": "start"}],
+  ["justify-self-end",  {"justify-self": "end"}],
+  ["justify-self-center", {"justify-self": "center"}],
+  ["justify-self-stretch", {"justify-self": "stretch"}],
+
+  ["content-center",  {"align-content": "center"}],
+  ["content-start", {"align-content": "flex-start"}],
+  ["content-end", {"align-content": "flex-end"}],
+  ["content-between", {"align-content": "space-between"}],
+  ["content-around", {"align-content": "space-around"}],
+  ["content-evenly", {"align-content": "space-evenly"}],
+
+  ["items-start", {"align-items": "flex-start"}],
+  ["items-end", {"align-items": "flex-end"}],
+  ["items-center", {"align-items": "center"}],
+  ["items-baseline", {"align-items": "baseline"}],
+  ["items-stretch", {"align-items": "stretch"}],
+
+  ["self-auto", {"align-self": "auto"}],
+  ["self-start", {"align-self": "flex-start"}],
+  ["self-end", {"align-self": "flex-end"}],
+  ["self-center", {"align-self": "center"}],
+  ["self-stretch", {"align-self": "stretch"}],
+
+  ["place-content-center", {"place-content": "center"}],
+  ["place-content-start", {"place-content": "start"}],
+  ["place-content-end", {"place-content": "end"}],
+  ["place-content-between", {"place-content": "space-between"}],
+  ["place-content-around",  {"place-content": "space-around"}],
+  ["place-content-evenly", {"place-content": "space-evenly"}],
+  ["place-content-stretch", {"place-content": "stretch"}],
+
+  ["place-items-start", {"place-items": "start"}],
+  ["place-items-end", {"place-items": "end"}],
+  ["place-items-center", {"place-items": "center"}],
+  ["place-items-stretch", {"place-items": "stretch"}],
+
+  ["place-self-auto", {"place-self": "auto"}],
+  ["place-self-start",  {"place-self": "start"}],
+  ["place-self-end",  {"place-self": "end"}],
+  ["place-self-center", {"place-self": "center"}],
+  ["place-self-stretch",  {"place-self": "stretch"}],
 
   ["xxxx", false],
   ["", false],
