@@ -21,6 +21,13 @@
 
   const L_flex = { "1":  "1 1 0%", "auto": "1 1 auto", "initial": "0 1 auto", "none": "none" };
 
+  const L_pseudo = {
+    only: 1, "first-of-type": 2, "last-of-type": 3, target: 4, default: 5, indeterminate: 6,
+    "placeholder-shown": 7, autofill: 8, valid: 9, invalid: 10, "in-range": 11, "out-of-range": 12,
+    first: 13, last: 14, odd: 15, even: 16, visited: 17, checked: 18, "focus-within": 19, hover: 20,
+    focus: 21, "focus-visible": 22, active: 23, disabled: 24,
+  };
+
   const L_media = { sm: 100, md: 200, lg: 300, xl: 400, "2xl": 500, dark: 10 };
 
   const L_order = {first: "-9999", last: "9999", none: "0"};
@@ -800,18 +807,26 @@
    
   };
 
-  var compileVariants = (c, n) => {
+  var V_type = (n, v, l, a) => {
+    var p = l[v];
+    if (p) {
+        n.priority += (p*10);
+        a.push(v);
+        return true
+      }
+      return false
+  };
+
+  var V_compile = (c, n) => {
     var v = c.split(":");
     var len = v.length-1;
     for (var i=0; i < len; i++) {
       var curr = v[i];
-      var p = L_media[curr];
-      if (p) {
-        n.priority += (p*10);
-        n.media.push(curr);
-        continue
+      if (!V_type(n, curr, L_media, n.media)) {
+        if (!V_type(n, curr, L_pseudo, n.pseudo)) {
+          n.element = curr;
+        }
       }
-      n.pseudo = v[i];
     }
     return v[len]
   };
@@ -829,8 +844,8 @@
   };
 
   function compile(c) {
-    var node = {class: c, minus: "", priority: 0, media:[]};
-    var c = classPrefix(compileVariants(c, node), node);
+    var node = {class: c, minus: "", priority: 0, media: [], pseudo: []};
+    var c = classPrefix(V_compile(c, node), node);
 
     var parts = c.split("-");
     for (var i=parts.length; i > 0; i--) {
@@ -846,7 +861,11 @@
     return false
   }
 
-  var escapeClass = (c) => {
+  /*
+   * Rule printing
+   */
+
+  var P_escape = (c) => {
     c = c.replace(/[^A-Za-z0-9_-]/g, "\\$&");
     if (/^[0-9]/.test(c)) {
       c = "\\" + c.charCodeAt(0).toString(16) + c.substring(1);
@@ -855,8 +874,8 @@
   };
 
   var P_Rule = (n) => {
-    var s = [escapeClass(n.class)];
-    if (n.pseudo) s.push(":" + n.pseudo);
+    var s = [P_escape(n.class)];
+    for (var i=0; i<n.pseudo.length; i++) s.push(":" + n.pseudo[i]);
     if (n.element) s.push("::" + n.element);  
     s.push("{");
     for (const [p, v] of Object.entries(n.props)) {
@@ -866,11 +885,30 @@
     return s.join("")
   };
 
-  function rule(n) {
+  var P_sort = (rules) => {
+     return rules.sort((e1, e2) => {
+      if (!e1 && !e2) return 0
+      if (!e1 && e2) return -1;
+      if (e1 && !e2) return 1;
+      if (e2.priority < e1.priority) return 1
+      if (e2.priority > e1.priority) return -1
+      return 0
+    }) 
+  };
+
+  function printRules(rules) {
+    rules = P_sort(rules);
     var s = "";
-    if (n.media.length > 0) s = "@media (min-width: " + L_screens[n.media[0]] + "){";
-    s += P_Rule(n);
-    if (n.media.length > 0) s += "}";
+    var i=0, len = rules.length;
+    while (i < len) {
+      var n = rules[i];
+      if (n) {
+        if (n.media.length > 0) s += "@media (min-width: " + L_screens[n.media[0]] + "){";
+        s += P_Rule(n);
+        if (n.media.length > 0) s += "}";
+      }
+      i++;
+    }
     return s 
   }
 
@@ -907,13 +945,9 @@
   };
 
   var insertStyles = () => {
-    var s = [];
-    for (const [key, value] of Object.entries(Rules)) {
-      if (value) s.push(rule(value));
-    }
     var style = document.createElement("style");
     document.head.append(style);
-    style.textContent = s.join("");
+    style.textContent = printRules(Object.values(Rules));
   };
 
   var compilePage = () => {

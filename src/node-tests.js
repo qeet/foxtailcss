@@ -20,6 +20,15 @@ const L_objectFit = [ "contain", "cover", "fill", "none", "scale" ];
 
 const L_flex = { "1":  "1 1 0%", "auto": "1 1 auto", "initial": "0 1 auto", "none": "none" };
 
+const L_pseudo = {
+  only: 1, "first-of-type": 2, "last-of-type": 3, target: 4, default: 5, indeterminate: 6,
+  "placeholder-shown": 7, autofill: 8, valid: 9, invalid: 10, "in-range": 11, "out-of-range": 12,
+  first: 13, last: 14, odd: 15, even: 16, visited: 17, checked: 18, "focus-within": 19, hover: 20,
+  focus: 21, "focus-visible": 22, active: 23, disabled: 24,
+};
+
+const L_media = { sm: 100, md: 200, lg: 300, xl: 400, "2xl": 500, dark: 10 };
+
 const L_order = {first: "-9999", last: "9999", none: "0"};
 
 
@@ -797,14 +806,28 @@ const lookup = {
  
 };
 
-var compileVariants = (c, n) => {
-  var parts = c.split(":");
-  var i=0, len=parts.length-1;
-  while (i < len) {
-    n.pseudo = parts[i];
-    i++;
+var V_type = (n, v, l, a) => {
+  var p = l[v];
+  if (p) {
+      n.priority += (p*10);
+      a.push(v);
+      return true
+    }
+    return false
+};
+
+var V_compile = (c, n) => {
+  var v = c.split(":");
+  var len = v.length-1;
+  for (var i=0; i < len; i++) {
+    var curr = v[i];
+    if (!V_type(n, curr, L_media, n.media)) {
+      if (!V_type(n, curr, L_pseudo, n.pseudo)) {
+        n.element = curr;
+      }
+    }
   }
-  return parts[parts.length-1]
+  return v[len]
 };
 
 var classPrefix = (c, n) => {
@@ -820,8 +843,8 @@ var classPrefix = (c, n) => {
 };
 
 function compile(c) {
-  var node = {class: c, minus: "", priority: 0};
-  var c = classPrefix(compileVariants(c, node), node);
+  var node = {class: c, minus: "", priority: 0, media: [], pseudo: []};
+  var c = classPrefix(V_compile(c, node), node);
 
   var parts = c.split("-");
   for (var i=parts.length; i > 0; i--) {

@@ -1,4 +1,4 @@
-import {compile, rule} from "./compiler/index.js";
+import {compile, printRules} from "./compiler/index.js";
 
 var Rules = {};
 
@@ -33,13 +33,9 @@ var insertBaseStyles = () => {
 }
 
 var insertStyles = () => {
-  var s = []
-  for (const [key, value] of Object.entries(Rules)) {
-    if (value) s.push(rule(value))
-  }
   var style = document.createElement("style");
   document.head.append(style);
-  style.textContent = s.join("");
+  style.textContent = printRules(Object.values(Rules));
 }
 
 var compilePage = () => {
