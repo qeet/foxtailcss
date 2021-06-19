@@ -116,6 +116,15 @@ var U_gap = (p, n) => {
   return {[prop]: v}
 };
 
+var U_spaceBetween = (p, n) => {
+  n.csel = ":not([hidden]) ~ :not([hidden])";
+  if (p[2] == "reverse") return {["--tx-space-" + p[1] + "-reverse"]: "1"}
+  return {["--tw-space-"+ p[1] + "-reverse"]: "0",
+    ["margin-" + (p[1] == 'x' ? "right" : "bottom")] : "calc(" + Hspacing(p[2], n) + " * var(--tw-space-" + p[1] + "-reverse))",
+    ["margin-" + (p[1] == 'x' ? "left" : "top")]: "calc(" + Hspacing(p[2], n) + " * calc(1 - var(--tw-space-" + p[1] + "-reverse)))"
+  }
+};
+
 var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";   
 var Hcolor = (v, o, h) => {
   if (!o) o = 1;
@@ -632,6 +641,7 @@ const lookup = {
   object:         U_objectFitPosition,
   order:          U_order,
   relative:       U_position,
+  space:          U_spaceBetween, 
   static:         U_position,
   sticky:         U_position,
   overflow:       U_overScrollFlow,
@@ -1164,6 +1174,51 @@ var tests = [
   ["place-self-end",  {"place-self": "end"}],
   ["place-self-center", {"place-self": "center"}],
   ["place-self-stretch",  {"place-self": "stretch"}],
+
+  ["p-0", {"padding": "0"}],
+  ["px-0", {"padding-left": "0", "padding-right": "0"}],
+  ["py-0", {"padding-top": "0", "padding-bottom": "0"}],
+  ["pt-0", {"padding-top": "0"}],
+  ["pb-0", {"padding-bottom": "0"}],
+  ["pl-0", {"padding-left": "0"}],
+  ["pr-0", {"padding-right": "0"}],
+  ["p-96", {"padding": "24rem"}],
+  ["px-96", {"padding-left": "24rem", "padding-right": "24rem"}],
+  ["py-96", {"padding-top": "24rem", "padding-bottom": "24rem"}],
+  ["pt-96", {"padding-top": "24rem"}],
+  ["pb-96", {"padding-bottom": "24rem"}],
+  ["pl-96", {"padding-left": "24rem"}],
+  ["pr-96", {"padding-right": "24rem"}],
+
+  ["m-0", {"margin": "0"}],
+  ["-m-0", {"margin": "0"}],
+  ["mx-0", {"margin-left": "0", "margin-right": "0"}],
+  ["my-0", {"margin-top": "0", "margin-bottom": "0"}],
+  ["mt-0", {"margin-top": "0"}],
+  ["mb-0", {"margin-bottom": "0"}],
+  ["ml-0", {"margin-left": "0"}],
+  ["mr-0", {"margin-right": "0"}],
+  ["m-96", {"margin": "24rem"}],
+  ["mx-96", {"margin-left": "24rem", "margin-right": "24rem"}],
+  ["my-96", {"margin-top": "24rem", "margin-bottom": "24rem"}],
+  ["mt-96", {"margin-top": "24rem"}],
+  ["mb-96", {"margin-bottom": "24rem"}],
+  ["ml-96", {"margin-left": "24rem"}],
+  ["mr-96", {"margin-right": "24rem"}],
+  ["-m-96", {"margin": "-24rem"}],
+  ["-mx-96", {"margin-left": "-24rem", "margin-right": "-24rem"}],
+  ["-my-96", {"margin-top": "-24rem", "margin-bottom": "-24rem"}],
+  ["-mt-96", {"margin-top": "-24rem"}],
+  ["-mb-96", {"margin-bottom": "-24rem"}],
+  ["-ml-96", {"margin-left": "-24rem"}],
+  ["-mr-96", {"margin-right": "-24rem"}],
+
+  ["space-x-1", {"--tw-space-x-reverse": "0", "margin-right": "calc(0.25rem * var(--tw-space-x-reverse))",
+                  "margin-left": "calc(0.25rem * calc(1 - var(--tw-space-x-reverse)))"}],
+
+ 
+  ["space-y-1", {"--tw-space-y-reverse": "0", "margin-top": "calc(0.25rem * calc(1 - var(--tw-space-y-reverse)))",
+                  "margin-bottom": "calc(0.25rem * var(--tw-space-y-reverse))"}],
 
   ["xxxx", false],
   ["", false],

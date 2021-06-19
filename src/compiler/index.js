@@ -114,6 +114,15 @@ var U_gap = (p, n) => {
   return {[prop]: v}
 }
 
+var U_spaceBetween = (p, n) => {
+  n.csel = ":not([hidden]) ~ :not([hidden])"
+  if (p[2] == "reverse") return {["--tx-space-" + p[1] + "-reverse"]: "1"}
+  return {["--tw-space-"+ p[1] + "-reverse"]: "0",
+    ["margin-" + (p[1] == 'x' ? "right" : "bottom")] : "calc(" + Hspacing(p[2], n) + " * var(--tw-space-" + p[1] + "-reverse))",
+    ["margin-" + (p[1] == 'x' ? "left" : "top")]: "calc(" + Hspacing(p[2], n) + " * calc(1 - var(--tw-space-" + p[1] + "-reverse)))"
+  }
+}
+
 var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ","   
 var Hcolor = (v, o, h) => {
   if (!o) o = 1
@@ -630,6 +639,7 @@ const lookup = {
   object:         U_objectFitPosition,
   order:          U_order,
   relative:       U_position,
+  space:          U_spaceBetween, 
   static:         U_position,
   sticky:         U_position,
   overflow:       U_overScrollFlow,
@@ -894,7 +904,8 @@ var P_Rule = (n) => {
   if (n.psel) s.push(n.psel + " ")
   s.push(P_escape(n.class))
   for (var i=0; i<n.pseudo.length; i++) s.push(":" + n.pseudo[i])
-  if (n.element) s.push("::" + n.element)  
+  if (n.element) s.push("::" + n.element)
+  if (n.csel) s.push(" " + n.csel)  
   s.push("{")
   for (const [p, v] of Object.entries(n.props)) {
     s.push(p + ":" + v + ";")

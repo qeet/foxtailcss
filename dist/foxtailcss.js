@@ -104,6 +104,28 @@
     return {["grid-auto-" + p[1]]: L_gridAuto[p[2]]}
   };
 
+  var U_gap = (p, n) => {
+    var v, prop;
+    if (p.length == 2) {
+      prop = "gap";
+      v = Hspacing(p[1], n);
+    }
+    else {
+      v = Hspacing(p[2], n);
+      prop = p[1] == "x" ? "column-gap" : "row-gap";
+    }
+    return {[prop]: v}
+  };
+
+  var U_spaceBetween = (p, n) => {
+    n.csel = ":not([hidden]) ~ :not([hidden])";
+    if (p[2] == "reverse") return {["--tx-space-" + p[1] + "-reverse"]: "1"}
+    return {["--tw-space-"+ p[1] + "-reverse"]: "0",
+      ["margin-" + p[1] == 'x' ? "right" : "bottom"] : "calc(" + Hspacing(p[2], n) + " * var(--tw-space-x-reverse))",
+      ["margin-" + p[1] == 'x' ? "left" : "top"]: "calc(" + Hspacing(p[2], n) + " * calc(1 - var(--tw-space-x-reverse)))"
+    }
+  };
+
   var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";   
   var Hcolor = (v, o, h) => {
     if (!o) o = 1;
@@ -225,20 +247,9 @@
   };
 
 
-  var Ugap = (p, n) => {
-    var v, prop;
-    if (p.length == 2) {
-      prop = "gap";
-      v = Hspacing(p[1], n);
-    }
-    else {
-      v = Hspacing(p[2], n);
-      prop = p[1] == "x" ? "column-gap" : "row-gap";
-    }
-    return {[prop]: v}
-  };
+
   const LflexContent = {
-    "center": "center", "start": "start", "end": "end", "between": "space-between",
+    "center": "center", "start": "flex-start", "end": "flex-end", "between": "space-between",
     "around":  "space-around", "evenly":  "space-evenly", "stretch": "stretch"
   };
   var UflexContent = (p, n) => {
@@ -246,6 +257,7 @@
     if (p[0] == "justify") prop = "justify-content";
     else if (p[0] == "place") {
       prop = "place-content";
+      if (p[2] == "start" || p[2] == "end") return {[prop]: p[2]} 
       s = 2;
     }
     return {[prop]: LflexContent[p[s]]}
@@ -616,6 +628,7 @@
     "flex-shrink":  U_flexGrowShrink,
     float:          U_clearFloat,
     "flow-root":    U_display,
+    gap:            U_gap,
     grid:           U_display,
     "grid-cols":    U_gridTemplate,
     "grid-rows":    U_gridTemplate,
@@ -629,6 +642,7 @@
     object:         U_objectFitPosition,
     order:          U_order,
     relative:       U_position,
+    space:          U_spaceBetween, 
     static:         U_position,
     sticky:         U_position,
     overflow:       U_overScrollFlow,
@@ -762,7 +776,7 @@
     "col-end": UgridStartEnd,
     "row-start": UgridStartEnd,
     "row-end": UgridStartEnd,
-    "gap": Ugap,
+    
     "justify": UflexContent,
     "content": UflexContent,
     "place-content": UflexContent,
@@ -893,7 +907,8 @@
     if (n.psel) s.push(n.psel + " ");
     s.push(P_escape(n.class));
     for (var i=0; i<n.pseudo.length; i++) s.push(":" + n.pseudo[i]);
-    if (n.element) s.push("::" + n.element);  
+    if (n.element) s.push("::" + n.element);
+    if (n.csel) s.push(" " + n.csel);  
     s.push("{");
     for (const [p, v] of Object.entries(n.props)) {
       s.push(p + ":" + v + ";");
