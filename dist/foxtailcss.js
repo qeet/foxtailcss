@@ -32,6 +32,7 @@
 
   const L_order = {first: "-9999", last: "9999", none: "0"};
 
+  const L_gridAuto = { "auto": "auto", "min": "min-content", "max": "max-content", "fr": "minmax(0, 1fr)" };
 
   /* 
    * Utilities
@@ -91,6 +92,16 @@
     if (p[1] == "cols") p[1] = "columns";
     var r = p[2] == "none" ? "none" : "repeat(" + p[2] + ", minmax(0, 1fr))";
     return {["grid-template-" + p[1]]: r}
+  };
+
+  var U_gridAutoFlow= (p) => {
+    if (p[2] == "col") p[2] = "column";
+    return {"grid-auto-flow": Hargs(p, 2, ' ')}
+  };
+
+  var U_gridAuto = (p) => {
+    if (p[1] == "cols") p[1] = "columns";
+    return {["grid-auto-" + p[1]]: L_gridAuto[p[2]]}
   };
 
   var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";   
@@ -212,17 +223,8 @@
     if (p[0] == "col") p[0] = "column";
     return {["grid-" + p[0] + "-" + p[1]]: p[2]}
   };
-  var UgridAutoFlow= (p, n) => {
-    if (p[2] == "col") p[2] = "column";
-    return {"grid-auto-flow": Hargs(p, 2, ' ')}
-  };
-  const LgridAuto = {
-    "auto": "auto", "min": "min-content", "max": "max-content", "fr": "minmax(0, 1fr)"
-  };
-  var UgridAuto = (p, n) => {
-    if (p[1] == "cols") p[1] = "columns";
-    return {["grid-auto-" + p[1]]: LgridAuto[p[2]]}
-  };
+
+
   var Ugap = (p, n) => {
     var v, prop;
     if (p.length == 2) {
@@ -594,6 +596,7 @@
 
   const lookup = {
     absolute:       U_position,
+    auto:           U_gridAuto,
     block:          U_display,
     box:            U_boxSizing,
     clear:          U_clearFloat,
@@ -616,6 +619,7 @@
     grid:           U_display,
     "grid-cols":    U_gridTemplate,
     "grid-rows":    U_gridTemplate,
+    "grid-flow":    U_gridAutoFlow,
     hidden:         U_display,
     inset:          U_inset,
     invisible:      U_visibility,
@@ -748,10 +752,8 @@
     "via": Uvia,
     
     "inline": Uinline,
-
-    "auto": UgridAuto,
     
-    "grid-flow": UgridAutoFlow,
+    
     "col-span": UgridSpan,
     "row-span": UgridSpan,
     "col-auto": UgridSpan,
@@ -771,6 +773,9 @@
     "place-self": UjustifyPlaceSelfItems,
     "align-items": UalignSelfItems,
     "align-self": UalignSelfItems,
+    "items": UalignSelfItems,
+    "self": UalignSelfItems,
+
    
     "table": Utable,
 
@@ -807,6 +812,15 @@
    
   };
 
+  var V_group = (c, n) => {
+    c = c.split("-");
+    var p = L_pseudo[c[1]];
+    if (p) {
+        n.priority += (p*10);
+        n.psel = ".group:" + c[1];
+    }
+  };
+
   var V_type = (n, v, l, a) => {
     var p = l[v];
     if (p) {
@@ -824,7 +838,8 @@
       var curr = v[i];
       if (!V_type(n, curr, L_media, n.media)) {
         if (!V_type(n, curr, L_pseudo, n.pseudo)) {
-          n.element = curr;
+          if (curr.startsWith("group")) V_group(curr, n); 
+          else n.element = curr;
         }
       }
     }
@@ -874,7 +889,9 @@
   };
 
   var P_Rule = (n) => {
-    var s = [P_escape(n.class)];
+    var s = [];
+    if (n.psel) s.push(n.psel + " ");
+    s.push(P_escape(n.class));
     for (var i=0; i<n.pseudo.length; i++) s.push(":" + n.pseudo[i]);
     if (n.element) s.push("::" + n.element);  
     s.push("{");

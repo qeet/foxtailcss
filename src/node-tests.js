@@ -31,6 +31,7 @@ const L_media = { sm: 100, md: 200, lg: 300, xl: 400, "2xl": 500, dark: 10 };
 
 const L_order = {first: "-9999", last: "9999", none: "0"};
 
+const L_gridAuto = { "auto": "auto", "min": "min-content", "max": "max-content", "fr": "minmax(0, 1fr)" };
 
 /* 
  * Utilities
@@ -90,6 +91,16 @@ var U_gridTemplate = (p) => {
   if (p[1] == "cols") p[1] = "columns";
   var r = p[2] == "none" ? "none" : "repeat(" + p[2] + ", minmax(0, 1fr))";
   return {["grid-template-" + p[1]]: r}
+};
+
+var U_gridAutoFlow= (p) => {
+  if (p[2] == "col") p[2] = "column";
+  return {"grid-auto-flow": Hargs(p, 2, ' ')}
+};
+
+var U_gridAuto = (p) => {
+  if (p[1] == "cols") p[1] = "columns";
+  return {["grid-auto-" + p[1]]: L_gridAuto[p[2]]}
 };
 
 var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";   
@@ -211,17 +222,8 @@ var UgridStartEnd = (p, n) => {
   if (p[0] == "col") p[0] = "column";
   return {["grid-" + p[0] + "-" + p[1]]: p[2]}
 };
-var UgridAutoFlow= (p, n) => {
-  if (p[2] == "col") p[2] = "column";
-  return {"grid-auto-flow": Hargs(p, 2, ' ')}
-};
-const LgridAuto = {
-  "auto": "auto", "min": "min-content", "max": "max-content", "fr": "minmax(0, 1fr)"
-};
-var UgridAuto = (p, n) => {
-  if (p[1] == "cols") p[1] = "columns";
-  return {["grid-auto-" + p[1]]: LgridAuto[p[2]]}
-};
+
+
 var Ugap = (p, n) => {
   var v, prop;
   if (p.length == 2) {
@@ -593,6 +595,7 @@ var UscreenReaders = (p) => {
 
 const lookup = {
   absolute:       U_position,
+  auto:           U_gridAuto,
   block:          U_display,
   box:            U_boxSizing,
   clear:          U_clearFloat,
@@ -615,6 +618,7 @@ const lookup = {
   grid:           U_display,
   "grid-cols":    U_gridTemplate,
   "grid-rows":    U_gridTemplate,
+  "grid-flow":    U_gridAutoFlow,
   hidden:         U_display,
   inset:          U_inset,
   invisible:      U_visibility,
@@ -747,10 +751,8 @@ const lookup = {
   "via": Uvia,
   
   "inline": Uinline,
-
-  "auto": UgridAuto,
   
-  "grid-flow": UgridAutoFlow,
+  
   "col-span": UgridSpan,
   "row-span": UgridSpan,
   "col-auto": UgridSpan,
@@ -770,6 +772,9 @@ const lookup = {
   "place-self": UjustifyPlaceSelfItems,
   "align-items": UalignSelfItems,
   "align-self": UalignSelfItems,
+  "items": UalignSelfItems,
+  "self": UalignSelfItems,
+
  
   "table": Utable,
 
@@ -1053,6 +1058,37 @@ var tests = [
   ["col-start-auto", {"grid-column-start": "auto"}],
   ["col-end-2", {"grid-column-end": "2"}],
   ["col-end-auto", {"grid-column-end": "auto"}],
+
+  ["row-auto", {"grid-row": "auto"}],
+  ["row-span-1", {"grid-row": "span 1 / span 1"}],
+  ["row-span-full", {"grid-row": "1 / -1"}],
+  ["row-start-2", {"grid-row-start": "2"}],
+  ["row-start-auto", {"grid-row-start": "auto"}],
+  ["row-end-2", {"grid-row-end": "2"}],
+  ["row-end-auto", {"grid-row-end": "auto"}],
+
+  ["grid-flow-row", {"grid-auto-flow": "row"}],
+  ["grid-flow-col", {"grid-auto-flow": "column"}],
+  ["grid-flow-row-dense", {"grid-auto-flow": "row dense"}],
+  ["grid-flow-col-dense", {"grid-auto-flow": "column dense"}],
+
+  ["auto-cols-auto", {"grid-auto-columns": "auto"}],
+  ["auto-cols-min", {"grid-auto-columns": "min-content"}],
+  ["auto-cols-max", {"grid-auto-columns": "max-content"}],
+  ["auto-cols-fr",  {"grid-auto-columns": "minmax(0, 1fr)"}],
+
+  ["auto-rows-auto", {"grid-auto-rows": "auto"}],
+  ["auto-rows-min", {"grid-auto-rows": "min-content"}],
+  ["auto-rows-max", {"grid-auto-rows": "max-content"}],
+  ["auto-rows-fr",  {"grid-auto-rows": "minmax(0, 1fr)"}],
+
+  ["items-start", {"align-items": "flex-start"}],
+  ["items-end", {"align-items": "flex-end"}],
+  ["items-center", {"align-items": "center"}],
+  ["items-baseline", {"align-items": "baseline"}],
+  ["items-stretch", {"align-items": "stretch"}],
+
+
 
   ["xxxx", false],
   ["", false],

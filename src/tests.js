@@ -194,6 +194,37 @@ var tests = [
   ["col-end-2", {"grid-column-end": "2"}],
   ["col-end-auto", {"grid-column-end": "auto"}],
 
+  ["row-auto", {"grid-row": "auto"}],
+  ["row-span-1", {"grid-row": "span 1 / span 1"}],
+  ["row-span-full", {"grid-row": "1 / -1"}],
+  ["row-start-2", {"grid-row-start": "2"}],
+  ["row-start-auto", {"grid-row-start": "auto"}],
+  ["row-end-2", {"grid-row-end": "2"}],
+  ["row-end-auto", {"grid-row-end": "auto"}],
+
+  ["grid-flow-row", {"grid-auto-flow": "row"}],
+  ["grid-flow-col", {"grid-auto-flow": "column"}],
+  ["grid-flow-row-dense", {"grid-auto-flow": "row dense"}],
+  ["grid-flow-col-dense", {"grid-auto-flow": "column dense"}],
+
+  ["auto-cols-auto", {"grid-auto-columns": "auto"}],
+  ["auto-cols-min", {"grid-auto-columns": "min-content"}],
+  ["auto-cols-max", {"grid-auto-columns": "max-content"}],
+  ["auto-cols-fr",  {"grid-auto-columns": "minmax(0, 1fr)"}],
+
+  ["auto-rows-auto", {"grid-auto-rows": "auto"}],
+  ["auto-rows-min", {"grid-auto-rows": "min-content"}],
+  ["auto-rows-max", {"grid-auto-rows": "max-content"}],
+  ["auto-rows-fr",  {"grid-auto-rows": "minmax(0, 1fr)"}],
+
+  ["items-start", {"align-items": "flex-start"}],
+  ["items-end", {"align-items": "flex-end"}],
+  ["items-center", {"align-items": "center"}],
+  ["items-baseline", {"align-items": "baseline"}],
+  ["items-stretch", {"align-items": "stretch"}],
+
+
+
   ["xxxx", false],
   ["", false],
   ["-", false],
