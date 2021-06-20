@@ -117,8 +117,8 @@ var U_gap = (p, n) => {
 };
 
 var U_spaceBetween = (p, n) => {
-  n.csel = ":not([hidden]) ~ :not([hidden])";
-  if (p[2] == "reverse") return {["--tx-space-" + p[1] + "-reverse"]: "1"}
+  n.csel = "> :not([hidden]) ~ :not([hidden])";
+  if (p[2] == "reverse") return {["--tw-space-" + p[1] + "-reverse"]: "1"}
   return {["--tw-space-"+ p[1] + "-reverse"]: "0",
     ["margin-" + (p[1] == 'x' ? "right" : "bottom")] : "calc(" + Hspacing(p[2], n) + " * var(--tw-space-" + p[1] + "-reverse))",
     ["margin-" + (p[1] == 'x' ? "left" : "top")]: "calc(" + Hspacing(p[2], n) + " * calc(1 - var(--tw-space-" + p[1] + "-reverse)))"
@@ -301,13 +301,16 @@ var UwidthHeight = (p, n) => {
   var prop = p[0] == "w" ? "width" : "height"; 
   var r = HspacingPercent(p[1], n);
   if (!r) r = LwidthHeight[p[1]];
-  if (p[0] = p[1] == "screen") r = "100vw";
+  if (p[0] == "w" && p[1] == "screen") r = "100vw";
   return {[prop]: r}
 };
 var UminWdithHeight = (p, n) => {
   var prop = p[1] == "w" ? "min-width" : "min-height"; 
-  var r = HspacingPercent(p[2], n);
-  if (!r) r = LwidthHeight[p[2], n];
+  var r = LwidthHeight[p[2]];
+  if (!r) {
+    r = HspacingPercent(p[2], n);
+    if (!r) r = LwidthHeight[p[2], n];
+  }
   return {[prop]: r}
 };
 const LmaxWidth = {
@@ -320,9 +323,10 @@ var UmaxWidth = (p) => {
   if (v) v += "rem";
   else if (s == "none") v = "none";
   else if (s == "prose") v = "65ch";
+  else if (s == "full") v = "100%";
   else {
-    v = LwidthHeight[s];
-    if (!v) v = L_screens[s];
+    v = L_screens[p[3]];
+    if (!v) v = LwidthHeight[s];
   }
   return {"max-width": v}
 };
@@ -1215,10 +1219,59 @@ var tests = [
 
   ["space-x-1", {"--tw-space-x-reverse": "0", "margin-right": "calc(0.25rem * var(--tw-space-x-reverse))",
                   "margin-left": "calc(0.25rem * calc(1 - var(--tw-space-x-reverse)))"}],
-
- 
+  ["space-x-reverse", {"--tw-space-x-reverse": "1"}], 
   ["space-y-1", {"--tw-space-y-reverse": "0", "margin-top": "calc(0.25rem * calc(1 - var(--tw-space-y-reverse)))",
                   "margin-bottom": "calc(0.25rem * var(--tw-space-y-reverse))"}],
+  ["space-y-reverse", {"--tw-space-y-reverse": "1"}], 
+
+  ["w-5", {"width": "1.25rem"}],
+  ["w-auto", {"width": "auto"}],
+  ["w-1/3", {"width": "33.33333333333333%"}],
+  ["w-full", {"width": "100%"}],
+  ["w-screen", {"width": "100vw"}],
+  ["w-min", {"width": "min-content"}],
+  ["w-max", {"width": "max-content"}],
+
+  ["h-5", {"height": "1.25rem"}],
+  ["h-auto", {"height": "auto"}],
+  ["h-1/3", {"height": "33.33333333333333%"}],
+  ["h-full", {"height": "100%"}],
+  ["h-screen", {"height": "100vh"}],
+
+  ["min-w-0", {"min-width": "0"}],
+  ["min-w-full", {"min-width": "100%"}],
+  ["min-w-min", {"min-width": "min-content"}],
+  ["min-w-max", {"min-width": "max-content"}],
+  ["min-h-0", {"min-height": "0"}],
+  ["min-h-full", {"min-height": "100%"}],
+  ["min-h-screen", {"min-height": "100vh"}],
+
+  ["max-w-0", {"max-width": "0rem"}],
+  ["max-w-none", {"max-width": "none"}],
+  ["max-w-xs", {"max-width": "20rem"}],
+  ["max-w-sm", {"max-width": "24rem"}],
+  ["max-w-md", {"max-width": "28rem"}],
+  ["max-w-lg", {"max-width": "32rem"}],
+  ["max-w-xl", {"max-width": "36rem"}],
+  ["max-w-2xl", {"max-width": "42rem"}],
+  ["max-w-3xl", {"max-width": "48rem"}],
+  ["max-w-4xl", {"max-width": "56rem"}],
+  ["max-w-5xl", {"max-width": "64rem"}],
+  ["max-w-6xl", {"max-width": "72rem"}],
+  ["max-w-7xl", {"max-width": "80rem"}],
+  ["max-w-full",  {"max-width": "100%"}],
+  ["max-w-min", {"max-width": "min-content"}],
+  ["max-w-max", {"max-width": "max-content"}],
+  ["max-w-prose", {"max-width": "65ch"}],
+  ["max-w-screen-sm", {"max-width": "640px"}],
+  ["max-w-screen-md", {"max-width": "768px"}],
+  ["max-w-screen-lg", {"max-width": "1024px"}],
+  ["max-w-screen-xl", {"max-width": "1280px"}],
+  ["max-w-screen-2xl", {"max-width": "1536px"}],
+
+  ["max-h-4", {"max-height": "1rem"}],
+  ["max-h-full", {"max-height": "100%"}],
+  ["max-h-screen", {"max-height": "100vh"}],
 
   ["xxxx", false],
   ["", false],

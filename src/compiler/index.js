@@ -115,8 +115,8 @@ var U_gap = (p, n) => {
 }
 
 var U_spaceBetween = (p, n) => {
-  n.csel = ":not([hidden]) ~ :not([hidden])"
-  if (p[2] == "reverse") return {["--tx-space-" + p[1] + "-reverse"]: "1"}
+  n.csel = "> :not([hidden]) ~ :not([hidden])"
+  if (p[2] == "reverse") return {["--tw-space-" + p[1] + "-reverse"]: "1"}
   return {["--tw-space-"+ p[1] + "-reverse"]: "0",
     ["margin-" + (p[1] == 'x' ? "right" : "bottom")] : "calc(" + Hspacing(p[2], n) + " * var(--tw-space-" + p[1] + "-reverse))",
     ["margin-" + (p[1] == 'x' ? "left" : "top")]: "calc(" + Hspacing(p[2], n) + " * calc(1 - var(--tw-space-" + p[1] + "-reverse)))"
@@ -299,13 +299,16 @@ var UwidthHeight = (p, n) => {
   var prop = p[0] == "w" ? "width" : "height" 
   var r = HspacingPercent(p[1], n)
   if (!r) r = LwidthHeight[p[1]]
-  if (p[0] = "w" && p[1] == "screen") r = "100vw"
+  if (p[0] == "w" && p[1] == "screen") r = "100vw"
   return {[prop]: r}
 }
 var UminWdithHeight = (p, n) => {
   var prop = p[1] == "w" ? "min-width" : "min-height" 
-  var r = HspacingPercent(p[2], n)
-  if (!r) r = LwidthHeight[p[2], n]
+  var r = LwidthHeight[p[2]]
+  if (!r) {
+    r = HspacingPercent(p[2], n)
+    if (!r) r = LwidthHeight[p[2], n]
+  }
   return {[prop]: r}
 }
 const LmaxWidth = {
@@ -318,9 +321,10 @@ var UmaxWidth = (p) => {
   if (v) v += "rem"
   else if (s == "none") v = "none"
   else if (s == "prose") v = "65ch"
+  else if (s == "full") v = "100%"
   else {
-    v = LwidthHeight[s]
-    if (!v) v = L_screens[s]
+    v = L_screens[p[3]]
+    if (!v) v = LwidthHeight[s]
   }
   return {"max-width": v}
 }

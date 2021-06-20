@@ -118,11 +118,11 @@
   };
 
   var U_spaceBetween = (p, n) => {
-    n.csel = ":not([hidden]) ~ :not([hidden])";
-    if (p[2] == "reverse") return {["--tx-space-" + p[1] + "-reverse"]: "1"}
+    n.csel = "> :not([hidden]) ~ :not([hidden])";
+    if (p[2] == "reverse") return {["--tw-space-" + p[1] + "-reverse"]: "1"}
     return {["--tw-space-"+ p[1] + "-reverse"]: "0",
-      ["margin-" + p[1] == 'x' ? "right" : "bottom"] : "calc(" + Hspacing(p[2], n) + " * var(--tw-space-x-reverse))",
-      ["margin-" + p[1] == 'x' ? "left" : "top"]: "calc(" + Hspacing(p[2], n) + " * calc(1 - var(--tw-space-x-reverse)))"
+      ["margin-" + (p[1] == 'x' ? "right" : "bottom")] : "calc(" + Hspacing(p[2], n) + " * var(--tw-space-" + p[1] + "-reverse))",
+      ["margin-" + (p[1] == 'x' ? "left" : "top")]: "calc(" + Hspacing(p[2], n) + " * calc(1 - var(--tw-space-" + p[1] + "-reverse)))"
     }
   };
 
