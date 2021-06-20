@@ -462,6 +462,11 @@ var tests = [
   ["placeholder-opacity-5", {"--tw-placeholder-opacity": "0.05"}],
   ["placeholder-opacity-10",  {"--tw-placeholder-opacity": "0.1"}],
 
+  ["text-left", {"text-align": "left"}],
+  ["text-center", {"text-align": "center"}],
+  ["text-right",  {"text-align": "right"}],
+  ["text-justify",  {"text-align": "justify"}],
+
   ["xxxx", false],
   ["", false],
   ["-", false],
