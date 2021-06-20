@@ -355,35 +355,34 @@
   };
   var UuserSelect = (p) => ({"user-select": p[1]});
 
-  var Utransform = (p) => {
-    if (p[1] == "none") return {"transform": "none"}
-    var t = "translateX(var(--tw-translate-x)) translateY(var(--tw-translate-y))";
-    if (p[1] == "gpu") t = "translate3d(var(--tw-translate-x), var(--tw-translate-y), 0)";
-    return {"--tw-translate-x": "0", "--tw-translate-y": "0", "--tw-rotate": "0", "--tw-skew-x": "0",
-            "--tw-skew-y": "0", "--tw-scale-x": "1", "--tw-scale-y": "1", 
-            "transform": t + " rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))"
-    }
+  var UtransformGpu = (p) => ({"--tw-transform": "translate3d(var(--tw-translate-x), var(--tw-translate-y), 0) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))"});
+
+  var Htransform = (d) => {
+    d.transform = "var(--tw-transform)";
+    return d
   };
+
   var UtransformOrigin = (p) => ({"transform-origin": Hargs(p, 1, ' ')});
 
   var Uscale = (p) => {
     var v;
     if (p[1] == "x") {
       v = Hfloat(p[2]);
-      return {"--tw-scale-x": v}
+      return Htransform({"--tw-scale-x": v})
     } 
     else if (p[1] == "y") {
       v = Hfloat(p[2]);
-      return {"--tw-scale-y": v}
+      return Htransform({"--tw-scale-y": v})
     }
     else {
       v = Hfloat(p[1]);
-      return {"--tw-scale-x": v, "--tw-scale-y": v}
+      return Htransform({"--tw-scale-x": v, "--tw-scale-y": v})
     }
   };
-  var Urotate = (p) => ({"--tw-rotate": p[1] + "deg"});
-  var Utranslate = (p, n) => ({["--tw-translate-"+p[1]]: HspacingPercent(p[2], n)});
-  var Uskew = (p) => ({["--tw-skew-"+p[1]]: p[2] + "deg"});
+
+  var Urotate = (p) => Htransform({"--tw-rotate": p[1] + "deg"});
+  var Utranslate = (p, n) => Htransform({["--tw-translate-"+p[1]]: HspacingPercent(p[2], n)});
+  var Uskew = (p) => Htransform({["--tw-skew-"+p[1]]: p[2] + "deg"});
 
   const Ltransition = {
     "none": "none",
@@ -503,7 +502,7 @@
     if (p[1]) v = "normal";
     return {"font-style": v}
   };
-  var UfontVariantNumeric = (p) => ({"font-variant-numeric": Hargs(p,0)}); 
+  var UfontVariantNumeric = (p) => ({"font-variant-numeric": p[0] == "normal" ? "normal" : Hargs(p,0)}); 
 
   const LletterSpacing = {
     "tighter": "-0.05", "tight": "-0.025", "normal": "0",
@@ -552,35 +551,32 @@
     return {[prop]: "break-all"}
   };
   var UplaceholderColor = (p, n) => {
-    n.element = "placeholder";
+    n.pelem = "placeholder";
     return HcolorUtil(Hargs(p, 1), "color", "placeholder")
   };
   var UplaceholderOpacity = (p, n) => {
-    n.element = "placeholder";
+    n.pelem = "placeholder";
     return UcolorOpacity(p)
-  };
-  var Ufilter = (p, n) => {
-    var f = "var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)";
-    if (p.length == 1) return {"filter": f, "-webkit-filter": f} 
-    return {"filter": "none", "-webkit-filter": "none"}  
-  };
-  var UbackdropFilter = (p, n) => {
-    if (p.length == 2) return {"backdrop-filter": ""}
-    return {"backdrop-filter": "none"}  
   };
   const Lblur = {
     "0": "0", "sm": "4px", "": "8px", "md": "12px", "lg": "16px",
     "xl": "24px", "2xl": "40px","3xl": "64px"
   };
+  var Hfilter = (t, d) => {
+    if (t == "backdrop") d["backdrop-filter"] = "var(--tw-backdrop-filter)";
+    else d.filter = "var(--tw-filter)";
+    return d 
+  };
+
   var Ublur = (p) => {
     var t = "", s = 1;
     if (p[0] =="backdrop") {t = "-backdrop"; s = 2;}
-    return {["--tw" + t + "-blur"]: Lblur[p[s] ? p[s] : ""]}
+    return Hfilter(p[0], {["--tw" + t + "-blur"]: "blur(" + Lblur[p[s] ? p[s] : ""] + ")"})
   };
   var UfilterFloat = (p) => {
     var t = "", s = 1;
     if (p[0] =="backdrop") {t = "-backdrop"; s = 2;}
-    return {["--tw" + t + "-" +p[0]]: p[0] + "(" + Hfloat(p[s]) + ")"}
+    return Hfilter(p[0], {["--tw" + t + "-" +p[0]]: p[0] + "(" + Hfloat(p[s]) + ")"})
   };  
   const LdropShadow = {
     "sm" : "(0 1px 1px rgba(0,0,0,0.05))",
@@ -591,16 +587,16 @@
     "2xl": "(0 25px 25px rgba(0, 0, 0, 0.15))",
     "none": "(0 0 #0000)"
   };
-  var UdropShadow = (p) => ({"--tw-drop-shadow": "drop-shadow" + LdropShadow[p[2] ? p[2] : ""]});  
+  var UdropShadow = (p) => Hfilter(p[0], {"--tw-drop-shadow": "drop-shadow" + LdropShadow[p[2] ? p[2] : ""]});  
   var UgrayscaleInvertSepia = (p) => {
     var t = "", s = 1;
     if (p[0] =="backdrop") {t = "-backdrop"; s = 2;}
-    return {["--tw" + t + "-" + p[0]]: p[0] + "(" + (p[s] ? "0" : "1") + ")"}
+    return Hfilter(p[0], {["--tw" + t + "-" + p[0]]: p[0] + "(" + (p[s] ? "0" : "1") + ")"})
   }; 
   var UhueRotate = (p) => {
     var t = "", s = 2;
     if (p[0] =="backdrop") {t = "-backdrop"; s = 3;}
-    return {["--tw" + t + "-hue-rotate"]: "hue-rotate("+p[s]+"deg)"}
+    return Hfilter(p[0], {["--tw" + t + "-hue-rotate"]: "hue-rotate("+p[s]+"deg)"})
   };
   var UfillStroke = (p) => ({[p[0]]: "currentColor"});  
   var UstrokeWidth = (p) => ({"stroke-width": p[1]}); 
@@ -680,8 +676,6 @@
     "backdrop-brightness": UfilterFloat,
     "blur": Ublur,
     "backdrop-blur": Ublur,
-    "backdrop-filter": UbackdropFilter,
-    "filter": Ufilter,
     "placeholder": UplaceholderColor,
     "placeholder-opacity": UplaceholderOpacity,
     "break": UwordBreak,
@@ -756,7 +750,7 @@
     "resize": Uresize,
     "select": UuserSelect,
     "bg": Ubackground,
-    "transform": Utransform,
+    "transform-gpu": UtransformGpu,
     "origin": UtransformOrigin,
     "scale": Uscale,
     "rotate": Urotate,
@@ -858,7 +852,7 @@
       if (!V_type(n, curr, L_media, n.media)) {
         if (!V_type(n, curr, L_pseudo, n.pseudo)) {
           if (curr.startsWith("group")) V_group(curr, n); 
-          else n.element = curr;
+          else n.pelem = curr;
         }
       }
     }
@@ -912,7 +906,7 @@
     if (n.psel) s.push(n.psel + " ");
     s.push(P_escape(n.class));
     for (var i=0; i<n.pseudo.length; i++) s.push(":" + n.pseudo[i]);
-    if (n.element) s.push("::" + n.element);
+    if (n.pelem) s.push("::" + n.pelem);
     if (n.csel) s.push(" " + n.csel);  
     s.push("{");
     for (const [p, v] of Object.entries(n.props)) {
@@ -968,16 +962,44 @@
 @keyframes bounce { 0%, 100% { transform: translateY(-25%); animationTimingFunction: cubic-bezier(0.8, 0, 1, 1); }
   50% { transform: translateY(0); animationTimingFunction: cubic-bezier(0, 0, 0.2, 1); } }
 
-*, ::after, ::before { border: 0 solid #e5e7eb; }
-
-* {
---tw-shadow: 0 0 transparent;
---tw-ring-inset: var(--tw-empty,/*!*/ /*!*/);
+*, ::before, ::after {
+--tw-translate-x: 0;
+--tw-translate-y: 0;
+--tw-rotate: 0;
+--tw-skew-x: 0;
+--tw-skew-y: 0;
+--tw-scale-x: 1;
+--tw-scale-y: 1;
+--tw-transform: translateX(var(--tw-translate-x)) translateY(var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+--tw-border-opacity: 1;
+border-color: rgba(229, 231, 235, var(--tw-border-opacity));
+--tw-shadow: 0 0 #0000;
+--tw-ring-inset: var(--tw-empty, );
 --tw-ring-offset-width: 0px;
 --tw-ring-offset-color: #fff;
---tw-ring-color: rgba(59,130,246,0.5);
---tw-ring-offset-shadow: 0 0 transparent;
---tw-ring-shadow: 0 0 transparent;
+--tw-ring-color: rgba(59, 130, 246, 0.5);
+--tw-ring-offset-shadow: 0 0 #0000;
+--tw-ring-shadow: 0 0 #0000;
+--tw-blur: var(--tw-empty, );
+--tw-brightness: var(--tw-empty, );
+--tw-contrast: var(--tw-empty, );
+--tw-grayscale: var(--tw-empty, );
+--tw-hue-rotate: var(--tw-empty, );
+--tw-invert: var(--tw-empty, );
+--tw-saturate: var(--tw-empty, );
+--tw-sepia: var(--tw-empty, );
+--tw-drop-shadow: var(--tw-empty, );
+--tw-filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+--tw-backdrop-blur: var(--tw-empty, );
+--tw-backdrop-brightness: var(--tw-empty, );
+--tw-backdrop-contrast: var(--tw-empty, );
+--tw-backdrop-grayscale: var(--tw-empty, );
+--tw-backdrop-hue-rotate: var(--tw-empty, );
+--tw-backdrop-invert: var(--tw-empty, );
+--tw-backdrop-opacity: var(--tw-empty, );
+--tw-backdrop-saturate: var(--tw-empty, );
+--tw-backdrop-sepia: var(--tw-empty, );
+--tw-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
 }`;
   };
 

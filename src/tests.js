@@ -453,9 +453,14 @@ var tests = [
   ["list-inside", {"list-style-position": "inside"}],
   ["list-outside", {"list-style-position": "outside"}],
 
-  ["placeholder-transparent", {"color": "transparent"}],
-  ["placeholder-current", {"color": "currentColor"}],
-  ["placeholder-red-100", {"--tw-placeholder-opacity": "1", "color": "rgba(254,226,226,var(--tw-placeholder-opacity))"}],
+  ["placeholder-transparent", {"color": "transparent", "_pelem": "placeholder"}],
+  ["placeholder-current", {"color": "currentColor", "_pelem": "placeholder"}],
+  ["placeholder-red-100", {"--tw-placeholder-opacity": "1", "_pelem": "placeholder", 
+    "color": "rgba(254,226,226,var(--tw-placeholder-opacity))"}],
+
+  ["placeholder-opacity-0", {"--tw-placeholder-opacity": "0"}],
+  ["placeholder-opacity-5", {"--tw-placeholder-opacity": "0.05"}],
+  ["placeholder-opacity-10",  {"--tw-placeholder-opacity": "0.1"}],
 
   ["xxxx", false],
   ["", false],
@@ -485,7 +490,14 @@ for (var i=0; i<ntests;i++) {
   }
 
   for (const [key, value] of Object.entries(expected)) {
-    if (got[key] != value) {
+    if (key.startsWith("_")) {
+      var key2 = key.substring(1)
+      if (n[key2] != value) {
+        console.log("Test Failed!!! - " + t[0])
+        console.log(n)
+      }
+    }
+    else if (got[key] != value) {
       console.log("Test Failed!!! - " + t[0])
       console.log(got)
     }
