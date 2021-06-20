@@ -335,7 +335,7 @@ var UmaxHeight = (p, n) => {
 }
 
 var Uappearance = (p) => ({[p0]: p1})
-var Ucursor = (p) => ({[p0]: Hargs(p, 1)})
+var Ucursor = (p) => ({[p[0]]: Hargs(p, 1)})
 var Uoutline = (p) => {
   var o = "2px solid transparent"
   if (p[1] == "white") o = "2px dotted white"
@@ -500,7 +500,7 @@ var UfontStyle = (p) => {
   if (p[1]) v = "normal"
   return {"font-style": v}
 }
-var UfontVariantNumeric = (p) => ({"font-variant-numeric": Hargs(p,0)}) 
+var UfontVariantNumeric = (p) => ({"font-variant-numeric": p[0] == "normal" ? "normal" : Hargs(p,0)}) 
 
 const LletterSpacing = {
   "tighter": "-0.05", "tight": "-0.025", "normal": "0",
@@ -549,16 +549,17 @@ var UwordBreak = (p) => {
   return {[prop]: "break-all"}
 }
 var UplaceholderColor = (p, n) => {
-  n.element = "placeholder"
+  n.pelem = "placeholder"
   return HcolorUtil(Hargs(p, 1), "color", "placeholder")
 }
 var UplaceholderOpacity = (p, n) => {
-  n.element = "placeholder"
+  n.pelem = "placeholder"
   return UcolorOpacity(p, n)
 }
 var Ufilter = (p, n) => {
-  if (p.length == 1) return {"filter": "var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)"}
-  return {"filter": "none"}  
+  var f = "var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)"
+  if (p.length == 1) return {"filter": f, "-webkit-filter": f} 
+  return {"filter": "none", "-webkit-filter": "none"}  
 }
 var UbackdropFilter = (p, n) => {
   if (p.length == 2) return {"backdrop-filter": ""}
@@ -854,7 +855,7 @@ var V_compile = (c, n) => {
     if (!V_type(n, curr, L_media, n.media)) {
       if (!V_type(n, curr, L_pseudo, n.pseudo)) {
         if (curr.startsWith("group")) V_group(curr, n) 
-        else n.element = curr
+        else n.pelem = curr
       }
     }
   }
@@ -908,7 +909,7 @@ var P_Rule = (n) => {
   if (n.psel) s.push(n.psel + " ")
   s.push(P_escape(n.class))
   for (var i=0; i<n.pseudo.length; i++) s.push(":" + n.pseudo[i])
-  if (n.element) s.push("::" + n.element)
+  if (n.pelem) s.push("::" + n.pelem)
   if (n.csel) s.push(" " + n.csel)  
   s.push("{")
   for (const [p, v] of Object.entries(n.props)) {

@@ -302,13 +302,16 @@
     var prop = p[0] == "w" ? "width" : "height"; 
     var r = HspacingPercent(p[1], n);
     if (!r) r = LwidthHeight[p[1]];
-    if (p[0] = p[1] == "screen") r = "100vw";
+    if (p[0] == "w" && p[1] == "screen") r = "100vw";
     return {[prop]: r}
   };
   var UminWdithHeight = (p, n) => {
     var prop = p[1] == "w" ? "min-width" : "min-height"; 
-    var r = HspacingPercent(p[2], n);
-    if (!r) r = LwidthHeight[p[2], n];
+    var r = LwidthHeight[p[2]];
+    if (!r) {
+      r = HspacingPercent(p[2], n);
+      if (!r) r = LwidthHeight[p[2], n];
+    }
     return {[prop]: r}
   };
   const LmaxWidth = {
@@ -321,9 +324,10 @@
     if (v) v += "rem";
     else if (s == "none") v = "none";
     else if (s == "prose") v = "65ch";
+    else if (s == "full") v = "100%";
     else {
-      v = LwidthHeight[s];
-      if (!v) v = L_screens[s];
+      v = L_screens[p[3]];
+      if (!v) v = LwidthHeight[s];
     }
     return {"max-width": v}
   };
@@ -334,7 +338,7 @@
   };
 
   var Uappearance = (p) => ({[p0]: p1});
-  var Ucursor = (p) => ({[p0]: Hargs(p, 1)});
+  var Ucursor = (p) => ({[p[0]]: Hargs(p, 1)});
   var Uoutline = (p) => {
     var o = "2px solid transparent";
     if (p[1] == "white") o = "2px dotted white";
@@ -556,8 +560,9 @@
     return UcolorOpacity(p)
   };
   var Ufilter = (p, n) => {
-    if (p.length == 1) return {"filter": "var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)"}
-    return {"filter": "none"}  
+    var f = "var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)";
+    if (p.length == 1) return {"filter": f, "-webkit-filter": f} 
+    return {"filter": "none", "-webkit-filter": "none"}  
   };
   var UbackdropFilter = (p, n) => {
     if (p.length == 2) return {"backdrop-filter": ""}

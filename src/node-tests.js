@@ -337,7 +337,7 @@ var UmaxHeight = (p, n) => {
 };
 
 var Uappearance = (p) => ({[p0]: p1});
-var Ucursor = (p) => ({[p0]: Hargs(p, 1)});
+var Ucursor = (p) => ({[p[0]]: Hargs(p, 1)});
 var Uoutline = (p) => {
   var o = "2px solid transparent";
   if (p[1] == "white") o = "2px dotted white";
@@ -502,7 +502,7 @@ var UfontStyle = (p) => {
   if (p[1]) v = "normal";
   return {"font-style": v}
 };
-var UfontVariantNumeric = (p) => ({"font-variant-numeric": Hargs(p,0)}); 
+var UfontVariantNumeric = (p) => ({"font-variant-numeric": p[0] == "normal" ? "normal" : Hargs(p,0)}); 
 
 const LletterSpacing = {
   "tighter": "-0.05", "tight": "-0.025", "normal": "0",
@@ -551,16 +551,17 @@ var UwordBreak = (p) => {
   return {[prop]: "break-all"}
 };
 var UplaceholderColor = (p, n) => {
-  n.element = "placeholder";
+  n.pelem = "placeholder";
   return HcolorUtil(Hargs(p, 1), "color", "placeholder")
 };
 var UplaceholderOpacity = (p, n) => {
-  n.element = "placeholder";
+  n.pelem = "placeholder";
   return UcolorOpacity(p)
 };
 var Ufilter = (p, n) => {
-  if (p.length == 1) return {"filter": "var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)"}
-  return {"filter": "none"}  
+  var f = "var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)";
+  if (p.length == 1) return {"filter": f, "-webkit-filter": f} 
+  return {"filter": "none", "-webkit-filter": "none"}  
 };
 var UbackdropFilter = (p, n) => {
   if (p.length == 2) return {"backdrop-filter": ""}
@@ -856,7 +857,7 @@ var V_compile = (c, n) => {
     if (!V_type(n, curr, L_media, n.media)) {
       if (!V_type(n, curr, L_pseudo, n.pseudo)) {
         if (curr.startsWith("group")) V_group(curr, n); 
-        else n.element = curr;
+        else n.pelem = curr;
       }
     }
   }
@@ -1272,6 +1273,83 @@ var tests = [
   ["max-h-4", {"max-height": "1rem"}],
   ["max-h-full", {"max-height": "100%"}],
   ["max-h-screen", {"max-height": "100vh"}],
+
+  ["font-sans", {"font-family": 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"'}],
+  ["font-serif", {"font-family": 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif'}],
+  ["font-mono", {"font-family": 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace'}],
+
+  ["text-xs", {"font-size": "0.75rem", "line-height": "1rem"}],
+  ["text-sm", {"font-size": "0.875rem", "line-height": "1.25rem"}],
+  ["text-base", {"font-size": "1rem", "line-height": "1.5rem"}],
+  ["text-lg", {"font-size": "1.125rem", "line-height": "1.75rem"}],
+  ["text-xl", {"font-size": "1.25rem", "line-height": "1.75rem"}],
+  ["text-2xl", {"font-size": "1.5rem", "line-height": "2rem"}],
+  ["text-3xl", {"font-size": "1.875rem", "line-height": "2.25rem"}],
+  ["text-4xl", {"font-size": "2.25rem", "line-height": "2.5rem"}],
+  ["text-5xl", {"font-size": "3rem", "line-height": "1"}],
+  ["text-6xl", {"font-size": "3.75rem", "line-height": "1"}],
+  ["text-7xl", {"font-size": "4.5rem", "line-height": "1"}],
+  ["text-8xl", {"font-size": "6rem", "line-height": "1"}],
+  ["text-9xl", {"font-size": "8rem", "line-height": "1"}],
+
+  ["antialiased", {"-webkit-font-smoothing": "antialiased", "-moz-osx-font-smoothing": "grayscale"}],
+  ["subpixel-antialiased", {"-webkit-font-smoothing": "auto", "-moz-osx-font-smoothing": "auto"}],
+
+  ["italic", {"font-style": "italic"}],
+  ["not-italic", {"font-style": "normal"}],
+
+  ["font-thin", {"font-weight": "100"}],
+  ["font-extralight", {"font-weight": "200"}],
+  ["font-light",  {"font-weight": "300"}],
+  ["font-normal", {"font-weight": "400"}],
+  ["font-medium", {"font-weight": "500"}],
+  ["font-semibold", {"font-weight": "600"}],
+  ["font-bold", {"font-weight": "700"}],
+  ["font-extrabold", {"font-weight": "800"}],
+  ["font-black", {"font-weight": "900"}],
+
+  ["normal-nums", {"font-variant-numeric": "normal"}],
+  ["ordinal", {"font-variant-numeric": "ordinal"}],
+  ["slashed-zero", {"font-variant-numeric": "slashed-zero"}],
+  ["lining-nums", {"font-variant-numeric": "lining-nums"}],
+  ["oldstyle-nums", {"font-variant-numeric": "oldstyle-nums"}],
+  ["proportional-nums", {"font-variant-numeric": "proportional-nums"}],
+  ["tabular-nums", {"font-variant-numeric": "tabular-nums"}],
+  ["diagonal-fractions", {"font-variant-numeric": "diagonal-fractions"}],
+  ["stacked-fractions", {"font-variant-numeric": "stacked-fractions"}],
+
+  ["tracking-tighter",  {"letter-spacing": "-0.05em"}],
+  ["tracking-tight",  {"letter-spacing": "-0.025em"}],
+  ["tracking-normal", {"letter-spacing": "0em"}],
+  ["tracking-wide", {"letter-spacing": "0.025em"}],
+  ["tracking-wider",  {"letter-spacing": "0.05em"}],
+  ["tracking-widest", {"letter-spacing": "0.1em"}],
+
+  ["leading-3", {"line-height": ".75rem"}],
+  ["leading-4", {"line-height": "1rem"}],
+  ["leading-5", {"line-height": "1.25rem"}],
+  ["leading-6", {"line-height": "1.5rem"}],
+  ["leading-7", {"line-height": "1.75rem"}],
+  ["leading-8", {"line-height": "2rem"}],
+  ["leading-9", {"line-height": "2.25rem"}],
+  ["leading-10", {"line-height": "2.5rem"}],
+  ["leading-none", {"line-height": "1"}],
+  ["leading-tight", {"line-height": "1.25"}],
+  ["leading-snug", {"line-height": "1.375"}],
+  ["leading-normal", {"line-height": "1.5"}],
+  ["leading-relaxed", {"line-height": "1.625"}],
+  ["leading-loose", {"line-height": "2"}],
+
+  ["list-none", {"list-style-type": "none"}],
+  ["list-disc", {"list-style-type": "disc"}],
+  ["list-decimal", {"list-style-type": "decimal"}],
+
+  ["list-inside", {"list-style-position": "inside"}],
+  ["list-outside", {"list-style-position": "outside"}],
+
+  ["placeholder-transparent", {"color": "transparent"}],
+  ["placeholder-current", {"color": "currentColor"}],
+  ["placeholder-red-100", {"--tw-placeholder-opacity": "1", "color": "rgba(254,226,226,var(--tw-placeholder-opacity))"}],
 
   ["xxxx", false],
   ["", false],
