@@ -16,14 +16,6 @@ const L_color = {
   'purple': 'F5F3FFEDE9FEDDD6FEC4B5FDA78BFA8B5CF67C3AED6D28D95B21B64C1D95',
 };
 
-const L_spacing = {
-  '0.5': '0.125','1': '0.25','1.5': '0.375','2': '0.5','2.5': '0.625',
-  '3': '0.75', '3.5': '0.875', '4': '1','5': '1.25','6': '1.5','7': '1.75','8': '2','9': '2.25',
-  '10': '2.5','11': '2.75','12': '3','14': '3.5','16': '4','20': '5','24': '6','28': '7','32': '8',
-  '36': '9','40': '10','44': '11','48': '12','52': '13','56': '14','60': '15','64': '16','72': '18',
-  '80': '20','96': '24',
-};
-
 const L_objectFit = [ "contain", "cover", "fill", "none", "scale" ];
 
 const L_flex = { "1":  "1 1 0%", "auto": "1 1 auto", "initial": "0 1 auto", "none": "none" };
@@ -41,85 +33,74 @@ const L_order = {first: "-9999", last: "9999", none: "0"};
 
 const L_gridAuto = { "auto": "auto", "min": "min-content", "max": "max-content", "fr": "minmax(0, 1fr)" };
 
-const L_flexContent = {
-  "center": "center", "start": "flex-start", "end": "flex-end", "between": "space-between",
-  "around":  "space-around", "evenly":  "space-evenly", "stretch": "stretch"
-};
-
-/*
- * Helpers
- */
-var H_comp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";
-
-
-
 /* 
  * Utilities
  */
-var U_boxDecorationBreak = (p) => [`box-decoration-break:${p[1]}`, `-webkit-box-decoration-break:${p[1]}`];
+var U_boxDecorationBreak = (p) => ({"box-decoration-break": p[1], "-webkit-box-decoration-break": p[1]});
 
-var U_boxSizing = (p) => `box-sizing:${p[1]}-box`;
+var U_boxSizing = (p) => ({"box-sizing": p[1]+"-box"});
 
-var U_display = (p) => `display:${p[0] == "hidden" ? "none" : Hargs(p, 0)}`;
+var U_display = (p) => ({display: p[0] == "hidden" ? "none" : Hargs(p, 0)});
 
-var U_visibility = (p) => `visibility:${p[0] == "visible" ? p[0] : "hidden"}`;
+var U_visibility = (p) => ({visibility: p[0] == "visible" ? p[0] : "hidden"});
 
-var U_position = (p) => `position:${p[0]}`;
+var U_position = (p) => ({position: p[0]});
 
-var U_zindex = (p) => `z-index:${p[1]}`;
+var U_zindex = (p) => ({"z-index": p[1]});
 
-var U_clearFloat = (p) => `${p[0]}:${p[1]}`;
+var U_clearFloat = (p) => ({[p[0]]: p[1]});
 
-var U_isolation = (p) => `isolation:${p[1] ? "auto" : "isolate"}`;
+var U_isolation = (p) => ({isolation: p[1] ? "auto" : "isolate"});
 
 var U_objectFitPosition = (p) => {
-  if (L_objectFit.includes(p[1]))  return `object-fit:${Hargs(p, 1)}`
-  return `object-position:${Hargs(p, 1, " ")}`
+  if (L_objectFit.includes(p[1]))  return {"object-fit": Hargs(p, 1)}
+  return {"object-position": Hargs(p, 1, " ")}
 };
 
 var U_overScrollFlow = (p) => {
-  var n = p[0] == "overflow" ? p[0] : `${p[0]}-behavior`;
-  if (p.length == 2) return `${n}:${p[1]}`
-  return `${n}-${p[1]}:${p[2]}`  
+  var n = p[0] == "overflow" ? p[0] : p[0] + "-behavior";
+  if (p.length == 2) return {[n]: p[1]}
+  return {[n + "-" + p[1]]: p[2]}  
 };
 
 var U_inset = (p, n) => {
   var v = p.length == 2 ? HspacingPercent(p[1], n) : HspacingPercent(p[2], n);
-  if (p.length == 2) return [`top:${v}`, `bottom:${v}`, `right:${v}`, `left:${v}`]
-  if (p[1] == "x") return [`right:${v}`, `left:${v}`]
-  return [`top:${v}`, `bottom:${v}`]
+  if (p.length == 2) return {"top": v, "bottom": v, "right": v, "left": v}
+  if (p[1] == "x") return {"right": v, "left": v}
+  return {"top": v, "bottom": v}  
 };
 
 var U_flexDirection = (p) => {
   if (p[1] == "col") p[1] = "column";
-  return `flex-direction:${Hargs(p, 1)}`
+  return {"flex-direction": Hargs(p, 1)}
 };
 
-var U_flexWrap = (p) => `flex-wrap:${Hargs(p, 1)}`;
+var U_flexWrap = (p) => ({"flex-wrap": Hargs(p, 1)});
 
-var U_flex = (p) => `flex:${L_flex[p[1]]}`;
+var U_flex = (p) => ({"flex": L_flex[p[1]]});
 
-var U_flexGrowShrink = (p) => `flex-${p[1]}:${p[2] == "0" ? "0" : "1"}`;
+var U_flexGrowShrink = (p) => ({["flex-" + p[1]]: p[2] == "0" ? "0" : "1"});
 
 var U_order = (p) => {
   var r = L_order[p[1]];
-  return `order:${r ? r : p[1]}`
+  return {"order": r ? r : p[1]}
+
 };
 
 var U_gridTemplate = (p) => {
   if (p[1] == "cols") p[1] = "columns";
   var r = p[2] == "none" ? "none" : "repeat(" + p[2] + ", minmax(0, 1fr))";
-  return `grid-template-${p[1]}:${r}`
+  return {["grid-template-" + p[1]]: r}
 };
 
 var U_gridAutoFlow= (p) => {
   if (p[2] == "col") p[2] = "column";
-  return `grid-auto-flow:${Hargs(p, 2, ' ')}`
+  return {"grid-auto-flow": Hargs(p, 2, ' ')}
 };
 
 var U_gridAuto = (p) => {
   if (p[1] == "cols") p[1] = "columns";
-  return `grid-auto-${p[1]}:${L_gridAuto[p[2]]}`
+  return {["grid-auto-" + p[1]]: L_gridAuto[p[2]]}
 };
 
 var U_gap = (p, n) => {
@@ -132,47 +113,54 @@ var U_gap = (p, n) => {
     v = Hspacing(p[2], n);
     prop = p[1] == "x" ? "column-gap" : "row-gap";
   }
-  return `${prop}:${v}`
+  return {[prop]: v}
 };
 
 var U_spaceBetween = (p, n) => {
   n.csel = "> :not([hidden]) ~ :not([hidden])";
-  if (p[2] == "reverse") return `--tw-space-${p[1]}-reverse:1`
-  return [`--tw-space-${p[1]}-reverse:0`,
-    `margin-${p[1] == 'x' ? "right" : "bottom"}:calc(${Hspacing(p[2], n)} * var(--tw-space-${p[1]}-reverse))`,
-    `margin-${p[1] == 'x' ? "left" : "top"}:calc(${Hspacing(p[2], n)} * calc(1 - var(--tw-space-${p[1]}-reverse)))`]
+  if (p[2] == "reverse") return {["--tw-space-" + p[1] + "-reverse"]: "1"}
+  return {["--tw-space-"+ p[1] + "-reverse"]: "0",
+    ["margin-" + (p[1] == 'x' ? "right" : "bottom")] : "calc(" + Hspacing(p[2], n) + " * var(--tw-space-" + p[1] + "-reverse))",
+    ["margin-" + (p[1] == 'x' ? "left" : "top")]: "calc(" + Hspacing(p[2], n) + " * calc(1 - var(--tw-space-" + p[1] + "-reverse)))"
+  }
 };
 
-var U_gridSpan = (p, n) => {
-  if (p[0] == "col") p[0] = "column";
-  var r = p[2] == "full" ? "1 / -1" : "span " + p[2] + " / " + "span " + p[2];
-  if (p[1] == "auto") r = "auto";
-  return `grid-${p[0]}:${r}`
-};
+var U_backgroundOrigin = (p) => ({"background-origin": p[2] + "-box"});
 
-var U_gridStartEnd = (p, n) => {
-  if (p[0] == "col") p[0] = "column";
-  return `grid-${p[0]}-${p[1]}:${p[2]}`
-};
-  
-var Hcolor = (v, o, h) => {
-  if (!o) o = 1;
-  if (v == "black") return h ? "#000000" : "rgba(0, 0, 0," + o + ")"
-  if (v == "white") return h ? "#ffffff" : "rgba(255, 255, 255," + o + ")"
+var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";
+
+var HhexColor = (v) => {
+  if (v == "white") return "ffffff"
+  if (v == "black") return "000000"
   var p = v.split("-");
   var c = L_color[p[0]];
   if (c) {
     var s = parseInt(p[1])/100;
     s = s < 1 ? 0 : s*6;
-    s = c.substring(s, s+6);
-    if (h) return "#" + s
-    return "rgba(" + H_comp(s, 0) + H_comp(s, 2) + H_comp(s, 4) + o + ")"
+    return c.substring(s, s+6)
   }
+  return false
 };
+
+var HtransCurr = (v) => {
+  if (v == "transparent") return v
+  if (v == "current") return "currentColor"
+  return false
+};
+var Hcolor = (v, o, h) => {
+  if (!o) o = 1;
+  var c = HhexColor(v);
+  if (h) {
+    if (c) return "#" + c
+    if (HtransCurr(v)) return HtransCurr(v)
+  }
+  else if (c) return "rgba(" + Hcomp(c, 0) + Hcomp(c, 2) + Hcomp(c, 4) + o + ")"
+};
+
 var HisColor = (v) => L_color[v] || v == "black" || v == "white" || v == "transparent" || v == "current";
 var HcolorUtil = (col, prop, name) => {
-  if (col == "transparent") return {[prop]:"transparent"}
-  if (col == "current") return {[prop]: "currentColor"}
+  var tc = HtransCurr(col);
+  if (tc) return {[prop]: tc}
   return {[prop]: Hcolor(col, "var(--tw-" + name + "-opacity)"), ["--tw-"+ name +"-opacity"]: "1"}
 };  
 
@@ -183,10 +171,17 @@ var Hpercent = (v, n) => {
     return n.minus + (parseInt(p[0]) / parseInt(p[1])) * 100 + "%"
   }
 };
+const Lspacing = {
+  '0.5': '0.125','1': '0.25','1.5': '0.375','2': '0.5','2.5': '0.625',
+  '3': '0.75', '3.5': '0.875', '4': '1','5': '1.25','6': '1.5','7': '1.75','8': '2','9': '2.25',
+  '10': '2.5','11': '2.75','12': '3','14': '3.5','16': '4','20': '5','24': '6','28': '7','32': '8',
+  '36': '9','40': '10','44': '11','48': '12','52': '13','56': '14','60': '15','64': '16','72': '18',
+  '80': '20','96': '24',
+};
 var Hspacing = (v, n) => {
   if (v == "0" || v == "auto") return v
   if (v == "px") return n.minus + "1px"
-  v = L_spacing[v];
+  v = Lspacing[v];
   if (v) v = n.minus + v +"rem";
   return v
 };
@@ -212,7 +207,10 @@ var Ubackground = (p, n) => {
   if (LbackgroundSize.includes(p1)) return {"background-size": p1}
   return HcolorUtil(Hargs(p, 1), "background-color", "bg")
 };
-var UcolorOpacity = (p, n) =>  ({["--tw-" + p[0] + "-opacity"]:Hfloat(p[2])});
+var UcolorOpacity = (p, n) =>  {
+  n.priority++;
+  return {["--tw-" + p[0] + "-opacity"]:Hfloat(p[2])}
+};
 
 const LbackgroudnGradient = {
   "t": "top", "tr": "top right", "r": "right", "br": "bottom right", 
@@ -220,11 +218,22 @@ const LbackgroudnGradient = {
 };
 var UbackgroundGradient = (p, n) => ({"background-image": "linear-gradient(to " + 
                         LbackgroudnGradient[p[3]] + ", var(--tw-gradient-stops))"});
-var Ufrom = (p, n) => ({"--tw-gradient-from": Hcolor(Hargs(p, 1), 1, true),
-    "--tw-gradient-stops": "var(--tw-gradient-from), var(--tw-gradient-to, " + Hcolor(Hargs(p, 1), "0") +")"
-});
+var Ufrom = (p, n) => {
+  var to = Hargs(p, 1);
+  if (p[1] == "transparent") to = "black";
+  else if (p[1] == "current") to = "white";
+  return {"--tw-gradient-from": Hcolor(Hargs(p, 1), 1, true),
+    "--tw-gradient-stops": "var(--tw-gradient-from), var(--tw-gradient-to, " + Hcolor(to, "0") +")"}
+};
+
 var Uto = (p, n) => ({"--tw-gradient-to": Hcolor(Hargs(p, 1), 1, true)});
-var Uvia = (p, n) => ({"--tw-gradient-stops": "var(--tw-gradient-from), " +  Hcolor(Hargs(p, 1), 1, true) +  ", var(--tw-gradient-to, " + Hcolor(Hargs(p, 1), "0")  + ")"});
+
+var Uvia = (p, n) => {
+  var to = Hargs(p, 1);
+  if (p[1] == "transparent") to = "black";
+  else if (p[1] == "current") to = "white";
+  return {"--tw-gradient-stops": "var(--tw-gradient-from), " +  Hcolor(Hargs(p, 1), 1, true) +  ", var(--tw-gradient-to, " + Hcolor(to, "0")  + ")"}
+};
 
 var UbackgroundRepeat = (p, n) => {
   var prop = "background-repeat";
@@ -245,6 +254,34 @@ var UbackgroundClip = (p, n) => ({"background-clip":LbackgroundClip[p[2]]});
 var Uinline = (p, n) => ({"display":Hargs(p, 0)});
 
 
+
+
+
+
+
+
+
+
+
+
+
+var UgridSpan = (p, n) => {
+  if (p[0] == "col") p[0] = "column";
+  var r = p[2] == "full" ? "1 / -1" : "span " + p[2] + " / " + "span " + p[2];
+  if (p[1] == "auto") r = "auto";
+  return {["grid-" + p[0]]: r}
+};
+var UgridStartEnd = (p, n) => {
+  if (p[0] == "col") p[0] = "column";
+  return {["grid-" + p[0] + "-" + p[1]]: p[2]}
+};
+
+
+
+const LflexContent = {
+  "center": "center", "start": "flex-start", "end": "flex-end", "between": "space-between",
+  "around":  "space-around", "evenly":  "space-evenly", "stretch": "stretch"
+};
 var UflexContent = (p, n) => {
   var prop = "align-content", s=1;
   if (p[0] == "justify") prop = "justify-content";
@@ -253,7 +290,7 @@ var UflexContent = (p, n) => {
     if (p[2] == "start" || p[2] == "end") return {[prop]: p[2]} 
     s = 2;
   }
-  return {[prop]: L_flexContent[p[s]]}
+  return {[prop]: LflexContent[p[s]]}
 };
 var UjustifyPlaceSelfItems = (p, n) => ({[p[0] + "-" + p[1]]: p[2]});
 var UalignSelfItems = (p, n) => {
@@ -538,10 +575,9 @@ var UtextOverflow = (p) => {
 var UverticalAlign = (p) => ({"vertical-align": Hargs(p, 1)});
 var Uwhitespace = (p) => ({"white-space": Hargs(p, 1)});
 var UwordBreak = (p) => {
-  var prop = "word-break";
-  if (p[1] == "normal") return {"overflow-wrap": "normal", [prop]: "normal"}
-  if (p[1] == "words") return {[prop]: "break-word"}
-  return {[prop]: "break-all"}
+  if (p[1] == "normal") return {"overflow-wrap": "normal", "word-break": "normal"}
+  if (p[1] == "words") return {"overflow-wrap": "break-word"}
+  return {"word-break": "break-all"}
 };
 var UplaceholderColor = (p, n) => {
   n.pelem = "placeholder";
@@ -549,7 +585,7 @@ var UplaceholderColor = (p, n) => {
 };
 var UplaceholderOpacity = (p, n) => {
   n.pelem = "placeholder";
-  return UcolorOpacity(p)
+  return UcolorOpacity(p, n)
 };
 const Lblur = {
   "0": "0", "sm": "4px", "": "8px", "md": "12px", "lg": "16px",
@@ -603,6 +639,7 @@ var UscreenReaders = (p) => {
 const lookup = {
   absolute:       U_position,
   auto:           U_gridAuto,
+  "bg-origin":    U_backgroundOrigin,
   block:          U_display,
   box:            U_boxSizing,
   clear:          U_clearFloat,
@@ -760,14 +797,14 @@ const lookup = {
   "inline": Uinline,
   
   
-  "col-span": U_gridSpan,
-  "row-span": U_gridSpan,
-  "col-auto": U_gridSpan,
-  "row-auto": U_gridSpan,
-  "col-start": U_gridStartEnd,
-  "col-end": U_gridStartEnd,
-  "row-start": U_gridStartEnd,
-  "row-end": U_gridStartEnd,
+  "col-span": UgridSpan,
+  "row-span": UgridSpan,
+  "col-auto": UgridSpan,
+  "row-auto": UgridSpan,
+  "col-start": UgridStartEnd,
+  "col-end": UgridStartEnd,
+  "row-start": UgridStartEnd,
+  "row-end": UgridStartEnd,
   
   "justify": UflexContent,
   "content": UflexContent,
@@ -864,19 +901,6 @@ var classPrefix = (c, n) => {
   return c
 };
 
-var fixString = (s) => {
-  if (Array.isArray(s)) {
-    var v = {};
-    for (var i=0; i<s.length; i++) {
-      var p = s[i].split(":");
-      v[p[0]] = p[1]; 
-    }
-    return v
-  }
-  s = s.split(":");
-  return {[s[0]]: s[1]}
-};
-
 function compile(c) {
   var node = {class: c, minus: "", priority: 0, media: [], pseudo: []};
   var c = classPrefix(V_compile(c, node), node);
@@ -885,12 +909,10 @@ function compile(c) {
   for (var i=parts.length; i > 0; i--) {
     var fn = lookup[parts.slice(0, i).join("-")];
     if (fn) {
-      var props = fn(parts, node);
-      if (typeof props === 'string' || Array.isArray(props)) props = fixString(props);
-      for (const [key, value] of Object.entries(props)) {
-        if (!value || value.includes("undefined")) return false;
+      node.props = fn(parts, node);
+      for (const [key, value] of Object.entries(node.props)) {
+        if (!value) return false;
       }
-      node.props = props;
       return node
     }
   }
@@ -1363,6 +1385,120 @@ var tests = [
   ["text-center", {"text-align": "center"}],
   ["text-right",  {"text-align": "right"}],
   ["text-justify",  {"text-align": "justify"}],
+
+  ["text-transparent", {"color": "transparent"}],
+  ["text-current", {"color": "currentColor"}],
+  ["text-purple-900", {"--tw-text-opacity": "1", "color": "rgba(76,29,149,var(--tw-text-opacity))"}],
+
+  ["text-opacity-0", {"--tw-text-opacity": "0"}],
+  ["text-opacity-5", {"--tw-text-opacity": "0.05"}],
+  ["text-opacity-10",  {"--tw-text-opacity": "0.1"}],
+
+  ["underline", {"text-decoration": "underline"}],
+  ["line-through", {"text-decoration": "line-through"}],
+  ["no-underline",  {"text-decoration": "none"}],
+
+  ["uppercase", {"text-transform": "uppercase"}],
+  ["lowercase", {"text-transform": "lowercase"}],
+  ["capitalize", {"text-transform": "capitalize"}],
+  ["normal-case", {"text-transform": "none"}],
+
+  ["truncate", {"overflow": "hidden", "text-overflow": "ellipsis", "white-space": "nowrap"}],
+  ["overflow-ellipsis", {"text-overflow": "ellipsis"}],
+  ["overflow-clip", {"text-overflow": "clip"}],
+
+  ["align-baseline", {"vertical-align": "baseline"}],
+  ["align-top", {"vertical-align": "top"}],
+  ["align-middle", {"vertical-align": "middle"}],
+  ["align-bottom", {"vertical-align": "bottom"}],
+  ["align-text-top", {"vertical-align": "text-top"}],
+  ["align-text-bottom", {"vertical-align": "text-bottom"}],
+
+  ["whitespace-normal", {"white-space": "normal"}],
+  ["whitespace-nowrap", {"white-space": "nowrap"}],
+  ["whitespace-pre",  {"white-space": "pre"}],
+  ["whitespace-pre-line", {"white-space": "pre-line"}],
+  ["whitespace-pre-wrap", {"white-space": "pre-wrap"}],
+
+  ["break-normal", {"overflow-wrap": "normal", "word-break": "normal"}],
+  ["break-words", {"overflow-wrap": "break-word"}],
+  ["break-all", {"word-break": "break-all"}],
+
+  ["bg-fixed", {"background-attachment": "fixed"}],
+  ["bg-local", {"background-attachment": "local"}],
+  ["bg-scroll", {"background-attachment": "scroll"}],
+
+  ["bg-clip-border", {"background-clip": "border-box"}],
+  ["bg-clip-padding", {"background-clip": "padding-box"}],
+  ["bg-clip-content", {"background-clip": "content-box"}],
+  ["bg-clip-text", {"background-clip": "text"}],
+
+  ["bg-transparent", {"background-color": "transparent"}],
+  ["bg-current", {"background-color": "currentColor"}],
+  ["bg-yellow-200", {"--tw-bg-opacity": "1", "background-color": "rgba(253,230,138,var(--tw-bg-opacity))"}],
+
+  ["bg-opacity-0", {"--tw-bg-opacity": "0"}],
+  ["bg-opacity-5", {"--tw-bg-opacity": "0.05"}],
+  ["bg-opacity-20",  {"--tw-bg-opacity": "0.2"}],
+
+  ["bg-origin-border", {"background-origin": "border-box"}],
+  ["bg-origin-padding", {"background-origin": "padding-box"}],
+  ["bg-origin-content", {"background-origin": "content-box"}],
+
+  ["bg-bottom", {"background-position": "bottom"}],
+  ["bg-center", {"background-position": "center"}],
+  ["bg-left", {"background-position": "left"}],
+  ["bg-left-bottom", {"background-position": "left bottom"}],
+  ["bg-left-top", {"background-position": "left top"}],
+  ["bg-right", {"background-position": "right"}],
+  ["bg-right-bottom", {"background-position": "right bottom"}],
+  ["bg-right-top", {"background-position": "right top"}],
+  ["bg-top", {"background-position": "top"}],
+
+  ["bg-repeat", {"background-repeat": "repeat"}],
+  ["bg-no-repeat", {"background-repeat": "no-repeat"}],
+  ["bg-repeat-x", {"background-repeat": "repeat-x"}],
+  ["bg-repeat-y", {"background-repeat": "repeat-y"}],
+  ["bg-repeat-round", {"background-repeat": "round"}],
+  ["bg-repeat-space", {"background-repeat": "space"}],
+
+  ["bg-auto", {"background-size": "auto"}],
+  ["bg-cover", {"background-size": "cover"}],
+  ["bg-contain", {"background-size": "contain"}],
+
+  ["bg-none", {"background-image": "none"}],
+  ["bg-gradient-to-t", {"background-image": "linear-gradient(to top, var(--tw-gradient-stops))"}],
+  ["bg-gradient-to-tr", {"background-image": "linear-gradient(to top right, var(--tw-gradient-stops))"}],
+  ["bg-gradient-to-r", {"background-image": "linear-gradient(to right, var(--tw-gradient-stops))"}],
+  ["bg-gradient-to-br", {"background-image": "linear-gradient(to bottom right, var(--tw-gradient-stops))"}],
+  ["bg-gradient-to-b", {"background-image": "linear-gradient(to bottom, var(--tw-gradient-stops))"}],
+  ["bg-gradient-to-bl", {"background-image": "linear-gradient(to bottom left, var(--tw-gradient-stops))"}],
+  ["bg-gradient-to-l", {"background-image": "linear-gradient(to left, var(--tw-gradient-stops))"}],
+  ["bg-gradient-to-tl", {"background-image": "linear-gradient(to top left, var(--tw-gradient-stops))"}],
+
+  ["from-transparent", {"--tw-gradient-from": "transparent",
+      "--tw-gradient-stops": "var(--tw-gradient-from), var(--tw-gradient-to, rgba(0,0,0,0))"}],
+  ["from-current", {"--tw-gradient-from": "currentColor",
+      "--tw-gradient-stops": "var(--tw-gradient-from), var(--tw-gradient-to, rgba(255,255,255,0))"}],
+  ["from-black", {"--tw-gradient-from": "#000000",
+      "--tw-gradient-stops": "var(--tw-gradient-from), var(--tw-gradient-to, rgba(0,0,0,0))"}], 
+  ["from-white", {"--tw-gradient-from": "#ffffff",
+      "--tw-gradient-stops": "var(--tw-gradient-from), var(--tw-gradient-to, rgba(255,255,255,0))"}], 
+  ["from-gray-300", {"--tw-gradient-from": "#D1D5DB",
+    "--tw-gradient-stops": "var(--tw-gradient-from), var(--tw-gradient-to, rgba(209,213,219,0))"}],
+
+  ["via-transparent", {"--tw-gradient-stops": "var(--tw-gradient-from), transparent, var(--tw-gradient-to, rgba(0,0,0,0))"}],
+  ["via-current", {"--tw-gradient-stops": "var(--tw-gradient-from), currentColor, var(--tw-gradient-to, rgba(255,255,255,0))"}],
+  ["via-black", {"--tw-gradient-stops": "var(--tw-gradient-from), #000000, var(--tw-gradient-to, rgba(0,0,0,0))"}],
+  ["via-white", {"--tw-gradient-stops": "var(--tw-gradient-from), #ffffff, var(--tw-gradient-to, rgba(255,255,255,0))"}],
+  ["via-purple-50", {"--tw-gradient-stops": "var(--tw-gradient-from), #F5F3FF, var(--tw-gradient-to, rgba(245,243,255,0))"}],
+
+  ["to-transparent", {"--tw-gradient-to": "transparent"}],  
+  ["to-current",  {"--tw-gradient-to": "currentColor"}], 
+  ["to-black", {"--tw-gradient-to": "#000000"}], 
+  ["to-white", {"--tw-gradient-to": "#ffffff"}],
+  ["to-gray-50", {"--tw-gradient-to": "#F9FAFB"}],
+
 
   ["xxxx", false],
   ["", false],

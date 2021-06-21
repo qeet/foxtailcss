@@ -17,14 +17,6 @@
     'purple': 'F5F3FFEDE9FEDDD6FEC4B5FDA78BFA8B5CF67C3AED6D28D95B21B64C1D95',
   };
 
-  const L_spacing = {
-    '0.5': '0.125','1': '0.25','1.5': '0.375','2': '0.5','2.5': '0.625',
-    '3': '0.75', '3.5': '0.875', '4': '1','5': '1.25','6': '1.5','7': '1.75','8': '2','9': '2.25',
-    '10': '2.5','11': '2.75','12': '3','14': '3.5','16': '4','20': '5','24': '6','28': '7','32': '8',
-    '36': '9','40': '10','44': '11','48': '12','52': '13','56': '14','60': '15','64': '16','72': '18',
-    '80': '20','96': '24',
-  };
-
   const L_objectFit = [ "contain", "cover", "fill", "none", "scale" ];
 
   const L_flex = { "1":  "1 1 0%", "auto": "1 1 auto", "initial": "0 1 auto", "none": "none" };
@@ -42,85 +34,74 @@
 
   const L_gridAuto = { "auto": "auto", "min": "min-content", "max": "max-content", "fr": "minmax(0, 1fr)" };
 
-  const L_flexContent = {
-    "center": "center", "start": "flex-start", "end": "flex-end", "between": "space-between",
-    "around":  "space-around", "evenly":  "space-evenly", "stretch": "stretch"
-  };
-
-  /*
-   * Helpers
-   */
-  var H_comp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";
-
-
-
   /* 
    * Utilities
    */
-  var U_boxDecorationBreak = (p) => [`box-decoration-break:${p[1]}`, `-webkit-box-decoration-break:${p[1]}`];
+  var U_boxDecorationBreak = (p) => ({"box-decoration-break": p[1], "-webkit-box-decoration-break": p[1]});
 
-  var U_boxSizing = (p) => `box-sizing:${p[1]}-box`;
+  var U_boxSizing = (p) => ({"box-sizing": p[1]+"-box"});
 
-  var U_display = (p) => `display:${p[0] == "hidden" ? "none" : Hargs(p, 0)}`;
+  var U_display = (p) => ({display: p[0] == "hidden" ? "none" : Hargs(p, 0)});
 
-  var U_visibility = (p) => `visibility:${p[0] == "visible" ? p[0] : "hidden"}`;
+  var U_visibility = (p) => ({visibility: p[0] == "visible" ? p[0] : "hidden"});
 
-  var U_position = (p) => `position:${p[0]}`;
+  var U_position = (p) => ({position: p[0]});
 
-  var U_zindex = (p) => `z-index:${p[1]}`;
+  var U_zindex = (p) => ({"z-index": p[1]});
 
-  var U_clearFloat = (p) => `${p[0]}:${p[1]}`;
+  var U_clearFloat = (p) => ({[p[0]]: p[1]});
 
-  var U_isolation = (p) => `isolation:${p[1] ? "auto" : "isolate"}`;
+  var U_isolation = (p) => ({isolation: p[1] ? "auto" : "isolate"});
 
   var U_objectFitPosition = (p) => {
-    if (L_objectFit.includes(p[1]))  return `object-fit:${Hargs(p, 1)}`
-    return `object-position:${Hargs(p, 1, " ")}`
+    if (L_objectFit.includes(p[1]))  return {"object-fit": Hargs(p, 1)}
+    return {"object-position": Hargs(p, 1, " ")}
   };
 
   var U_overScrollFlow = (p) => {
-    var n = p[0] == "overflow" ? p[0] : `${p[0]}-behavior`;
-    if (p.length == 2) return `${n}:${p[1]}`
-    return `${n}-${p[1]}:${p[2]}`  
+    var n = p[0] == "overflow" ? p[0] : p[0] + "-behavior";
+    if (p.length == 2) return {[n]: p[1]}
+    return {[n + "-" + p[1]]: p[2]}  
   };
 
   var U_inset = (p, n) => {
     var v = p.length == 2 ? HspacingPercent(p[1], n) : HspacingPercent(p[2], n);
-    if (p.length == 2) return [`top:${v}`, `bottom:${v}`, `right:${v}`, `left:${v}`]
-    if (p[1] == "x") return [`right:${v}`, `left:${v}`]
-    return [`top:${v}`, `bottom:${v}`]
+    if (p.length == 2) return {"top": v, "bottom": v, "right": v, "left": v}
+    if (p[1] == "x") return {"right": v, "left": v}
+    return {"top": v, "bottom": v}  
   };
 
   var U_flexDirection = (p) => {
     if (p[1] == "col") p[1] = "column";
-    return `flex-direction:${Hargs(p, 1)}`
+    return {"flex-direction": Hargs(p, 1)}
   };
 
-  var U_flexWrap = (p) => `flex-wrap:${Hargs(p, 1)}`;
+  var U_flexWrap = (p) => ({"flex-wrap": Hargs(p, 1)});
 
-  var U_flex = (p) => `flex:${L_flex[p[1]]}`;
+  var U_flex = (p) => ({"flex": L_flex[p[1]]});
 
-  var U_flexGrowShrink = (p) => `flex-${p[1]}:${p[2] == "0" ? "0" : "1"}`;
+  var U_flexGrowShrink = (p) => ({["flex-" + p[1]]: p[2] == "0" ? "0" : "1"});
 
   var U_order = (p) => {
     var r = L_order[p[1]];
-    return `order:${r ? r : p[1]}`
+    return {"order": r ? r : p[1]}
+
   };
 
   var U_gridTemplate = (p) => {
     if (p[1] == "cols") p[1] = "columns";
     var r = p[2] == "none" ? "none" : "repeat(" + p[2] + ", minmax(0, 1fr))";
-    return `grid-template-${p[1]}:${r}`
+    return {["grid-template-" + p[1]]: r}
   };
 
   var U_gridAutoFlow= (p) => {
     if (p[2] == "col") p[2] = "column";
-    return `grid-auto-flow:${Hargs(p, 2, ' ')}`
+    return {"grid-auto-flow": Hargs(p, 2, ' ')}
   };
 
   var U_gridAuto = (p) => {
     if (p[1] == "cols") p[1] = "columns";
-    return `grid-auto-${p[1]}:${L_gridAuto[p[2]]}`
+    return {["grid-auto-" + p[1]]: L_gridAuto[p[2]]}
   };
 
   var U_gap = (p, n) => {
@@ -133,29 +114,21 @@
       v = Hspacing(p[2], n);
       prop = p[1] == "x" ? "column-gap" : "row-gap";
     }
-    return `${prop}:${v}`
+    return {[prop]: v}
   };
 
   var U_spaceBetween = (p, n) => {
     n.csel = "> :not([hidden]) ~ :not([hidden])";
-    if (p[2] == "reverse") return `--tw-space-${p[1]}-reverse:1`
-    return [`--tw-space-${p[1]}-reverse:0`,
-      `margin-${p[1] == 'x' ? "right" : "bottom"}:calc(${Hspacing(p[2], n)} * var(--tw-space-${p[1]}-reverse))`,
-      `margin-${p[1] == 'x' ? "left" : "top"}:calc(${Hspacing(p[2], n)} * calc(1 - var(--tw-space-${p[1]}-reverse)))`]
+    if (p[2] == "reverse") return {["--tw-space-" + p[1] + "-reverse"]: "1"}
+    return {["--tw-space-"+ p[1] + "-reverse"]: "0",
+      ["margin-" + (p[1] == 'x' ? "right" : "bottom")] : "calc(" + Hspacing(p[2], n) + " * var(--tw-space-" + p[1] + "-reverse))",
+      ["margin-" + (p[1] == 'x' ? "left" : "top")]: "calc(" + Hspacing(p[2], n) + " * calc(1 - var(--tw-space-" + p[1] + "-reverse)))"
+    }
   };
 
-  var U_gridSpan = (p, n) => {
-    if (p[0] == "col") p[0] = "column";
-    var r = p[2] == "full" ? "1 / -1" : "span " + p[2] + " / " + "span " + p[2];
-    if (p[1] == "auto") r = "auto";
-    return `grid-${p[0]}:${r}`
-  };
+  var U_backgroundOrigin = (p) => ({"background-origin": p[2] + "-box"});
 
-  var U_gridStartEnd = (p, n) => {
-    if (p[0] == "col") p[0] = "column";
-    return `grid-${p[0]}-${p[1]}:${p[2]}`
-  };
-    
+  var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";   
   var Hcolor = (v, o, h) => {
     if (!o) o = 1;
     if (v == "black") return h ? "#000000" : "rgba(0, 0, 0," + o + ")"
@@ -167,7 +140,7 @@
       s = s < 1 ? 0 : s*6;
       s = c.substring(s, s+6);
       if (h) return "#" + s
-      return "rgba(" + H_comp(s, 0) + H_comp(s, 2) + H_comp(s, 4) + o + ")"
+      return "rgba(" + Hcomp(s, 0) + Hcomp(s, 2) + Hcomp(s, 4) + o + ")"
     }
   };
   var HisColor = (v) => L_color[v] || v == "black" || v == "white" || v == "transparent" || v == "current";
@@ -184,10 +157,17 @@
       return n.minus + (parseInt(p[0]) / parseInt(p[1])) * 100 + "%"
     }
   };
+  const Lspacing = {
+    '0.5': '0.125','1': '0.25','1.5': '0.375','2': '0.5','2.5': '0.625',
+    '3': '0.75', '3.5': '0.875', '4': '1','5': '1.25','6': '1.5','7': '1.75','8': '2','9': '2.25',
+    '10': '2.5','11': '2.75','12': '3','14': '3.5','16': '4','20': '5','24': '6','28': '7','32': '8',
+    '36': '9','40': '10','44': '11','48': '12','52': '13','56': '14','60': '15','64': '16','72': '18',
+    '80': '20','96': '24',
+  };
   var Hspacing = (v, n) => {
     if (v == "0" || v == "auto") return v
     if (v == "px") return n.minus + "1px"
-    v = L_spacing[v];
+    v = Lspacing[v];
     if (v) v = n.minus + v +"rem";
     return v
   };
@@ -213,7 +193,10 @@
     if (LbackgroundSize.includes(p1)) return {"background-size": p1}
     return HcolorUtil(Hargs(p, 1), "background-color", "bg")
   };
-  var UcolorOpacity = (p, n) =>  ({["--tw-" + p[0] + "-opacity"]:Hfloat(p[2])});
+  var UcolorOpacity = (p, n) =>  {
+    n.priority++;
+    return {["--tw-" + p[0] + "-opacity"]:Hfloat(p[2])}
+  };
 
   const LbackgroudnGradient = {
     "t": "top", "tr": "top right", "r": "right", "br": "bottom right", 
@@ -246,6 +229,34 @@
   var Uinline = (p, n) => ({"display":Hargs(p, 0)});
 
 
+
+
+
+
+
+
+
+
+
+
+
+  var UgridSpan = (p, n) => {
+    if (p[0] == "col") p[0] = "column";
+    var r = p[2] == "full" ? "1 / -1" : "span " + p[2] + " / " + "span " + p[2];
+    if (p[1] == "auto") r = "auto";
+    return {["grid-" + p[0]]: r}
+  };
+  var UgridStartEnd = (p, n) => {
+    if (p[0] == "col") p[0] = "column";
+    return {["grid-" + p[0] + "-" + p[1]]: p[2]}
+  };
+
+
+
+  const LflexContent = {
+    "center": "center", "start": "flex-start", "end": "flex-end", "between": "space-between",
+    "around":  "space-around", "evenly":  "space-evenly", "stretch": "stretch"
+  };
   var UflexContent = (p, n) => {
     var prop = "align-content", s=1;
     if (p[0] == "justify") prop = "justify-content";
@@ -254,7 +265,7 @@
       if (p[2] == "start" || p[2] == "end") return {[prop]: p[2]} 
       s = 2;
     }
-    return {[prop]: L_flexContent[p[s]]}
+    return {[prop]: LflexContent[p[s]]}
   };
   var UjustifyPlaceSelfItems = (p, n) => ({[p[0] + "-" + p[1]]: p[2]});
   var UalignSelfItems = (p, n) => {
@@ -539,10 +550,9 @@
   var UverticalAlign = (p) => ({"vertical-align": Hargs(p, 1)});
   var Uwhitespace = (p) => ({"white-space": Hargs(p, 1)});
   var UwordBreak = (p) => {
-    var prop = "word-break";
-    if (p[1] == "normal") return {"overflow-wrap": "normal", [prop]: "normal"}
-    if (p[1] == "words") return {[prop]: "break-word"}
-    return {[prop]: "break-all"}
+    if (p[1] == "normal") return {"overflow-wrap": "normal", "word-break": "normal"}
+    if (p[1] == "words") return {"overflow-wrap": "break-word"}
+    return {"word-break": "break-all"}
   };
   var UplaceholderColor = (p, n) => {
     n.pelem = "placeholder";
@@ -550,7 +560,7 @@
   };
   var UplaceholderOpacity = (p, n) => {
     n.pelem = "placeholder";
-    return UcolorOpacity(p)
+    return UcolorOpacity(p, n)
   };
   const Lblur = {
     "0": "0", "sm": "4px", "": "8px", "md": "12px", "lg": "16px",
@@ -604,6 +614,7 @@
   const lookup = {
     absolute:       U_position,
     auto:           U_gridAuto,
+    "bg-origin":    U_backgroundOrigin,
     block:          U_display,
     box:            U_boxSizing,
     clear:          U_clearFloat,
@@ -761,14 +772,14 @@
     "inline": Uinline,
     
     
-    "col-span": U_gridSpan,
-    "row-span": U_gridSpan,
-    "col-auto": U_gridSpan,
-    "row-auto": U_gridSpan,
-    "col-start": U_gridStartEnd,
-    "col-end": U_gridStartEnd,
-    "row-start": U_gridStartEnd,
-    "row-end": U_gridStartEnd,
+    "col-span": UgridSpan,
+    "row-span": UgridSpan,
+    "col-auto": UgridSpan,
+    "row-auto": UgridSpan,
+    "col-start": UgridStartEnd,
+    "col-end": UgridStartEnd,
+    "row-start": UgridStartEnd,
+    "row-end": UgridStartEnd,
     
     "justify": UflexContent,
     "content": UflexContent,
@@ -865,19 +876,6 @@
     return c
   };
 
-  var fixString = (s) => {
-    if (Array.isArray(s)) {
-      var v = {};
-      for (var i=0; i<s.length; i++) {
-        var p = s[i].split(":");
-        v[p[0]] = p[1]; 
-      }
-      return v
-    }
-    s = s.split(":");
-    return {[s[0]]: s[1]}
-  };
-
   function compile(c) {
     var node = {class: c, minus: "", priority: 0, media: [], pseudo: []};
     var c = classPrefix(V_compile(c, node), node);
@@ -886,12 +884,10 @@
     for (var i=parts.length; i > 0; i--) {
       var fn = lookup[parts.slice(0, i).join("-")];
       if (fn) {
-        var props = fn(parts, node);
-        if (typeof props === 'string' || Array.isArray(props)) props = fixString(props);
-        for (const [key, value] of Object.entries(props)) {
-          if (!value || value.includes("undefined")) return false;
+        node.props = fn(parts, node);
+        for (const [key, value] of Object.entries(node.props)) {
+          if (!value) return false;
         }
-        node.props = props;
         return node
       }
     }
