@@ -458,7 +458,7 @@ var UblendMode = (p) => {
   return {[p[0]+"-blend-mode"]: Hargs(p, 2)}
 }
 
-var Uopacity = (p) =>  ({"opacity":Hfloat(p[2])})
+var Uopacity = (p) =>  ({"opacity":Hfloat(p[1])})
 
 
 var UtopRightBottomLeft = (p, n) => ({[p[0]]: HspacingPercent(p[1], n)}) 
@@ -608,7 +608,7 @@ var UplaceholderOpacity = (p, n) => {
   return UcolorOpacity(p, n)
 }
 const Lblur = {
-  "0": "0", "sm": "4px", "": "8px", "md": "12px", "lg": "16px",
+  "none": "0", "sm": "4px", "": "8px", "md": "12px", "lg": "16px",
   "xl": "24px", "2xl": "40px","3xl": "64px"
 }
 var Hfilter = (t, d) => {
@@ -625,7 +625,7 @@ var Ublur = (p) => {
 var UfilterFloat = (p) => {
   var t = "", s = 1
   if (p[0] =="backdrop") {t = "-backdrop"; s = 2}
-  return Hfilter(p[0], {["--tw" + t + "-" +p[0]]: p[0] + "(" + Hfloat(p[s]) + ")"})
+  return Hfilter(p[0], {["--tw" + t + "-" + p[s-1]]: p[s-1] + "(" + Hfloat(p[s]) + ")"})
 }  
 const LdropShadow = {
   "sm" : "(0 1px 1px rgba(0,0,0,0.05))",
@@ -640,12 +640,12 @@ var UdropShadow = (p) => Hfilter(p[0], {"--tw-drop-shadow": "drop-shadow" + Ldro
 var UgrayscaleInvertSepia = (p) => {
   var t = "", s = 1
   if (p[0] =="backdrop") {t = "-backdrop"; s = 2}
-  return Hfilter(p[0], {["--tw" + t + "-" + p[0]]: p[0] + "(" + (p[s] ? "0" : "1") + ")"})
+  return Hfilter(p[0], {["--tw" + t + "-" + p[s-1]]: p[s-1] + "(" + (p[s] ? "0" : "1") + ")"})
 } 
-var UhueRotate = (p) => {
+var UhueRotate = (p, n) => {
   var t = "", s = 2
   if (p[0] =="backdrop") {t = "-backdrop"; s = 3}
-  return Hfilter(p[0], {["--tw" + t + "-hue-rotate"]: "hue-rotate("+p[s]+"deg)"})
+  return Hfilter(p[0], {["--tw" + t + "-hue-rotate"]: "hue-rotate("+ n.minus + p[s] + "deg)"})
 }
 var UfillStroke = (p) => ({[p[0]]: "currentColor"})  
 var UstrokeWidth = (p) => ({"stroke-width": p[1]}) 
