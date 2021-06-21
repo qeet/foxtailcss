@@ -474,7 +474,7 @@ var UringOffset = (p) => {
   return {"--tw-ring-offset-color": Hcolor(Hargs(p, 2), "", true)}
 }
 const LborderRadius = {
-  "0": "0px", "sm": "0.125rem", "": "0.25rem", "md": "0.375rem", "lg": " 0.5rem",
+  "none": "0px", "sm": "0.125rem", "": "0.25rem", "md": "0.375rem", "lg": "0.5rem",
   "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px"
 }
 var UborderRadius = (p) => {
@@ -490,13 +490,13 @@ var UborderRadius = (p) => {
 }
 var Uborder = (p) => {
   if (HisColor(p[1]))  return HcolorUtil(Hargs(p, 1), "border-color", "border")
-  if (!p[1] || !isNaN(p[1])) return {"border-width": p[1] ? p[1] : "1" + "px"}
+  if (!p[1] || !isNaN(p[1])) return {"border-width": (p[1] ? p[1] : "1") + "px"}
   return {"border-style": p[1]}
 }
 const LborderWidth = { "t": "top", "r": "right", "b": "bottom", "l": "left" }
 var UborderWidth = (p) => {
   var s = LborderWidth[p[1]]
-  return {["border-" + s + "-width"]: p[2] ? p[2] : "1" + "px" }
+  return {["border-" + s + "-width"]: (p[2] ? p[2] : "1") + "px" }
 }
 const Lanimation = {
   "none": "none",

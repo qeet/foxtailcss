@@ -128,25 +128,40 @@
 
   var U_backgroundOrigin = (p) => ({"background-origin": p[2] + "-box"});
 
-  var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";   
-  var Hcolor = (v, o, h) => {
-    if (!o) o = 1;
-    if (v == "black") return h ? "#000000" : "rgba(0, 0, 0," + o + ")"
-    if (v == "white") return h ? "#ffffff" : "rgba(255, 255, 255," + o + ")"
+  var Hcomp = (s, i) => parseInt(s.substring(i, i+2), 16) + ",";
+
+  var HhexColor = (v) => {
+    if (v == "white") return "ffffff"
+    if (v == "black") return "000000"
     var p = v.split("-");
     var c = L_color[p[0]];
     if (c) {
       var s = parseInt(p[1])/100;
       s = s < 1 ? 0 : s*6;
-      s = c.substring(s, s+6);
-      if (h) return "#" + s
-      return "rgba(" + Hcomp(s, 0) + Hcomp(s, 2) + Hcomp(s, 4) + o + ")"
+      return c.substring(s, s+6)
     }
+    return false
   };
+
+  var HtransCurr = (v) => {
+    if (v == "transparent") return v
+    if (v == "current") return "currentColor"
+    return false
+  };
+  var Hcolor = (v, o, h) => {
+    if (!o) o = 1;
+    var c = HhexColor(v);
+    if (h) {
+      if (c) return "#" + c
+      if (HtransCurr(v)) return HtransCurr(v)
+    }
+    else if (c) return "rgba(" + Hcomp(c, 0) + Hcomp(c, 2) + Hcomp(c, 4) + o + ")"
+  };
+
   var HisColor = (v) => L_color[v] || v == "black" || v == "white" || v == "transparent" || v == "current";
   var HcolorUtil = (col, prop, name) => {
-    if (col == "transparent") return {[prop]:"transparent"}
-    if (col == "current") return {[prop]: "currentColor"}
+    var tc = HtransCurr(col);
+    if (tc) return {[prop]: tc}
     return {[prop]: Hcolor(col, "var(--tw-" + name + "-opacity)"), ["--tw-"+ name +"-opacity"]: "1"}
   };  
 
@@ -204,11 +219,22 @@
   };
   var UbackgroundGradient = (p, n) => ({"background-image": "linear-gradient(to " + 
                           LbackgroudnGradient[p[3]] + ", var(--tw-gradient-stops))"});
-  var Ufrom = (p, n) => ({"--tw-gradient-from": Hcolor(Hargs(p, 1), 1, true),
-      "--tw-gradient-stops": "var(--tw-gradient-from), var(--tw-gradient-to, " + Hcolor(Hargs(p, 1), "0") +")"
-  });
+  var Ufrom = (p, n) => {
+    var to = Hargs(p, 1);
+    if (p[1] == "transparent") to = "black";
+    else if (p[1] == "current") to = "white";
+    return {"--tw-gradient-from": Hcolor(Hargs(p, 1), 1, true),
+      "--tw-gradient-stops": "var(--tw-gradient-from), var(--tw-gradient-to, " + Hcolor(to, "0") +")"}
+  };
+
   var Uto = (p, n) => ({"--tw-gradient-to": Hcolor(Hargs(p, 1), 1, true)});
-  var Uvia = (p, n) => ({"--tw-gradient-stops": "var(--tw-gradient-from), " +  Hcolor(Hargs(p, 1), 1, true) +  ", var(--tw-gradient-to, " + Hcolor(Hargs(p, 1), "0")  + ")"});
+
+  var Uvia = (p, n) => {
+    var to = Hargs(p, 1);
+    if (p[1] == "transparent") to = "black";
+    else if (p[1] == "current") to = "white";
+    return {"--tw-gradient-stops": "var(--tw-gradient-from), " +  Hcolor(Hargs(p, 1), 1, true) +  ", var(--tw-gradient-to, " + Hcolor(to, "0")  + ")"}
+  };
 
   var UbackgroundRepeat = (p, n) => {
     var prop = "background-repeat";

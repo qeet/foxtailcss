@@ -476,7 +476,7 @@ var UringOffset = (p) => {
   return {"--tw-ring-offset-color": Hcolor(Hargs(p, 2), "", true)}
 };
 const LborderRadius = {
-  "0": "0px", "sm": "0.125rem", "": "0.25rem", "md": "0.375rem", "lg": " 0.5rem",
+  "none": "0px", "sm": "0.125rem", "": "0.25rem", "md": "0.375rem", "lg": "0.5rem",
   "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px"
 };
 var UborderRadius = (p) => {
@@ -492,13 +492,13 @@ var UborderRadius = (p) => {
 };
 var Uborder = (p) => {
   if (HisColor(p[1]))  return HcolorUtil(Hargs(p, 1), "border-color", "border")
-  if (!p[1] || !isNaN(p[1])) return {"border-width": p[1] ? p[1] : "1" + "px"}
+  if (!p[1] || !isNaN(p[1])) return {"border-width": (p[1] ? p[1] : "1") + "px"}
   return {"border-style": p[1]}
 };
 const LborderWidth = { "t": "top", "r": "right", "b": "bottom", "l": "left" };
 var UborderWidth = (p) => {
   var s = LborderWidth[p[1]];
-  return {["border-" + s + "-width"]: p[2] ? p[2] : "1" + "px" }
+  return {["border-" + s + "-width"]: (p[2] ? p[2] : "1") + "px" }
 };
 const Lanimation = {
   "none": "none",
@@ -1499,6 +1499,49 @@ var tests = [
   ["to-white", {"--tw-gradient-to": "#ffffff"}],
   ["to-gray-50", {"--tw-gradient-to": "#F9FAFB"}],
 
+  ["rounded-none", {"border-radius": "0px"}],
+  ["rounded-sm", {"border-radius": "0.125rem"}],
+  ["rounded", {"border-radius": "0.25rem"}],
+  ["rounded-md", {"border-radius": "0.375rem"}],
+  ["rounded-lg", {"border-radius": "0.5rem"}],
+  ["rounded-xl", {"border-radius": "0.75rem"}],
+  ["rounded-2xl", {"border-radius": "1rem"}],
+  ["rounded-3xl", {"border-radius": "1.5rem"}],
+  ["rounded-full", {"border-radius": "9999px"}],
+  ["rounded-t-lg", {"border-top-left-radius": "0.5rem", "border-top-right-radius": "0.5rem"}],
+  ["rounded-r-sm", {"border-top-right-radius": "0.125rem", "border-bottom-right-radius": "0.125rem"}],
+  ["rounded-b-full", {"border-bottom-right-radius": "9999px", "border-bottom-left-radius": "9999px"}],
+  ["rounded-l-2xl", {"border-top-left-radius": "1rem", "border-bottom-left-radius": "1rem"}],
+  ["rounded-tl-md", {"border-top-left-radius": "0.375rem"}],
+  ["rounded-tr-md", {"border-top-right-radius": "0.375rem"}],
+  ["rounded-bl-md", {"border-bottom-left-radius": "0.375rem"}],
+  ["rounded-br-md", {"border-bottom-right-radius": "0.375rem"}],
+
+  ["border-0", {"border-width": "0px"}],
+  ["border-2", {"border-width": "2px"}],
+  ["border-4", {"border-width": "4px"}],
+  ["border-8", {"border-width": "8px"}],
+  ["border", {"border-width": "1px"}],
+  ["border-t-4", {"border-top-width": "4px"}],
+  ["border-b", {"border-bottom-width": "1px"}],
+  ["border-l-0", {"border-left-width": "0px"}],
+  ["border-r-8", {"border-right-width": "8px"}],
+
+  ["border-transparent", {"border-color": "transparent"}],
+  ["border-current", {"border-color": "currentColor"}],
+  ["border-purple-900", {"--tw-border-opacity": "1", "border-color": "rgba(76,29,149,var(--tw-border-opacity))"}],
+  ["border-black", {"--tw-border-opacity": "1", "border-color": "rgba(0,0,0,var(--tw-border-opacity))"}],
+  ["border-white", {"--tw-border-opacity": "1", "border-color": "rgba(255,255,255,var(--tw-border-opacity))"}],
+
+  ["border-opacity-0", {"--tw-border-opacity": "0"}],
+  ["border-opacity-5", {"--tw-border-opacity": "0.05"}],
+  ["border-opacity-100",  {"--tw-border-opacity": "1"}],
+
+  ["border-solid", {"border-style": "solid"}],
+  ["border-dashed", {"border-style": "dashed"}],
+  ["border-dotted", {"border-style": "dotted"}],
+  ["border-double", {"border-style": "double"}],
+  ["border-none", {"border-style": "none"}],
 
   ["xxxx", false],
   ["", false],
