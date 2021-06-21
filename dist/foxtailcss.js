@@ -390,7 +390,7 @@
     return {"max-height": r}
   };
 
-  var Uappearance = (p) => ({[p0]: p1});
+  var Uappearance = (p) => ({[p[0]]: p[1]});
   var Ucursor = (p) => ({[p[0]]: Hargs(p, 1)});
   var Uoutline = (p) => {
     var o = "2px solid transparent";
@@ -433,9 +433,9 @@
     }
   };
 
-  var Urotate = (p) => Htransform({"--tw-rotate": p[1] + "deg"});
+  var Urotate = (p, n) => Htransform({"--tw-rotate": n.minus + p[1] + "deg"});
   var Utranslate = (p, n) => Htransform({["--tw-translate-"+p[1]]: HspacingPercent(p[2], n)});
-  var Uskew = (p) => Htransform({["--tw-skew-"+p[1]]: p[2] + "deg"});
+  var Uskew = (p, n) => Htransform({["--tw-skew-"+p[1]]: n.minus + p[2] + "deg"});
 
   const Ltransition = {
     "none": "none",
@@ -452,7 +452,7 @@
   const Lease = { "linear": "linear", "in": "cubic-bezier(0.4, 0, 1, 1)",
     "out": "cubic-bezier(0, 0, 0.2, 1)", "in-out": "cubic-bezier(0.4, 0, 0.2, 1)"
   };
-  var Uease = (p) => ({"transition-timing-function": Lease[p[1]]});
+  var Uease = (p) => ({"transition-timing-function": Lease[Hargs(p, 1)]});
 
   var UborderCollapse = (p) => ({"border-collapse": p[1]});
 
@@ -461,7 +461,7 @@
     return {[p[0]+"-blend-mode"]: Hargs(p, 2)}
   };
 
-  var Uopacity = (p) =>  ({"opacity":Hfloat(p[2])});
+  var Uopacity = (p) =>  ({"opacity":Hfloat(p[1])});
 
 
   var UtopRightBottomLeft = (p, n) => ({[p[0]]: HspacingPercent(p[1], n)}); 
@@ -611,7 +611,7 @@
     return UcolorOpacity(p, n)
   };
   const Lblur = {
-    "0": "0", "sm": "4px", "": "8px", "md": "12px", "lg": "16px",
+    "none": "0", "sm": "4px", "": "8px", "md": "12px", "lg": "16px",
     "xl": "24px", "2xl": "40px","3xl": "64px"
   };
   var Hfilter = (t, d) => {
@@ -628,7 +628,7 @@
   var UfilterFloat = (p) => {
     var t = "", s = 1;
     if (p[0] =="backdrop") {t = "-backdrop"; s = 2;}
-    return Hfilter(p[0], {["--tw" + t + "-" +p[0]]: p[0] + "(" + Hfloat(p[s]) + ")"})
+    return Hfilter(p[0], {["--tw" + t + "-" + p[s-1]]: p[s-1] + "(" + Hfloat(p[s]) + ")"})
   };  
   const LdropShadow = {
     "sm" : "(0 1px 1px rgba(0,0,0,0.05))",
@@ -643,12 +643,12 @@
   var UgrayscaleInvertSepia = (p) => {
     var t = "", s = 1;
     if (p[0] =="backdrop") {t = "-backdrop"; s = 2;}
-    return Hfilter(p[0], {["--tw" + t + "-" + p[0]]: p[0] + "(" + (p[s] ? "0" : "1") + ")"})
+    return Hfilter(p[0], {["--tw" + t + "-" + p[s-1]]: p[s-1] + "(" + (p[s] ? "0" : "1") + ")"})
   }; 
-  var UhueRotate = (p) => {
+  var UhueRotate = (p, n) => {
     var t = "", s = 2;
     if (p[0] =="backdrop") {t = "-backdrop"; s = 3;}
-    return Hfilter(p[0], {["--tw" + t + "-hue-rotate"]: "hue-rotate("+p[s]+"deg)"})
+    return Hfilter(p[0], {["--tw" + t + "-hue-rotate"]: "hue-rotate("+ n.minus + p[s] + "deg)"})
   };
   var UfillStroke = (p) => ({[p[0]]: "currentColor"});  
   var UstrokeWidth = (p) => ({"stroke-width": p[1]}); 
@@ -766,7 +766,7 @@
     "antialiased": UfontSmoothing,
     "subpixel-antialiased": UfontSmoothing,
     "font": Ufont,
-    "animation": Uanimation,
+    "animate": Uanimation,
     "border-t": UborderWidth,
     "border-r": UborderWidth,
     "border-b": UborderWidth,

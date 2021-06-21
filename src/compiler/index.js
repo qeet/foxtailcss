@@ -387,7 +387,7 @@ var UmaxHeight = (p, n) => {
   return {"max-height": r}
 }
 
-var Uappearance = (p) => ({[p0]: p1})
+var Uappearance = (p) => ({[p[0]]: p[1]})
 var Ucursor = (p) => ({[p[0]]: Hargs(p, 1)})
 var Uoutline = (p) => {
   var o = "2px solid transparent"
@@ -430,9 +430,9 @@ var Uscale = (p) => {
   }
 }
 
-var Urotate = (p) => Htransform({"--tw-rotate": p[1] + "deg"})
+var Urotate = (p, n) => Htransform({"--tw-rotate": n.minus + p[1] + "deg"})
 var Utranslate = (p, n) => Htransform({["--tw-translate-"+p[1]]: HspacingPercent(p[2], n)})
-var Uskew = (p) => Htransform({["--tw-skew-"+p[1]]: p[2] + "deg"})
+var Uskew = (p, n) => Htransform({["--tw-skew-"+p[1]]: n.minus + p[2] + "deg"})
 
 const Ltransition = {
   "none": "none",
@@ -449,7 +449,7 @@ var UdelayDuration = (p) => ({["transition-" + p[0]]: p[1] + "ms"})
 const Lease = { "linear": "linear", "in": "cubic-bezier(0.4, 0, 1, 1)",
   "out": "cubic-bezier(0, 0, 0.2, 1)", "in-out": "cubic-bezier(0.4, 0, 0.2, 1)"
 }
-var Uease = (p) => ({"transition-timing-function": Lease[p[1]]})
+var Uease = (p) => ({"transition-timing-function": Lease[Hargs(p, 1)]})
 
 var UborderCollapse = (p) => ({"border-collapse": p[1]})
 
@@ -763,7 +763,7 @@ const lookup = {
   "antialiased": UfontSmoothing,
   "subpixel-antialiased": UfontSmoothing,
   "font": Ufont,
-  "animation": Uanimation,
+  "animate": Uanimation,
   "border-t": UborderWidth,
   "border-r": UborderWidth,
   "border-b": UborderWidth,
