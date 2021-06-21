@@ -119,11 +119,33 @@
 
   var U_spaceBetween = (p, n) => {
     n.csel = "> :not([hidden]) ~ :not([hidden])";
-    if (p[2] == "reverse") return {["--tw-space-" + p[1] + "-reverse"]: "1"}
+    if (p[2] == "reverse") {
+      n.priority++;
+      return {["--tw-space-" + p[1] + "-reverse"]: "1"}
+    }
     return {["--tw-space-"+ p[1] + "-reverse"]: "0",
       ["margin-" + (p[1] == 'x' ? "right" : "bottom")] : "calc(" + Hspacing(p[2], n) + " * var(--tw-space-" + p[1] + "-reverse))",
       ["margin-" + (p[1] == 'x' ? "left" : "top")]: "calc(" + Hspacing(p[2], n) + " * calc(1 - var(--tw-space-" + p[1] + "-reverse)))"
     }
+  };
+
+  var U_divideWidth = (p, n) => {
+    n.csel = "> :not([hidden]) ~ :not([hidden])";
+    if (p[2] == "reverse") {
+      n.priority++;
+      return {["--tw-divide-" + p[1] + "-reverse"]: "1"}
+    }
+    var w = p.length == 3 ? p[2] : "1"; 
+    return {["--tw-divide-"+ p[1] + "-reverse"]: "0",
+      ["border-" + (p[1] == 'x' ? "right" : "bottom") + "-width"] : "calc(" + w + "px * var(--tw-divide-" + p[1] + "-reverse))",
+      ["border-" + (p[1] == 'x' ? "left" : "top") + "-width"]: "calc(" + w + "px * calc(1 - var(--tw-divide-" + p[1] + "-reverse)))"
+    }
+  };
+
+  var U_divideColor = (p, n) => {
+    n.csel = "> :not([hidden]) ~ :not([hidden])";
+    if (HisColor(p[1])) return HcolorUtil(Hargs(p, 1), "border-color", "divide")
+    return {"border-style": p[1]}
   };
 
   var U_backgroundOrigin = (p) => ({"background-origin": p[2] + "-box"});
@@ -477,7 +499,7 @@
     return {"--tw-ring-offset-color": Hcolor(Hargs(p, 2), "", true)}
   };
   const LborderRadius = {
-    "0": "0px", "sm": "0.125rem", "": "0.25rem", "md": "0.375rem", "lg": " 0.5rem",
+    "none": "0px", "sm": "0.125rem", "": "0.25rem", "md": "0.375rem", "lg": "0.5rem",
     "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px"
   };
   var UborderRadius = (p) => {
@@ -493,13 +515,13 @@
   };
   var Uborder = (p) => {
     if (HisColor(p[1]))  return HcolorUtil(Hargs(p, 1), "border-color", "border")
-    if (!p[1] || !isNaN(p[1])) return {"border-width": p[1] ? p[1] : "1" + "px"}
+    if (!p[1] || !isNaN(p[1])) return {"border-width": (p[1] ? p[1] : "1") + "px"}
     return {"border-style": p[1]}
   };
   const LborderWidth = { "t": "top", "r": "right", "b": "bottom", "l": "left" };
   var UborderWidth = (p) => {
     var s = LborderWidth[p[1]];
-    return {["border-" + s + "-width"]: p[2] ? p[2] : "1" + "px" }
+    return {["border-" + s + "-width"]: (p[2] ? p[2] : "1") + "px" }
   };
   const Lanimation = {
     "none": "none",
@@ -638,49 +660,53 @@
   };
 
   const lookup = {
-    absolute:       U_position,
-    auto:           U_gridAuto,
-    "bg-origin":    U_backgroundOrigin,
-    block:          U_display,
-    box:            U_boxSizing,
-    clear:          U_clearFloat,
-    contents:       U_display,
-    decoration:     U_boxDecorationBreak,
-    fixed:          U_position,
-    flex:           U_display,
-    "flex-col":     U_flexDirection,
-    "flex-row":     U_flexDirection,
-    "flex-nowrap":  U_flexWrap,
-    "flex-wrap":    U_flexWrap,
-    "flex-1":       U_flex,
-    "flex-auto":    U_flex,
-    "flex-initial": U_flex,
-    "flex-none":    U_flex,
-    "flex-grow":    U_flexGrowShrink,
-    "flex-shrink":  U_flexGrowShrink,
-    float:          U_clearFloat,
-    "flow-root":    U_display,
-    gap:            U_gap,
-    grid:           U_display,
-    "grid-cols":    U_gridTemplate,
-    "grid-rows":    U_gridTemplate,
-    "grid-flow":    U_gridAutoFlow,
-    hidden:         U_display,
-    inset:          U_inset,
-    invisible:      U_visibility,
-    isolate:        U_isolation,
-    isolation:      U_isolation,
-    "list-item":    U_display,
-    object:         U_objectFitPosition,
-    order:          U_order,
-    relative:       U_position,
-    space:          U_spaceBetween, 
-    static:         U_position,
-    sticky:         U_position,
-    overflow:       U_overScrollFlow,
-    overscroll:     U_overScrollFlow,
-    visible:        U_visibility,
-    z:              U_zindex,  
+    absolute:         U_position,
+    auto:             U_gridAuto,
+    "bg-origin":      U_backgroundOrigin,
+    block:            U_display,
+    box:              U_boxSizing,
+    clear:            U_clearFloat,
+    contents:         U_display,
+    decoration:       U_boxDecorationBreak,
+    divide:           U_divideColor,
+    "divide-opacity": UcolorOpacity, 
+    "divide-x":       U_divideWidth,
+    "divide-y":       U_divideWidth,
+    fixed:            U_position,
+    flex:             U_display,
+    "flex-col":       U_flexDirection,
+    "flex-row":       U_flexDirection,
+    "flex-nowrap":    U_flexWrap,
+    "flex-wrap":      U_flexWrap,
+    "flex-1":         U_flex,
+    "flex-auto":      U_flex,
+    "flex-initial":   U_flex,
+    "flex-none":      U_flex,
+    "flex-grow":      U_flexGrowShrink,
+    "flex-shrink":    U_flexGrowShrink,
+    float:            U_clearFloat,
+    "flow-root":      U_display,
+    gap:              U_gap,
+    grid:             U_display,
+    "grid-cols":      U_gridTemplate,
+    "grid-rows":      U_gridTemplate,
+    "grid-flow":      U_gridAutoFlow,
+    hidden:           U_display,
+    inset:            U_inset,
+    invisible:        U_visibility,
+    isolate:          U_isolation,
+    isolation:        U_isolation,
+    "list-item":      U_display,
+    object:           U_objectFitPosition,
+    order:            U_order,
+    relative:         U_position,
+    space:            U_spaceBetween, 
+    static:           U_position,
+    sticky:           U_position,
+    overflow:         U_overScrollFlow,
+    overscroll:       U_overScrollFlow,
+    visible:          U_visibility,
+    z:                U_zindex,  
     
 
 

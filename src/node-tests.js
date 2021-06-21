@@ -118,11 +118,33 @@ var U_gap = (p, n) => {
 
 var U_spaceBetween = (p, n) => {
   n.csel = "> :not([hidden]) ~ :not([hidden])";
-  if (p[2] == "reverse") return {["--tw-space-" + p[1] + "-reverse"]: "1"}
+  if (p[2] == "reverse") {
+    n.priority++;
+    return {["--tw-space-" + p[1] + "-reverse"]: "1"}
+  }
   return {["--tw-space-"+ p[1] + "-reverse"]: "0",
     ["margin-" + (p[1] == 'x' ? "right" : "bottom")] : "calc(" + Hspacing(p[2], n) + " * var(--tw-space-" + p[1] + "-reverse))",
     ["margin-" + (p[1] == 'x' ? "left" : "top")]: "calc(" + Hspacing(p[2], n) + " * calc(1 - var(--tw-space-" + p[1] + "-reverse)))"
   }
+};
+
+var U_divideWidth = (p, n) => {
+  n.csel = "> :not([hidden]) ~ :not([hidden])";
+  if (p[2] == "reverse") {
+    n.priority++;
+    return {["--tw-divide-" + p[1] + "-reverse"]: "1"}
+  }
+  var w = p.length == 3 ? p[2] : "1"; 
+  return {["--tw-divide-"+ p[1] + "-reverse"]: "0",
+    ["border-" + (p[1] == 'x' ? "right" : "bottom") + "-width"] : "calc(" + w + "px * var(--tw-divide-" + p[1] + "-reverse))",
+    ["border-" + (p[1] == 'x' ? "left" : "top") + "-width"]: "calc(" + w + "px * calc(1 - var(--tw-divide-" + p[1] + "-reverse)))"
+  }
+};
+
+var U_divideColor = (p, n) => {
+  n.csel = "> :not([hidden]) ~ :not([hidden])";
+  if (HisColor(p[1])) return HcolorUtil(Hargs(p, 1), "border-color", "divide")
+  return {"border-style": p[1]}
 };
 
 var U_backgroundOrigin = (p) => ({"background-origin": p[2] + "-box"});
@@ -637,49 +659,53 @@ var UscreenReaders = (p) => {
 };
 
 const lookup = {
-  absolute:       U_position,
-  auto:           U_gridAuto,
-  "bg-origin":    U_backgroundOrigin,
-  block:          U_display,
-  box:            U_boxSizing,
-  clear:          U_clearFloat,
-  contents:       U_display,
-  decoration:     U_boxDecorationBreak,
-  fixed:          U_position,
-  flex:           U_display,
-  "flex-col":     U_flexDirection,
-  "flex-row":     U_flexDirection,
-  "flex-nowrap":  U_flexWrap,
-  "flex-wrap":    U_flexWrap,
-  "flex-1":       U_flex,
-  "flex-auto":    U_flex,
-  "flex-initial": U_flex,
-  "flex-none":    U_flex,
-  "flex-grow":    U_flexGrowShrink,
-  "flex-shrink":  U_flexGrowShrink,
-  float:          U_clearFloat,
-  "flow-root":    U_display,
-  gap:            U_gap,
-  grid:           U_display,
-  "grid-cols":    U_gridTemplate,
-  "grid-rows":    U_gridTemplate,
-  "grid-flow":    U_gridAutoFlow,
-  hidden:         U_display,
-  inset:          U_inset,
-  invisible:      U_visibility,
-  isolate:        U_isolation,
-  isolation:      U_isolation,
-  "list-item":    U_display,
-  object:         U_objectFitPosition,
-  order:          U_order,
-  relative:       U_position,
-  space:          U_spaceBetween, 
-  static:         U_position,
-  sticky:         U_position,
-  overflow:       U_overScrollFlow,
-  overscroll:     U_overScrollFlow,
-  visible:        U_visibility,
-  z:              U_zindex,  
+  absolute:         U_position,
+  auto:             U_gridAuto,
+  "bg-origin":      U_backgroundOrigin,
+  block:            U_display,
+  box:              U_boxSizing,
+  clear:            U_clearFloat,
+  contents:         U_display,
+  decoration:       U_boxDecorationBreak,
+  divide:           U_divideColor,
+  "divide-opacity": UcolorOpacity, 
+  "divide-x":       U_divideWidth,
+  "divide-y":       U_divideWidth,
+  fixed:            U_position,
+  flex:             U_display,
+  "flex-col":       U_flexDirection,
+  "flex-row":       U_flexDirection,
+  "flex-nowrap":    U_flexWrap,
+  "flex-wrap":      U_flexWrap,
+  "flex-1":         U_flex,
+  "flex-auto":      U_flex,
+  "flex-initial":   U_flex,
+  "flex-none":      U_flex,
+  "flex-grow":      U_flexGrowShrink,
+  "flex-shrink":    U_flexGrowShrink,
+  float:            U_clearFloat,
+  "flow-root":      U_display,
+  gap:              U_gap,
+  grid:             U_display,
+  "grid-cols":      U_gridTemplate,
+  "grid-rows":      U_gridTemplate,
+  "grid-flow":      U_gridAutoFlow,
+  hidden:           U_display,
+  inset:            U_inset,
+  invisible:        U_visibility,
+  isolate:          U_isolation,
+  isolation:        U_isolation,
+  "list-item":      U_display,
+  object:           U_objectFitPosition,
+  order:            U_order,
+  relative:         U_position,
+  space:            U_spaceBetween, 
+  static:           U_position,
+  sticky:           U_position,
+  overflow:         U_overScrollFlow,
+  overscroll:       U_overScrollFlow,
+  visible:          U_visibility,
+  z:                U_zindex,  
   
 
 
@@ -1542,6 +1568,48 @@ var tests = [
   ["border-dotted", {"border-style": "dotted"}],
   ["border-double", {"border-style": "double"}],
   ["border-none", {"border-style": "none"}],
+
+  ["divide-x", {"--tw-divide-x-reverse": "0",
+    "border-right-width": "calc(1px * var(--tw-divide-x-reverse))", 
+    "border-left-width": "calc(1px * calc(1 - var(--tw-divide-x-reverse)))"}],
+  ["divide-x-0", {"--tw-divide-x-reverse": "0",
+    "border-right-width": "calc(0px * var(--tw-divide-x-reverse))", 
+    "border-left-width": "calc(0px * calc(1 - var(--tw-divide-x-reverse)))"}],
+  ["divide-x-2", {"--tw-divide-x-reverse": "0",
+    "border-right-width": "calc(2px * var(--tw-divide-x-reverse))", 
+    "border-left-width": "calc(2px * calc(1 - var(--tw-divide-x-reverse)))"}],
+  ["divide-x-4", {"--tw-divide-x-reverse": "0",
+    "border-right-width": "calc(4px * var(--tw-divide-x-reverse))", 
+    "border-left-width": "calc(4px * calc(1 - var(--tw-divide-x-reverse)))"}],
+
+  ["divide-y", {"--tw-divide-y-reverse": "0",
+    "border-bottom-width": "calc(1px * var(--tw-divide-y-reverse))", 
+    "border-top-width": "calc(1px * calc(1 - var(--tw-divide-y-reverse)))"}],
+  ["divide-y-0", {"--tw-divide-y-reverse": "0",
+    "border-bottom-width": "calc(0px * var(--tw-divide-y-reverse))", 
+    "border-top-width": "calc(0px * calc(1 - var(--tw-divide-y-reverse)))"}],
+  ["divide-y-2", {"--tw-divide-y-reverse": "0",
+    "border-bottom-width": "calc(2px * var(--tw-divide-y-reverse))", 
+    "border-top-width": "calc(2px * calc(1 - var(--tw-divide-y-reverse)))"}],
+  ["divide-y-4", {"--tw-divide-y-reverse": "0",
+    "border-bottom-width": "calc(4px * var(--tw-divide-y-reverse))", 
+    "border-top-width": "calc(4px * calc(1 - var(--tw-divide-y-reverse)))"}],
+
+  ["divide-transparent", {"border-color": "transparent"}],
+  ["divide-current", {"border-color": "currentColor"}],
+  ["divide-purple-900", {"--tw-divide-opacity": "1", "border-color": "rgba(76,29,149,var(--tw-divide-opacity))"}],
+  ["divide-black", {"--tw-divide-opacity": "1", "border-color": "rgba(0,0,0,var(--tw-divide-opacity))"}],
+  ["divide-white", {"--tw-divide-opacity": "1", "border-color": "rgba(255,255,255,var(--tw-divide-opacity))"}],
+
+  ["divide-opacity-0", {"--tw-divide-opacity": "0"}],
+  ["divide-opacity-5", {"--tw-divide-opacity": "0.05"}],
+  ["divide-opacity-100", {"--tw-divide-opacity": "1"}],
+
+  ["divide-solid", {"border-style": "solid"}],
+  ["divide-dashed", {"border-style": "dashed"}],
+  ["divide-dotted", {"border-style": "dotted"}],
+  ["divide-double", {"border-style": "double"}],
+  ["divide-none", {"border-style": "none"}],
 
   ["xxxx", false],
   ["", false],
