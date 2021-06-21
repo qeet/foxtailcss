@@ -478,7 +478,7 @@ const LboxShadow = {
   "none": "0 0 #0000"
 }
 var UboxShadow = (p) => ({"--tw-shadow": LboxShadow[p[1] ? p[1] : ""], 
-  "box-shadow": "var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)"})
+  "box-shadow": "var(--tw-ring-offset-shadow,0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)"})
 
 var Uring = (p) => {
   if (p[1] == "inset") return {"--tw-ring-inset": "inset"}
@@ -486,7 +486,7 @@ var Uring = (p) => {
     var v = p[1] ? p[1] : "3"
     return {"--tw-ring-shadow": "var(--tw-ring-inset) 0 0 0 calc(" + v + "px + var(--tw-ring-offset-width)) var(--tw-ring-color)",
     "--tw-ring-offset-shadow": "var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)",
-    "box-shadow": "var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)"}
+    "box-shadow": "var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)"}
   }
   return HcolorUtil(Hargs(p, 1), "--tw-ring-color", "ring")
 }

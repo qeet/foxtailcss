@@ -666,6 +666,36 @@ var tests = [
   ["divide-double", {"border-style": "double"}],
   ["divide-none", {"border-style": "none"}],
 
+  ["ring-0", {"--tw-ring-offset-shadow": "var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)",
+              "--tw-ring-shadow": "var(--tw-ring-inset) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color)",
+              "box-shadow": "var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)"}],
+  ["ring-1", {"--tw-ring-offset-shadow": "var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)",
+              "--tw-ring-shadow": "var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color)",
+              "box-shadow": "var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)"}],
+  ["ring", {"--tw-ring-offset-shadow": "var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)",
+              "--tw-ring-shadow": "var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color)",
+              "box-shadow": "var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)"}],
+
+  ["ring-inset", {"--tw-ring-inset": "inset"}],
+
+  ["ring-transparent", {"--tw-ring-color": "transparent"}],
+  ["ring-current", {"--tw-ring-color": "currentColor"}],
+  ["ring-black", {"--tw-ring-color": "rgba(0,0,0,var(--tw-ring-opacity))"}],
+  ["ring-white", {"--tw-ring-color": "rgba(255,255,255,var(--tw-ring-opacity))"}],
+  ["ring-gray-50", {"--tw-ring-color": "rgba(249,250,251,var(--tw-ring-opacity))"}],
+
+  ["ring-opacity-40", {"--tw-ring-opacity": "0.4"}],
+
+  ["ring-offset-0", {"--tw-ring-offset-width": "0px"}],
+  ["ring-offset-1", {"--tw-ring-offset-width": "1px"}],
+
+  ["ring-offset-transparent", {"--tw-ring-offset-color": "transparent"}],
+  ["ring-offset-current", {"--tw-ring-offset-color": "currentColor"}],
+  ["ring-offset-black", {"--tw-ring-offset-color": "#000000"}],
+  ["ring-offset-white", {"--tw-ring-offset-color": "#ffffff"}],
+  ["ring-offset-purple-300", {"--tw-ring-offset-color": "#C4B5FD"}],
+
+
   ["xxxx", false],
   ["", false],
   ["-", false],
