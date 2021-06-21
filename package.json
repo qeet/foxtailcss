@@ -1,8 +1,8 @@
 {
   "name": "foxtailcss",
-  "version": "0.1.12",
+  "version": "0.2.0",
   "homepage": "https://foxtailcss.com",
-  "description": "A small, Tailwind inspired, css utility library for any framework",
+  "description": "A tiny in-browser Tailwind JIT",
   "main": "scss/foxtail.scss",
   "scripts": {
     "build": "npm-run-all build-sass build-postcss build-mini",
