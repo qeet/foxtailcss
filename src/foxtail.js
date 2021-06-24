@@ -1,4 +1,4 @@
-import {compile, printRules} from "./compiler.js";
+import {compile, setScreen, printRules} from "./compiler.js";
 
 var Prefix = false
 
@@ -133,9 +133,11 @@ const mutationConfig = {
 
 var start = () => {
 
-  var p = getMeta("prefix");
+  var p = getMeta("prefix")
   if (p && p === "true") Prefix = true
-
+  p = getMeta("screen")
+  if (p) setScreen(p)
+ 
   compilePage();
 
   const callback = function(mutationsList, observer) {

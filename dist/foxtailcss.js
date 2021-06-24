@@ -12,7 +12,7 @@
     uikit: { "sm": "640px", "md": "768px", "lg": "960px", "xl": "1200px", "2xl": "1600px" },
   };
 
-  const L_screens = L_commonScreens["tailwind"];
+  var L_screens = L_commonScreens["bootstrap"];
 
   const L_color = {
     'gray':   'F9FAFBF3F4F6E5E7EBD1D5DB9CA3AF6B72804B55633741511F2937111827',
@@ -955,6 +955,11 @@
     return false
   }
 
+  function setScreen(s) {
+    s = L_commonScreens[s];
+    if (s) L_screens = s;
+  }
+
   /*
    * Rule printing
    */
@@ -1144,7 +1149,9 @@ border-color: rgba(229, 231, 235, var(--tw-border-opacity));
 
     var p = getMeta("prefix");
     if (p && p === "true") Prefix = true;
-
+    p = getMeta("screen");
+    if (p) setScreen(p);
+   
     compilePage();
 
     const callback = function(mutationsList, observer) {
