@@ -1,7 +1,7 @@
 /*
  * Lookups
  */
-const L_screens = { "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px" }
+const L_screens = { "sm": "576px", "md": "768px", "lg": "992px", "xl": "1200px", "2xl": "1400px" }
 
 const L_color = {
   'gray':   'F9FAFBF3F4F6E5E7EBD1D5DB9CA3AF6B72804B55633741511F2937111827',
@@ -964,7 +964,7 @@ var P_Rule = (n) => {
   if (n.csel) s.push(" " + n.csel)  
   s.push("{")
   for (const [p, v] of Object.entries(n.props)) {
-    s.push(p + ":" + v + ";")
+    s.push(p + ":" + v + " !important;")
   }
   s.push("}\n")
   return s.join("")

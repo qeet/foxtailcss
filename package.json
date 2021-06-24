@@ -1,14 +1,18 @@
 {
   "name": "foxtailcss",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "homepage": "https://foxtailcss.com",
-  "description": "A tiny in-browser Tailwind JIT",
-  "main": "scss/foxtail.scss",
+  "description": "A tiny library that provides Tailwind utilties for any CSS framework",
+  "main": "src/foxtail.js",
   "scripts": {
     "build": "npm-run-all build-sass build-postcss build-mini",
     "build-sass": "sass --style expanded --source-map --embed-sources --no-error-css scss/:dist/",
     "build-postcss": "postcss --use postcss-combine-media-query autoprefixer --replace \"dist/*.css\" \"!dist/*.min.css\"",
-    "build-mini": "cleancss -O1 --output dist/foxtail.min.css dist/foxtail.css"
+    "build-mini": "cleancss -O1 --output dist/foxtail.min.css dist/foxtail.css",
+    "build-js": "npm-run-all rollup-js compress-js",
+    "rollup-js": "rollup ./src/foxtail.js --file ./dist/foxtailcss.js --format iife",
+    "compress-js": "terser ./dist/foxtailcss.js -c -m > ./dist/foxtailcss.min.js",
+    "build-tests": "rollup ./src/tests/tests.js --file ./src/tests/run-tests.js --format cjs"
   },
   "author": {
     "name": "Qeet",
@@ -17,7 +21,8 @@
   "license": "MIT",
   "keywords": [
     "css",
-    "sass",
+    "bootstrap",
+    "bulma",
     "utility",
     "framework",
     "tailwind"
@@ -30,6 +35,8 @@
     "postcss": "^8.2.10",
     "postcss-cli": "^8.3.1",
     "postcss-combine-media-query": "^1.0.1",
-    "sass": "^1.32.8"
+    "rollup": "^2.52.2",
+    "sass": "^1.32.8",
+    "terser": "^5.7.0"
   }
 }

@@ -1,1 +1,0 @@
-rollup tests.js --file node-tests.js --format cjs
