@@ -1,6 +1,8 @@
 import {compile, printRules} from "./compiler.js";
 
-var Rules = {};
+var Prefix = false
+
+var Rules = {}
 
 var insertBaseStyles = () => {
   var style = document.createElement("style");
@@ -56,12 +58,22 @@ border-color: rgba(229, 231, 235, var(--tw-border-opacity));
 
 var update = false;
 
+var getMeta = (n) => {
+  var p = document.querySelector('meta[name="fx:' + n + '"]')
+  if (p) p = p.content
+  return p
+}
+
 var addClass = (c) => {
-  var v = Rules[c]
   if (!(c in Rules)) {
-    var node = compile(c)
-    if (node) update = true
+    if (Prefix && !c.includes(":")) {
+      Rules[c] = false
+    }
+    else {
+      var node = compile(c)
+      if (node) update = true
       Rules[c] = node
+    }
   }
 }
 
@@ -120,6 +132,10 @@ const mutationConfig = {
 };
 
 var start = () => {
+
+  var p = getMeta("prefix");
+  if (p && p === "true") Prefix = true
+
   compilePage();
 
   const callback = function(mutationsList, observer) {

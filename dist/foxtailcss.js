@@ -4,7 +4,15 @@
   /*
    * Lookups
    */
-  const L_screens = { "sm": "576px", "md": "768px", "lg": "992px", "xl": "1200px", "2xl": "1400px" };
+
+  const L_commonScreens = {
+    tailwind: { "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px" },
+    bootstrap: { "sm": "576px", "md": "768px", "lg": "992px", "xl": "1200px", "2xl": "1400px" },
+    bulma: { "sm": "640px", "md": "769px", "lg": "1024px", "xl": "1216px", "2xl": "1408px" },
+    uikit: { "sm": "640px", "md": "768px", "lg": "960px", "xl": "1200px", "2xl": "1600px" },
+  };
+
+  const L_screens = L_commonScreens["tailwind"];
 
   const L_color = {
     'gray':   'F9FAFBF3F4F6E5E7EBD1D5DB9CA3AF6B72804B55633741511F2937111827',
@@ -917,6 +925,7 @@
   };
 
   var classPrefix = (c, n) => {
+    if (c.charAt(0) == ":") c = c.substring(1);
     if (c.charAt(0) == "!") {
       n.important = true;
       c = c.substring(1);
@@ -1000,6 +1009,8 @@
     return s 
   }
 
+  var Prefix = false;
+
   var Rules = {};
 
   var insertBaseStyles = () => {
@@ -1056,12 +1067,22 @@ border-color: rgba(229, 231, 235, var(--tw-border-opacity));
 
   var update = false;
 
+  var getMeta = (n) => {
+    var p = document.querySelector('meta[name="fx:' + n + '"]');
+    if (p) p = p.content;
+    return p
+  };
+
   var addClass = (c) => {
-    Rules[c];
     if (!(c in Rules)) {
-      var node = compile(c);
-      if (node) update = true;
+      if (Prefix && !c.includes(":")) {
+        Rules[c] = false;
+      }
+      else {
+        var node = compile(c);
+        if (node) update = true;
         Rules[c] = node;
+      }
     }
   };
 
@@ -1120,6 +1141,10 @@ border-color: rgba(229, 231, 235, var(--tw-border-opacity));
   };
 
   var start = () => {
+
+    var p = getMeta("prefix");
+    if (p && p === "true") Prefix = true;
+
     compilePage();
 
     const callback = function(mutationsList, observer) {
