@@ -1,14 +1,13 @@
 import {compile, setScreen, printRules} from "./compiler.js";
 
+const StyleId = "fx-styles"
+const BaseStyleId = "fx-base"
+
 var Prefix = false
-
+var Update = false
 var Rules = {}
-
-var insertBaseStyles = () => {
-  var style = document.createElement("style");
-  style.id = "fx-base";
-  document.head.append(style);
-  style.textContent = `
+ 
+const BaseStyles = `
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
@@ -53,15 +52,27 @@ border-color: rgba(229, 231, 235, var(--tw-border-opacity));
 --tw-backdrop-saturate: var(--tw-empty, );
 --tw-backdrop-sepia: var(--tw-empty, );
 --tw-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
-}`;
-}
-
-var update = false;
+}`
 
 var getMeta = (n) => {
   var p = document.querySelector('meta[name="fx:' + n + '"]')
   if (p) p = p.content
   return p
+}
+
+var getStyleNode =(id) => {
+  var style = document.getElementById(id);
+  if (style === null) {
+    style = document.createElement("style");
+    style.id = id;
+    document.head.append(style);
+  }
+  return style
+}
+
+var insertStyles = () => {
+  getStyleNode(StyleId).textContent = printRules(Object.values(Rules));
+  Update = false
 }
 
 var addClass = (c) => {
@@ -71,25 +82,10 @@ var addClass = (c) => {
     }
     else {
       var node = compile(c)
-      if (node) update = true
+      if (node) Update = true
       Rules[c] = node
     }
   }
-}
-
-const STYLE_ID = "fx-styles"
-
-var insertStyles = () => {
-  var style = document.getElementById(STYLE_ID);
-
-  if (style === null) {
-    style = document.createElement("style");
-    style.id = STYLE_ID;
-    document.head.append(style);
-  }
-  style.textContent = printRules(Object.values(Rules));
-  update = false
-  console.log("styles updated")
 }
 
 var addElement = (el) => {
@@ -103,11 +99,7 @@ var addElement = (el) => {
 }
 
 var compilePage = () => {
-  var start = Date.now();
-
   var els = document.querySelectorAll('[class]');
-
-  console.log(`Found ${els.length} nodes`);
 
   var i = 0, len = els.length;
   while (i < len) {
@@ -115,14 +107,10 @@ var compilePage = () => {
     i++
   }
 
-  insertBaseStyles()
+  getStyleNode(BaseStyleId).textContent = BaseStyles
   insertStyles()
 
   if (document.body instanceof HTMLElement) document.body.removeAttribute("hidden")
-
-  console.log(`Unique ${Object.keys(Rules).length}`)
-
-  console.log(`milliseconds elapsed = ${Date.now() - start}`);
 }
 
 const mutationConfig = {
@@ -142,37 +130,27 @@ var start = () => {
   compilePage();
 
   const callback = function(mutationsList, observer) {
-    // Use traditional 'for loops' for IE 11
     for(const mutation of mutationsList) {
       if (mutation.type === 'childList') {
-
         for (var i=0; i<mutation.addedNodes.length; i++) {
           var node = mutation.addedNodes[i];
           if ((node instanceof HTMLElement) && node.classList) {
             addElement(node);
-
             var els = node.querySelectorAll('[class]');
             for (var j=0; j<els.length; j++) {
               addElement(els[j]);
             }
           }
         }
-        console.log('A child node has been added or removed.');
       }
       else if (mutation.type === 'attributes') {
-        if (mutation.target && (mutation.target instanceof HTMLElement)) {
-          addElement(mutation.target)
-        }
-        console.log('The ' + mutation.attributeName + ' attribute was modified.');
+        if (mutation.target && (mutation.target instanceof HTMLElement)) addElement(mutation.target)
       }
     }
-    if (update) insertStyles();
+    if (Update) insertStyles();
   };
 
-  // Create an observer instance linked to the callback function
   const observer = new MutationObserver(callback);
-
-  // Start observing the target node for configured mutations
   observer.observe(document.documentElement, mutationConfig);
 }
 
