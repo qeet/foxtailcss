@@ -96,7 +96,8 @@ var addElement = (el) => {
   var cl = el.classList;
   var i = 0, len = cl.length;
   while (i < len) {
-    addClass(cl[i])
+    if (cl[i] == "fx-cloak") el.classList.remove("fx-cloak")
+    else addClass(cl[i])
     i++
   }
 }

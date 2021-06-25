@@ -159,6 +159,94 @@ const L_blur = {
   "xl": "24px", "2xl": "40px","3xl": "64px"
 }
 
+const L_borderWidth = { "t": "top", "r": "right", "b": "bottom", "l": "left" }
+
+const L_resize = { "none": "none", "y": "vertical", "x": "horizontal" }
+
+const L_ease = { "linear": "linear", "in": "cubic-bezier(0.4, 0, 1, 1)",
+  "out": "cubic-bezier(0, 0, 0.2, 1)", "in-out": "cubic-bezier(0.4, 0, 0.2, 1)"
+}
+
+/*
+ * Utility Helpers
+ */
+var H_comp = (s, i) => parseInt(s.substring(i, i+2), 16) + ","
+
+var H_hexColor = (v) => {
+  if (v == "white") return "ffffff"
+  if (v == "black") return "000000"
+  var p = v.split("-")
+  var c = L_color[p[0]]
+  if (c) {
+    var s = parseInt(p[1])/100
+    s = s < 1 ? 0 : s*6
+    return c.substring(s, s+6)
+  }
+  return false
+}
+
+var H_transCurr = (v) => {
+  if (v == "transparent") return v
+  if (v == "current") return "currentColor"
+  return false
+}
+
+var H_color = (v, o, h) => {
+  if (!o) o = 1
+  var c = H_hexColor(v)
+  if (h) {
+    if (c) return "#" + c
+    if (H_transCurr(v)) return H_transCurr(v)
+  }
+  else if (c) return "rgba(" + H_comp(c, 0) + H_comp(c, 2) + H_comp(c, 4) + o + ")"
+}
+
+var H_isColor = (v) => L_color[v] || v == "black" || v == "white" || v == "transparent" || v == "current"
+
+var H_colorUtil = (col, prop, name) => {
+  var tc = H_transCurr(col)
+  if (tc) return {[prop]: tc}
+  return {[prop]: H_color(col, "var(--tw-" + name + "-opacity)"), ["--tw-"+ name +"-opacity"]: "1"}
+}  
+
+var H_percent = (v, n) => {
+  if (v == "full") return n.minus + "100%"
+  if (v.indexOf("/") > -1) {
+    var p = v.split("/")
+    return n.minus + (parseInt(p[0]) / parseInt(p[1])) * 100 + "%"
+  }
+}
+
+var H_spacing = (v, n) => {
+  if (v == "0" || v == "auto") return v
+  if (v == "px") return n.minus + "1px"
+  v = L_spacing[v]
+  if (v) v = n.minus + v +"rem"
+  return v
+}
+
+var H_spacingPercent = (v, n) => {
+  var r = H_spacing(v, n)
+  if (!r) r = H_percent(v, n)
+  return r
+}
+
+var H_float = (v) => (parseInt(v)/100).toString()
+
+var H_args = (p, f, d) => p.slice(f).join(d ? d : '-')
+
+var H_transform = (d) => {
+  d.transform = "var(--tw-transform)"
+  return d
+}
+
+var H_filter = (t, d) => {
+  if (t == "backdrop") d["backdrop-filter"] = "var(--tw-backdrop-filter)"
+  else d.filter = "var(--tw-filter)"
+  return d 
+}
+
+
 /* 
  * Utilities
  */
@@ -375,115 +463,6 @@ var U_maxHeight = (p, n) => {
   return {"max-height": r}
 }
 
-/*
- * Utility Helpers
- */
-
-var H_comp = (s, i) => parseInt(s.substring(i, i+2), 16) + ","
-
-var H_hexColor = (v) => {
-  if (v == "white") return "ffffff"
-  if (v == "black") return "000000"
-  var p = v.split("-")
-  var c = L_color[p[0]]
-  if (c) {
-    var s = parseInt(p[1])/100
-    s = s < 1 ? 0 : s*6
-    return c.substring(s, s+6)
-  }
-  return false
-}
-
-var H_transCurr = (v) => {
-  if (v == "transparent") return v
-  if (v == "current") return "currentColor"
-  return false
-}
-
-var H_color = (v, o, h) => {
-  if (!o) o = 1
-  var c = H_hexColor(v)
-  if (h) {
-    if (c) return "#" + c
-    if (H_transCurr(v)) return H_transCurr(v)
-  }
-  else if (c) return "rgba(" + H_comp(c, 0) + H_comp(c, 2) + H_comp(c, 4) + o + ")"
-}
-
-var H_isColor = (v) => L_color[v] || v == "black" || v == "white" || v == "transparent" || v == "current"
-
-var H_colorUtil = (col, prop, name) => {
-  var tc = H_transCurr(col)
-  if (tc) return {[prop]: tc}
-  return {[prop]: H_color(col, "var(--tw-" + name + "-opacity)"), ["--tw-"+ name +"-opacity"]: "1"}
-}  
-
-var H_percent = (v, n) => {
-  if (v == "full") return n.minus + "100%"
-  if (v.indexOf("/") > -1) {
-    var p = v.split("/")
-    return n.minus + (parseInt(p[0]) / parseInt(p[1])) * 100 + "%"
-  }
-}
-
-var H_spacing = (v, n) => {
-  if (v == "0" || v == "auto") return v
-  if (v == "px") return n.minus + "1px"
-  v = L_spacing[v]
-  if (v) v = n.minus + v +"rem"
-  return v
-}
-
-var H_spacingPercent = (v, n) => {
-  var r = H_spacing(v, n)
-  if (!r) r = H_percent(v, n)
-  return r
-}
-
-var H_float = (v) => (parseInt(v)/100).toString()
-
-var H_args = (p, f, d) => p.slice(f).join(d ? d : '-')
-
-
-
-var UgridStartEnd = (p, n) => {
-  if (p[0] == "col") p[0] = "column"
-  return {["grid-" + p[0] + "-" + p[1]]: p[2]}
-}
-
-
-
-
-var UflexContent = (p, n) => {
-  var prop = "align-content", s=1
-  if (p[0] == "justify") prop = "justify-content"
-  else if (p[0] == "place") {
-    prop = "place-content"
-    if (p[2] == "start" || p[2] == "end") return {[prop]: p[2]} 
-    s = 2
-  }
-  return {[prop]: L_flexContent[p[s]]}
-}
-var UjustifyPlaceSelfItems = (p, n) => ({[p[0] + "-" + p[1]]: p[2]})
-var UalignSelfItems = (p, n) => {
-  var v = p[1]
-  if (p[1] == "start") v = "flex-start"
-  else if (p[1] == "end") v = "flex-end"
-  return {["align-"+p[0]]: v}
-}
-
-var Utable = (p, n) => {
-  if (p[1] == "auto" || p[1] == "fixed") return {"table-layout": p[1]}
-  return {"display":H_args(p, 0)}
-}
-
-
-
-
-
-
-
-
 var U_widthHeight = (p, n) => {
   var prop = p[0] == "w" ? "width" : "height" 
   var r = H_spacingPercent(p[1], n)
@@ -491,6 +470,7 @@ var U_widthHeight = (p, n) => {
   if (p[0] == "w" && p[1] == "screen") r = "100vw"
   return {[prop]: r}
 }
+
 var U_minWidthHeight = (p, n) => {
   var prop = p[1] == "w" ? "min-width" : "min-height" 
   var r = L_widthHeight[p[2]]
@@ -501,85 +481,187 @@ var U_minWidthHeight = (p, n) => {
   return {[prop]: r}
 }
 
+var U_fillStroke = (p) => ({[p[0]]: "currentColor"})  
 
+var U_strokeWidth = (p) => ({"stroke-width": p[1]}) 
 
-var Uappearance = (p) => ({[p[0]]: p[1]})
-var Ucursor = (p) => ({[p[0]]: H_args(p, 1)})
-var Uoutline = (p) => {
+var U_screenReaders = (p) => {
+  if (p[0] == "sr") return {"position": "absolute", "width": "1px", "height": "1px", "padding": "0",
+  "margin": "-1px", "overflow": "hidden", "clip": "rect(0, 0, 0, 0)", "white-space": "nowrap", "border-width": "0"}
+  return {"position": "static", "width": "auto", "height": "auto", "padding": "0", "margin": "0",
+  "overflow": "visible", "clip": "auto", "white-space": "normal"}
+}
+
+var U_blur = (p) => {
+  var t = "", s = 1
+  if (p[0] =="backdrop") {t = "-backdrop"; s = 2}
+  return H_filter(p[0], {["--tw" + t + "-blur"]: "blur(" + L_blur[p[s] ? p[s] : ""] + ")"})
+}
+
+var U_filterFloat = (p) => {
+  var t = "", s = 1
+  if (p[0] =="backdrop") {t = "-backdrop"; s = 2}
+  return H_filter(p[0], {["--tw" + t + "-" + p[s-1]]: p[s-1] + "(" + H_float(p[s]) + ")"})
+}  
+
+var U_dropShadow = (p) => H_filter(p[0], {"--tw-drop-shadow": "drop-shadow" + L_dropShadow[p[2] ? p[2] : ""]})  
+
+var U_grayscaleInvertSepia = (p) => {
+  var t = "", s = 1
+  if (p[0] =="backdrop") {t = "-backdrop"; s = 2}
+  return H_filter(p[0], {["--tw" + t + "-" + p[s-1]]: p[s-1] + "(" + (p[s] ? "0" : "1") + ")"})
+} 
+
+var U_hueRotate = (p, n) => {
+  var t = "", s = 2
+  if (p[0] =="backdrop") {t = "-backdrop"; s = 3}
+  return H_filter(p[0], {["--tw" + t + "-hue-rotate"]: "hue-rotate("+ n.minus + p[s] + "deg)"})
+}
+
+var U_placeHolderColor = (p, n) => {
+  n.pelem = "placeholder"
+  return H_colorUtil(H_args(p, 1), "color", "placeholder")
+}
+
+var U_placeHolderOpacity = (p, n) => {
+  n.pelem = "placeholder"
+  return U_colorOpacity(p, n)
+}
+
+var U_fontVariantNumeric = (p) => ({"font-variant-numeric": p[0] == "normal" ? "normal" : H_args(p,0)}) 
+
+var U_topRightBottomLeft = (p, n) => ({[p[0]]: H_spacingPercent(p[1], n)})
+
+var U_textDecoration = (p) => ({"text-decoration":  p[0] =="no" ? "none" : H_args(p, 0)})
+
+var U_textTransform = (p) => ({"text-transform":  p[0] =="normal" ? "none" : p[0]})
+
+var U_textOverFlow = (p) => {
+  var prop = "text-overflow"
+  if (p[0] == "truncate") return {"overflow": "hidden", [prop]: "ellipsis", "white-space": "nowrap"}
+  if (p[1] == "clip") return {[prop]: "clip"}
+  return {[prop]: "ellipsis"}
+}
+
+var U_verticalAlign = (p) => ({"vertical-align": H_args(p, 1)})
+
+var U_whitespace = (p) => ({"white-space": H_args(p, 1)})
+
+var U_wordBreak = (p) => {
+  if (p[1] == "normal") return {"overflow-wrap": "normal", "word-break": "normal"}
+  if (p[1] == "words") return {"overflow-wrap": "break-word"}
+  return {"word-break": "break-all"}
+}
+
+var U_text = (p) => {
+  if (H_isColor(p[1])) return H_colorUtil(H_args(p, 1), "color", "text")
+  var v = L_fontSize[p[1]]
+  if (v) return {"font-size": v[0]+"rem", "line-height": v[1]}
+  return {"text-align": p[1]}
+}
+
+var U_listTypePosition = (p) => {
+  if (p[1] =="inside" || p[1] == "outside") return {"list-style-position": p[1]}
+  return {"list-style-type": p[1]}
+}
+
+var U_flexContent = (p, n) => {
+  var prop = "align-content", s=1
+  if (p[0] == "justify") prop = "justify-content"
+  else if (p[0] == "place") {
+    prop = "place-content"
+    if (p[2] == "start" || p[2] == "end") return {[prop]: p[2]} 
+    s = 2
+  }
+  return {[prop]: L_flexContent[p[s]]}
+}
+
+var U_justifyPlaceSelfItems = (p, n) => ({[p[0] + "-" + p[1]]: p[2]})
+
+var U_alignSelfItems = (p, n) => {
+  var v = p[1]
+  if (p[1] == "start") v = "flex-start"
+  else if (p[1] == "end") v = "flex-end"
+  return {["align-"+p[0]]: v}
+}
+
+var U_table = (p, n) => {
+  if (p[1] == "auto" || p[1] == "fixed") return {"table-layout": p[1]}
+  return {"display":H_args(p, 0)}
+}
+
+var U_gridStartEnd = (p, n) => {
+  if (p[0] == "col") p[0] = "column"
+  return {["grid-" + p[0] + "-" + p[1]]: p[2]}
+}
+
+var U_appearance = (p) => ({[p[0]]: p[1]})
+
+var U_cursor = (p) => ({[p[0]]: H_args(p, 1)})
+
+var U_outline = (p) => {
   var o = "2px solid transparent"
   if (p[1] == "white") o = "2px dotted white"
   if (p[1] == "black") o = "2px dotted black"
   return {"outline": o, "outline-offset": "2px"}
 }
-var UpointerEvents = (p) => ({"pointer-events": p[2]})
-const Lresize = {
-  "none": "none", "y": "vertical", "x": "horizontal"
-}
-var Uresize = (p) => {
+
+var U_pointerEvents = (p) => ({"pointer-events": p[2]})
+
+var U_resize = (p) => {
   if (p.length == 1) return {[p[0]]: "both"}
-  return {[p[0]]: Lresize[p[1]]}
+  return {[p[0]]: L_resize[p[1]]}
 }
-var UuserSelect = (p) => ({"user-select": p[1]})
+var U_userSelect = (p) => ({"user-select": p[1]})
 
-var UtransformGpu = (p) => ({"--tw-transform": "translate3d(var(--tw-translate-x), var(--tw-translate-y), 0) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))"})
+var U_transformGpu = (p) => ({"--tw-transform": "translate3d(var(--tw-translate-x), var(--tw-translate-y), 0) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))"})
 
-var Htransform = (d) => {
-  d.transform = "var(--tw-transform)"
-  return d
-}
 
-var UtransformOrigin = (p) => ({"transform-origin": H_args(p, 1, ' ')})
 
-var Uscale = (p) => {
+var U_transformOrigin = (p) => ({"transform-origin": H_args(p, 1, ' ')})
+
+var U_scale = (p) => {
   var v
   if (p[1] == "x") {
     v = H_float(p[2])
-    return Htransform({"--tw-scale-x": v})
+    return H_transform({"--tw-scale-x": v})
   } 
   else if (p[1] == "y") {
     v = H_float(p[2])
-    return Htransform({"--tw-scale-y": v})
+    return H_transform({"--tw-scale-y": v})
   }
   else {
     v = H_float(p[1])
-    return Htransform({"--tw-scale-x": v, "--tw-scale-y": v})
+    return H_transform({"--tw-scale-x": v, "--tw-scale-y": v})
   }
 }
 
-var Urotate = (p, n) => Htransform({"--tw-rotate": n.minus + p[1] + "deg"})
-var Utranslate = (p, n) => Htransform({["--tw-translate-"+p[1]]: H_spacingPercent(p[2], n)})
-var Uskew = (p, n) => Htransform({["--tw-skew-"+p[1]]: n.minus + p[2] + "deg"})
+var U_rotate = (p, n) => H_transform({"--tw-rotate": n.minus + p[1] + "deg"})
 
+var U_translate = (p, n) => H_transform({["--tw-translate-"+p[1]]: H_spacingPercent(p[2], n)})
 
-var Utransition = (p) => ({"transition-property": L_transition[p[1] ? p[1] : ""], 
+var U_skew = (p, n) => H_transform({["--tw-skew-"+p[1]]: n.minus + p[2] + "deg"})
+
+var U_transition = (p) => ({"transition-property": L_transition[p[1] ? p[1] : ""], 
 "transition-timing-function": "cubic-bezier(0.4, 0, 0.2, 1)","transition-duration": "150ms"})
-var UdelayDuration = (p) => ({["transition-" + p[0]]: p[1] + "ms"})
-const Lease = { "linear": "linear", "in": "cubic-bezier(0.4, 0, 1, 1)",
-  "out": "cubic-bezier(0, 0, 0.2, 1)", "in-out": "cubic-bezier(0.4, 0, 0.2, 1)"
-}
-var Uease = (p) => ({"transition-timing-function": Lease[H_args(p, 1)]})
 
-var UborderCollapse = (p) => ({"border-collapse": p[1]})
+var U_delayDuration = (p) => ({["transition-" + p[0]]: p[1] + "ms"})
 
-var UblendMode = (p) => {
+var U_ease = (p) => ({"transition-timing-function": L_ease[H_args(p, 1)]})
+
+var U_borderCollapse = (p) => ({"border-collapse": p[1]})
+
+var U_blendMode = (p) => {
   if (p[0] == "bg") p[0] = "background" 
   return {[p[0]+"-blend-mode"]: H_args(p, 2)}
 }
 
-var Uopacity = (p) =>  ({"opacity":H_float(p[1])})
+var U_opacity = (p) =>  ({"opacity":H_float(p[1])})
 
-
-var U_topRightBottomLeft = (p, n) => ({[p[0]]: H_spacingPercent(p[1], n)}) 
-
-
-
-
-
-
-var UboxShadow = (p) => ({"--tw-shadow": L_boxShadow[p[1] ? p[1] : ""], 
+var U_boxShadow = (p) => ({"--tw-shadow": L_boxShadow[p[1] ? p[1] : ""], 
   "box-shadow": "var(--tw-ring-offset-shadow,0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)"})
 
-var Uring = (p) => {
+var U_ring = (p) => {
   if (p[1] == "inset") return {"--tw-ring-inset": "inset"}
   if (!H_isColor(p[1])) {
     var v = p[1] ? p[1] : "3"
@@ -590,12 +672,12 @@ var Uring = (p) => {
   return H_colorUtil(H_args(p, 1), "--tw-ring-color", "ring")
 }
 
-var UringOffset = (p) => {
+var U_ringOffset = (p) => {
   if (!H_isColor(p[2])) return {"--tw-ring-offset-width": p[2] + "px"}
   return {"--tw-ring-offset-color": H_color(H_args(p, 2), "", true)}
 }
 
-var UborderRadius = (p) => {
+var U_borderRadius = (p) => {
   var v = L_borderRadius[p[1] ? p[1] : ""]
   if (v) return {"border-radius": v}
   v = L_borderRadius[p[2] ? p[2] : ""] 
@@ -606,342 +688,236 @@ var UborderRadius = (p) => {
   if (d == "b" || d == "l" || d == "bl") props["border-bottom-left-radius"] = v  
   return props
 }
-var Uborder = (p) => {
+
+var U_border = (p) => {
   if (H_isColor(p[1]))  return H_colorUtil(H_args(p, 1), "border-color", "border")
   if (!p[1] || !isNaN(p[1])) return {"border-width": (p[1] ? p[1] : "1") + "px"}
   return {"border-style": p[1]}
 }
-const LborderWidth = { "t": "top", "r": "right", "b": "bottom", "l": "left" }
+
 var U_borderWidth = (p) => {
-  var s = LborderWidth[p[1]]
+  var s = L_borderWidth[p[1]]
   return {["border-" + s + "-width"]: (p[2] ? p[2] : "1") + "px" }
 }
 
-var Uanimation = (p) => ({"animation": L_animation[p[1]]})
+var U_animate = (p) => ({"animation": L_animation[p[1]]})
 
-var Ufont =(p) => {
+var U_font =(p) => {
   var v = L_fontFamily[p[1]]
   if (v) return {"font-family": v}
   return {"font-weight": L_fontWeight[p[1]]}
 }
-var UfontSmoothing = (p) => {
+
+var U_fontSmoothing = (p) => {
   var web = "antialiased", moz = "grayscale"
   if (p[1]) web = "auto", moz = "auto"
   return {"-webkit-font-smoothing": web, "-moz-osx-font-smoothing": moz}
 }
-var UfontStyle = (p) => {
+
+var U_fontStyle = (p) => {
   var v = "italic"
   if (p[1]) v = "normal"
   return {"font-style": v}
 }
-var U_fontVariantNumeric = (p) => ({"font-variant-numeric": p[0] == "normal" ? "normal" : H_args(p,0)}) 
 
+var U_letterSpacing = (p) => ({"letter-spacing": L_letterSpacing[p[1]] + "em"}) 
 
-var UletterSpacing = (p) => ({"letter-spacing": L_letterSpacing[p[1]] + "em"}) 
+var U_lineHeight = (p) => ({"line-height": L_lineHeight[p[1]]})
 
-
-var UlineHeight = (p) => ({"line-height": L_lineHeight[p[1]]})
-
-
-var Utext = (p) => {
-  if (H_isColor(p[1])) return H_colorUtil(H_args(p, 1), "color", "text")
-  var v = L_fontSize[p[1]]
-  if (v) return {"font-size": v[0]+"rem", "line-height": v[1]}
-  return {"text-align": p[1]}
-}
-var UlistTypePosition = (p) => {
-  if (p[1] =="inside" || p[1] == "outside") return {"list-style-position": p[1]}
-  return {"list-style-type": p[1]}
-}
-
-var UtextDecoration = (p) => ({"text-decoration":  p[0] =="no" ? "none" : H_args(p, 0)})
-var UtextTransform = (p) => ({"text-transform":  p[0] =="normal" ? "none" : p[0]})
-var UtextOverflow = (p) => {
-  var prop = "text-overflow"
-  if (p[0] == "truncate") return {"overflow": "hidden", [prop]: "ellipsis", "white-space": "nowrap"}
-  if (p[1] == "clip") return {[prop]: "clip"}
-  return {[prop]: "ellipsis"}
-}
-var UverticalAlign = (p) => ({"vertical-align": H_args(p, 1)})
-var Uwhitespace = (p) => ({"white-space": H_args(p, 1)})
-var UwordBreak = (p) => {
-  if (p[1] == "normal") return {"overflow-wrap": "normal", "word-break": "normal"}
-  if (p[1] == "words") return {"overflow-wrap": "break-word"}
-  return {"word-break": "break-all"}
-}
-var UplaceholderColor = (p, n) => {
-  n.pelem = "placeholder"
-  return H_colorUtil(H_args(p, 1), "color", "placeholder")
-}
-var UplaceholderOpacity = (p, n) => {
-  n.pelem = "placeholder"
-  return U_colorOpacity(p, n)
-}
-
-var Hfilter = (t, d) => {
-  if (t == "backdrop") d["backdrop-filter"] = "var(--tw-backdrop-filter)"
-  else d.filter = "var(--tw-filter)"
-  return d 
-}
-
-var Ublur = (p) => {
-  var t = "", s = 1
-  if (p[0] =="backdrop") {t = "-backdrop"; s = 2}
-  return Hfilter(p[0], {["--tw" + t + "-blur"]: "blur(" + L_blur[p[s] ? p[s] : ""] + ")"})
-}
-var U_filterFloat = (p) => {
-  var t = "", s = 1
-  if (p[0] =="backdrop") {t = "-backdrop"; s = 2}
-  return Hfilter(p[0], {["--tw" + t + "-" + p[s-1]]: p[s-1] + "(" + H_float(p[s]) + ")"})
-}  
-
-var UdropShadow = (p) => Hfilter(p[0], {"--tw-drop-shadow": "drop-shadow" + L_dropShadow[p[2] ? p[2] : ""]})  
-var U_grayscaleInvertSepia = (p) => {
-  var t = "", s = 1
-  if (p[0] =="backdrop") {t = "-backdrop"; s = 2}
-  return Hfilter(p[0], {["--tw" + t + "-" + p[s-1]]: p[s-1] + "(" + (p[s] ? "0" : "1") + ")"})
-} 
-var UhueRotate = (p, n) => {
-  var t = "", s = 2
-  if (p[0] =="backdrop") {t = "-backdrop"; s = 3}
-  return Hfilter(p[0], {["--tw" + t + "-hue-rotate"]: "hue-rotate("+ n.minus + p[s] + "deg)"})
-}
-var U_fillStroke = (p) => ({[p[0]]: "currentColor"})  
-var UstrokeWidth = (p) => ({"stroke-width": p[1]}) 
-var U_screenReaders = (p) => {
-  if (p[0] == "sr") return {"position": "absolute", "width": "1px", "height": "1px", "padding": "0",
-  "margin": "-1px", "overflow": "hidden", "clip": "rect(0, 0, 0, 0)", "white-space": "nowrap", "border-width": "0"}
-  return {"position": "static", "width": "auto", "height": "auto", "padding": "0", "margin": "0",
-  "overflow": "visible", "clip": "auto", "white-space": "normal"}
-}
-
+/*
+ * word/utility lookup
+ */ 
 const lookup = {
-  absolute:           U_position,
-  auto:               U_gridAuto,
-  "backdrop-brightness": U_filterFloat,
-  "backdrop-contrast": U_filterFloat,
-  "backdrop-opacity": U_filterFloat,
-  "backdrop-saturate": U_filterFloat,
-  "backdrop-sepia":   U_grayscaleInvertSepia,
-  "backdrop-invert":  U_grayscaleInvertSepia,
-  bg:                 U_background,
-  "bg-gradient-to":   U_backgroundGradient,
-  "bg-opacity":       U_colorOpacity,
-  "bg-origin":        U_backgroundOrigin,
-  "bg-clip":          U_backgroundClip,
-  "bg-repeat":        U_backgroundRepeat,
-  block:              U_display,
-  "border-opacity":   U_colorOpacity,
-  "border-t":         U_borderWidth,
-  "border-r":         U_borderWidth,
-  "border-b":         U_borderWidth,
-  "border-l":         U_borderWidth,
-  bottom:             U_topRightBottomLeft,
-  box:                U_boxSizing,
-  brightness:        U_filterFloat,
-  clear:              U_clearFloat,
-  "col-span":         U_gridSpan,
-  "col-auto":         U_gridSpan,
-  contents:           U_display,
-  contrast:           U_filterFloat,
-  decoration:         U_boxDecorationBreak,
-  "diagonal-fractions": U_fontVariantNumeric, 
-  divide:             U_divideColor,
-  "divide-opacity":   U_colorOpacity, 
-  "divide-x":         U_divideWidth,
-  "divide-y":         U_divideWidth,
-  "fill-current":     U_fillStroke,
-  fixed:              U_position,
-  flex:               U_display,
-  "flex-col":         U_flexDirection,
-  "flex-row":         U_flexDirection,
-  "flex-nowrap":      U_flexWrap,
-  "flex-wrap":        U_flexWrap,
-  "flex-1":           U_flex,
-  "flex-auto":        U_flex,
-  "flex-initial":     U_flex,
-  "flex-none":        U_flex,
-  "flex-grow":        U_flexGrowShrink,
-  "flex-shrink":      U_flexGrowShrink,
-  float:              U_clearFloat,
-  "flow-root":        U_display,
-  from:               U_from,
-  gap:                U_gap,
-  grid:               U_display,
-  "grid-cols":        U_gridTemplate,
-  "grid-rows":        U_gridTemplate,
-  "grid-flow":        U_gridAutoFlow,
-   h:                 U_widthHeight,
-  hidden:             U_display,
-  inline:             U_inline,
-  inset:              U_inset,
-  invert:             U_grayscaleInvertSepia,
-  invisible:          U_visibility,
-  isolate:            U_isolation,
-  isolation:          U_isolation,
-  left:               U_topRightBottomLeft,
-  "lining-nums":      U_fontVariantNumeric,
-  "list-item":        U_display,
-  "max-w":            U_maxWidth,
-  "max-h":            U_maxHeight,
-  m:                  U_margin,
-  mx:                 U_marginX,
-  my:                 U_marginY,
-  mt:                 U_marginT,
-  mb:                 U_marginB,
-  ml:                 U_marginL,
-  mr:                 U_marginR,
-  "min-w":            U_minWidthHeight,
-  "min-h":            U_minWidthHeight,
-  "not-sr-only":      U_screenReaders,
-  "normal-nums":      U_fontVariantNumeric,
-  object:             U_objectFitPosition,
-  "oldstyle-nums":    U_fontVariantNumeric,
-  order:              U_order,
-  ordinal:            U_fontVariantNumeric,
-  p:                  U_padding,
-  px:                 U_paddingX,
-  py:                 U_paddingY,
-  pt:                 U_paddingT,
-  pb:                 U_paddingB,
-  pl:                 U_paddingL,
-  pr:                 U_paddingR,
-  "proportional-nums": U_fontVariantNumeric,
-  relative:           U_position,
-  right:              U_topRightBottomLeft,
-  "ring-opacity":     U_colorOpacity,
-  "row-span":         U_gridSpan,
-  "row-auto":         U_gridSpan,
-  saturate:           U_filterFloat,
-  sepia:              U_grayscaleInvertSepia,
-  "slashed-zero":     U_fontVariantNumeric, 
-  space:              U_spaceBetween, 
-  static:             U_position,
-  sticky:             U_position,
-  "stacked-fractions": U_fontVariantNumeric,
-  "sr-only":          U_screenReaders,
-  "stroke-current":   U_fillStroke,
-  stroke:             UstrokeWidth,
-  "tabular-nums":     U_fontVariantNumeric, 
-  "text-opacity":     U_colorOpacity,
-  to:                 U_to,
-  top:                U_topRightBottomLeft,
-  overflow:           U_overScrollFlow,
-  overscroll:         U_overScrollFlow,
-  via:                U_via,
-  visible:            U_visibility,
-  w:                  U_widthHeight,
-  z:                  U_zindex,  
-  
-
-
- 
- 
-  
-  
-
-  
-  
-  
-
- 
- 
- 
-  "hue-rotate": UhueRotate,
-  "backdrop-hue-rotate": UhueRotate,
-  grayscale:U_grayscaleInvertSepia,
-  "backdrop-grayscale":U_grayscaleInvertSepia,
-  "drop-shadow": UdropShadow,
- 
-
- 
-
-  blur: Ublur,
-  "backdrop-blur": Ublur,
-  placeholder: UplaceholderColor,
-  "placeholder-opacity": UplaceholderOpacity,
-  "break": UwordBreak,
-  "whitespace": Uwhitespace,
-  "align": UverticalAlign,
-  "truncate": UtextOverflow,
-  "overflow-ellipsis": UtextOverflow,
-  "overflow-clip": UtextOverflow,
-  "uppercase": UtextTransform,
-  "lowercase": UtextTransform,
-  "capitalize": UtextTransform, 
-  "normal-case": UtextTransform,
-  "underline": UtextDecoration,
-  "line-through": UtextDecoration,
-  "no-underline": UtextDecoration,
-  "list": UlistTypePosition,
-  "text": Utext,
-  "leading": UlineHeight,
-  "tracking": UletterSpacing,
-  
-  
-  
- 
-   
- 
- 
- 
-  
-  "italic": UfontStyle,
-  "not-italic": UfontStyle,
-  "antialiased": UfontSmoothing,
-  "subpixel-antialiased": UfontSmoothing,
-  "font": Ufont,
-  "animate": Uanimation,
- 
-  "border": Uborder,
-  "rounded": UborderRadius,
-  
- 
-  "ring-offset": UringOffset,
-
-  "ring": Uring,
-  "shadow": UboxShadow,
-  "opacity": Uopacity,
-  "mix-blend": UblendMode,
-  "bg-blend": UblendMode,
-  "border-collapse": UborderCollapse,
-  "border-separate": UborderCollapse,
-  "transition": Utransition,
-  "duration": UdelayDuration,
-  "delay": UdelayDuration,
-  "ease": Uease,
-  "appearance-none": Uappearance,
-  "cursor": Ucursor,
-  "outline": Uoutline,
-  "pointer-events": UpointerEvents,
-  "resize": Uresize,
-  "select": UuserSelect,
-  "transform-gpu": UtransformGpu,
-  "origin": UtransformOrigin,
-  "scale": Uscale,
-  "rotate": Urotate,
-  "translate": Utranslate,
-  "skew": Uskew,
-  "col-start": UgridStartEnd,
-  "col-end": UgridStartEnd,
-  "row-start": UgridStartEnd,
-  "row-end": UgridStartEnd,
-  "justify": UflexContent,
-  "content": UflexContent,
-  "place-content": UflexContent,
-  "justify-items": UjustifyPlaceSelfItems,
-  "place-items": UjustifyPlaceSelfItems,
-  "justify-self": UjustifyPlaceSelfItems,
-  "place-self": UjustifyPlaceSelfItems,
-  "align-items": UalignSelfItems,
-  "align-self": UalignSelfItems,
-  "items": UalignSelfItems,
-  "self": UalignSelfItems,
-
- 
-  "table": Utable,
- 
- 
+  absolute:               U_position,
+  align:                  U_verticalAlign,
+  "align-items":          U_alignSelfItems,
+  "align-self":           U_alignSelfItems,
+  animate:                U_animate,
+  antialiased:            U_fontSmoothing,
+  "appearance-none":      U_appearance,
+  auto:                   U_gridAuto,
+  "bg-blend":             U_blendMode,
+  "backdrop-blur":        U_blur,
+  "backdrop-brightness":  U_filterFloat,
+  "backdrop-contrast":    U_filterFloat,
+  "backdrop-grayscale":   U_grayscaleInvertSepia,
+  "backdrop-hue-rotate":  U_hueRotate,
+  "backdrop-opacity":     U_filterFloat,
+  "backdrop-saturate":    U_filterFloat,
+  "backdrop-sepia":       U_grayscaleInvertSepia,
+  "backdrop-invert":      U_grayscaleInvertSepia,
+  bg:                     U_background,
+  "bg-gradient-to":       U_backgroundGradient,
+  "bg-opacity":           U_colorOpacity,
+  "bg-origin":            U_backgroundOrigin,
+  "bg-clip":              U_backgroundClip,
+  "bg-repeat":            U_backgroundRepeat,
+  block:                  U_display,
+  blur:                   U_blur,
+  border:                 U_border,
+  "border-opacity":       U_colorOpacity,
+  "border-t":             U_borderWidth,
+  "border-r":             U_borderWidth,
+  "border-b":             U_borderWidth,
+  "border-l":             U_borderWidth,
+  "border-collapse":      U_borderCollapse,
+  "border-separate":      U_borderCollapse,
+  bottom:                 U_topRightBottomLeft,
+  box:                    U_boxSizing,
+  break:                  U_wordBreak,
+  brightness:             U_filterFloat,
+  capitalize:             U_textTransform, 
+  clear:                  U_clearFloat,
+  "col-span":             U_gridSpan,
+  "col-auto":             U_gridSpan,
+  "col-start":            U_gridStartEnd,
+  "col-end":              U_gridStartEnd,
+  content:                U_flexContent,
+  contents:               U_display,
+  contrast:               U_filterFloat,
+  cursor:                 U_cursor,
+  decoration:             U_boxDecorationBreak,
+  duration:               U_delayDuration,
+  delay:                  U_delayDuration,
+  "diagonal-fractions":   U_fontVariantNumeric, 
+  divide:                 U_divideColor,
+  "divide-opacity":       U_colorOpacity, 
+  "divide-x":             U_divideWidth,
+  "divide-y":             U_divideWidth,
+  "drop-shadow":          U_dropShadow,
+   ease:                  U_ease,
+  "fill-current":         U_fillStroke,
+  fixed:                  U_position,
+  flex:                   U_display,
+  "flex-col":             U_flexDirection,
+  "flex-row":             U_flexDirection,
+  "flex-nowrap":          U_flexWrap,
+  "flex-wrap":            U_flexWrap,
+  "flex-1":               U_flex,
+  "flex-auto":            U_flex,
+  "flex-initial":         U_flex,
+  "flex-none":            U_flex,
+  "flex-grow":            U_flexGrowShrink,
+  "flex-shrink":          U_flexGrowShrink,
+  float:                  U_clearFloat,
+  "flow-root":            U_display,
+  from:                   U_from,
+  font:                   U_font,
+  gap:                    U_gap,
+  grayscale:              U_grayscaleInvertSepia,
+  grid:                   U_display,
+  "grid-cols":            U_gridTemplate,
+  "grid-rows":            U_gridTemplate,
+  "grid-flow":            U_gridAutoFlow,
+  h:                      U_widthHeight,
+  hidden:                 U_display,
+  "hue-rotate":           U_hueRotate,
+  inline:                 U_inline,
+  inset:                  U_inset,
+  invert:                 U_grayscaleInvertSepia,
+  invisible:              U_visibility,
+  isolate:                U_isolation,
+  isolation:              U_isolation,
+  italic:                 U_fontStyle,
+  items:                  U_alignSelfItems,
+  justify:                U_flexContent,
+  "justify-items":        U_justifyPlaceSelfItems,
+  "justify-self":         U_justifyPlaceSelfItems,
+  leading:                U_lineHeight,
+  left:                   U_topRightBottomLeft,
+  "lining-nums":          U_fontVariantNumeric,
+  list:                   U_listTypePosition,
+  "list-item":            U_display,
+  "line-through":         U_textDecoration,
+  lowercase:              U_textTransform,
+  "max-w":                U_maxWidth,
+  "max-h":                U_maxHeight,
+  m:                      U_margin,
+  mx:                     U_marginX,
+  my:                     U_marginY,
+  mt:                     U_marginT,
+  mb:                     U_marginB,
+  ml:                     U_marginL,
+  mr:                     U_marginR,
+  "min-w":                U_minWidthHeight,
+  "min-h":                U_minWidthHeight,
+  "mix-blend":            U_blendMode,
+  "no-underline":         U_textDecoration,
+  "not-sr-only":          U_screenReaders,
+  "normal-nums":          U_fontVariantNumeric,
+  "normal-case":          U_textTransform,
+  "not-italic":           U_fontStyle,
+  object:                 U_objectFitPosition,
+  "oldstyle-nums":        U_fontVariantNumeric,
+  opacity:                U_opacity,
+  order:                  U_order,
+  ordinal:                U_fontVariantNumeric,
+  outline:                U_outline, 
+  origin:                 U_transformOrigin,
+  "overflow-ellipsis":    U_textOverFlow,
+  "overflow-clip":        U_textOverFlow,
+  "place-content":        U_flexContent,
+  "place-self":           U_justifyPlaceSelfItems,
+  "place-items":          U_justifyPlaceSelfItems,
+  placeholder:            U_placeHolderColor,
+  "placeholder-opacity":  U_placeHolderOpacity,
+  "pointer-events":       U_pointerEvents,
+  p:                      U_padding,
+  px:                     U_paddingX,
+  py:                     U_paddingY,
+  pt:                     U_paddingT,
+  pb:                     U_paddingB,
+  pl:                     U_paddingL,
+  pr:                     U_paddingR,
+  "proportional-nums":    U_fontVariantNumeric,
+  relative:               U_position,
+  resize:                 U_resize,
+  right:                  U_topRightBottomLeft,
+  "ring-offset":          U_ringOffset,
+  ring:                   U_ring,
+  "ring-opacity":         U_colorOpacity,
+  "row-span":             U_gridSpan,
+  "row-auto":             U_gridSpan,
+  "row-start":            U_gridStartEnd,
+  "row-end":              U_gridStartEnd,
+  rounded:                U_borderRadius, 
+  saturate:               U_filterFloat,
+  scale:                  U_scale,
+  select:                 U_userSelect,
+  self:                   U_alignSelfItems,
+  sepia:                  U_grayscaleInvertSepia,
+  shadow:                 U_boxShadow,
+  skew:                   U_skew, 
+  "slashed-zero":         U_fontVariantNumeric, 
+  space:                  U_spaceBetween, 
+  static:                 U_position,
+  sticky:                 U_position,
+  "stacked-fractions":    U_fontVariantNumeric,
+  "sr-only":              U_screenReaders,
+  "stroke-current":       U_fillStroke,
+  stroke:                 U_strokeWidth,
+  "subpixel-antialiased": U_fontSmoothing,
+  table:                  U_table,
+  "tabular-nums":         U_fontVariantNumeric, 
+  "text-opacity":         U_colorOpacity,
+  text:                   U_text,
+  to:                     U_to,
+  top:                    U_topRightBottomLeft,
+   rotate:                U_rotate,
+  tracking:               U_letterSpacing,
+  transition:             U_transition,
+  translate:              U_translate,
+  "transform-gpu":        U_transformGpu,
+  truncate:               U_textOverFlow,
+  underline:              U_textDecoration,
+  uppercase:              U_textTransform,
+  overflow:               U_overScrollFlow,
+  overscroll:             U_overScrollFlow,
+  via:                    U_via,
+  visible:                U_visibility,
+  w:                      U_widthHeight,
+  whitespace:             U_whitespace,
+  z:                      U_zindex,  
 }
 
 var V_group = (c, n) => {
@@ -1052,6 +1028,15 @@ var P_sort = (rules) => {
   }) 
 }
 
+var P_media = (m) => {
+  var s = []
+  for (var i=0; i<m.length; i++) {
+    if (m[i] == "dark") s.push("(prefers-color-scheme: dark)")
+    else s.push("(min-width: " + L_screens[m[i]] + ")")
+  }
+  return "@media " + s.join(" and ")
+}
+
 export function printRules(rules) {
   rules = P_sort(rules)
   var s = ""
@@ -1059,7 +1044,7 @@ export function printRules(rules) {
   while (i < len) {
     var n = rules[i]
     if (n) {
-      if (n.media.length > 0) s += "@media (min-width: " + L_screens[n.media[0]] + "){"
+      if (n.media.length > 0) s += P_media(n.media) + "{"
       s += P_Rule(n)
       if (n.media.length > 0) s += "}"
     }

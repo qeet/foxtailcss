@@ -1,6 +1,6 @@
 {
   "name": "foxtailcss",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "homepage": "https://foxtailcss.com",
   "description": "A tiny library that provides Tailwind utilties for any CSS framework",
   "main": "src/foxtail.js",
