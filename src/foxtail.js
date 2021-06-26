@@ -4,8 +4,16 @@ const StyleId = "fx-styles"
 const BaseStyleId = "fx-base"
 
 var Prefix = false
-var Update = false
+var Update = true
 var Rules = {}
+
+const MutationConfig = {
+  attributes: true,
+  attributeFilter: [ "class" ],
+  characterData: true,
+  childList: true,
+  subtree: true,
+}
  
 const BaseStyles = `
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -54,13 +62,7 @@ border-color: rgba(229, 231, 235, var(--tw-border-opacity));
 --tw-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
 }`
 
-var getMeta = (n) => {
-  var p = document.querySelector('meta[name="fx:' + n + '"]')
-  if (p) p = p.content
-  return p
-}
-
-var getStyleNode =(id) => {
+var getStyle =(id) => {
   var style = document.getElementById(id);
   if (style === null) {
     style = document.createElement("style");
@@ -70,9 +72,11 @@ var getStyleNode =(id) => {
   return style
 }
 
-var insertStyles = () => {
-  getStyleNode(StyleId).textContent = printRules(Object.values(Rules));
-  Update = false
+var updateStyles = () => {
+  if (Update) {
+    getStyle(StyleId).textContent = printRules(Object.values(Rules));
+    Update = false
+  }
 }
 
 var addClass = (c) => {
@@ -98,60 +102,46 @@ var addElement = (el) => {
   }
 }
 
-var compilePage = () => {
-  var els = document.querySelectorAll('[class]');
-
+var addNode = (node) => {
+  if (node instanceof HTMLElement) addElement(node);
+  var els = node.querySelectorAll('[class]');
   var i = 0, len = els.length;
   while (i < len) {
     addElement(els[i])
     i++
   }
-
-  getStyleNode(BaseStyleId).textContent = BaseStyles
-  insertStyles()
-
-  if (document.body instanceof HTMLElement) document.body.removeAttribute("hidden")
 }
 
-const mutationConfig = {
-  attributes: true,
-  attributeFilter: [ "class" ],
-  childList: true,
-  subtree: true,
-};
-
 var start = () => {
+  var body = document.body
+  if (body instanceof HTMLElement) {
+    var s = body.getAttribute("fx-screen")
+    if (s) setScreen(s)
+    if (body.hasAttribute("fx-prefix")) Prefix = true
+  }
 
-  var p = getMeta("prefix")
-  if (p && p === "true") Prefix = true
-  p = getMeta("screen")
-  if (p) setScreen(p)
- 
-  compilePage();
+  getStyle(BaseStyleId).textContent = BaseStyles 
+  addNode(document)
+  updateStyles()
+  
+  if (body instanceof HTMLElement) body.removeAttribute("hidden")
 
   const callback = function(mutationsList, observer) {
     for(const mutation of mutationsList) {
       if (mutation.type === 'childList') {
         for (var i=0; i<mutation.addedNodes.length; i++) {
-          var node = mutation.addedNodes[i];
-          if ((node instanceof HTMLElement) && node.classList) {
-            addElement(node);
-            var els = node.querySelectorAll('[class]');
-            for (var j=0; j<els.length; j++) {
-              addElement(els[j]);
-            }
-          }
+          addNode(mutation.addedNodes[i])
         }
       }
       else if (mutation.type === 'attributes') {
         if (mutation.target && (mutation.target instanceof HTMLElement)) addElement(mutation.target)
       }
     }
-    if (Update) insertStyles();
+    updateStyles();
   };
 
   const observer = new MutationObserver(callback);
-  observer.observe(document.documentElement, mutationConfig);
+  observer.observe(document.documentElement, MutationConfig);
 }
 
 

@@ -1039,16 +1039,16 @@ var P_media = (m) => {
 
 export function printRules(rules) {
   rules = P_sort(rules)
-  var s = ""
+  var s = []
   var i=0, len = rules.length
   while (i < len) {
     var n = rules[i]
-    if (n) {
-      if (n.media.length > 0) s += P_media(n.media) + "{"
-      s += P_Rule(n)
-      if (n.media.length > 0) s += "}"
+    if (n) { 
+      if (n.media.length > 0) s.push(P_media(n.media) + "{")
+      s.push(P_Rule(n))
+      if (n.media.length > 0) s.push("}")
     }
     i++
   }
-  return s 
+  return s.join("")
 }
