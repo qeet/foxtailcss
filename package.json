@@ -1,6 +1,6 @@
 {
   "name": "foxtailcss",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "homepage": "https://foxtailcss.com",
   "description": "A tiny library that provides Tailwind utilties for any CSS framework",
   "main": "src/foxtail.js",
@@ -26,8 +26,16 @@
     "bulma",
     "utility",
     "framework",
-    "tailwind"
+    "tailwind",
+    "responsive"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qeet/foxtailcss.git"
+  },
+  "bugs": {
+    "url": "https://github.com/qeet/foxtailcss/issues"
+  },
   "dependencies": {},
   "devDependencies": {
     "autoprefixer": "^10.2.5",

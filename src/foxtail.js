@@ -76,9 +76,12 @@ var updateStyles = () => {
     getStyle(StyleId).textContent = printRules(Object.values(Rules));
     Update = false
   }
+  var b = document.body
+  if (b instanceof HTMLElement && b.hasAttribute("hidden")) b.removeAttribute("hidden")
 }
 
 var addClass = (c) => {
+  if (!c) return
   if (!(c in Rules)) {
     if (Prefix && !c.includes(":")) {
       Rules[c] = false
@@ -94,12 +97,12 @@ var addClass = (c) => {
 var addElement = (el) => {
   var cl = el.classList;
   if (!cl) return
-  var i = 0, len = cl.length;
-  while (i < len) {
-    if (cl[i] == "fx-cloak") el.classList.remove("fx-cloak")
+  var len = cl.length, cloak = false
+  for (var i=0; i < len; i++) {
+    if (cl[i] === "fx-cloak") cloak = true 
     else addClass(cl[i])
-    i++
   }
+  if (cloak) cl.remove("fx-cloak")
 }
 
 var addNode = (node) => {
@@ -123,10 +126,9 @@ var start = () => {
   }
 
   getStyle(BaseStyleId).textContent = BaseStyles 
+
   addNode(document)
   updateStyles()
-  
-  if (body instanceof HTMLElement) body.removeAttribute("hidden")
 
   const callback = function(mutationsList, observer) {
     for (const mutation of mutationsList) {
