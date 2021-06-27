@@ -5,14 +5,15 @@
   "description": "A tiny library that provides Tailwind utilties for any CSS framework",
   "main": "src/foxtail.js",
   "scripts": {
-    "build": "npm-run-all build-sass build-postcss build-mini",
-    "build-sass": "sass --style expanded --source-map --embed-sources --no-error-css scss/:dist/",
-    "build-postcss": "postcss --use postcss-combine-media-query autoprefixer --replace \"dist/*.css\" \"!dist/*.min.css\"",
-    "build-mini": "cleancss -O1 --output dist/foxtail.min.css dist/foxtail.css",
+    "build": "npm-run-all build-js build-css",
     "build-js": "npm-run-all rollup-js compress-js",
     "rollup-js": "rollup ./src/foxtail.js --file ./dist/foxtailcss.js --format iife",
     "compress-js": "terser ./dist/foxtailcss.js -c -m > ./dist/foxtailcss.min.js",
-    "build-tests": "rollup ./src/tests/tests.js --file ./src/tests/run-tests.js --format cjs"
+    "build-tests": "rollup ./src/tests/tests.js --file ./src/tests/run-tests.js --format cjs",
+    "build-css": "npm-run-all build-sass build-prefix build-mini",
+    "build-sass": "sass --style expanded --source-map --embed-sources --no-error-css scss/:dist/css",
+    "build-prefix": "postcss --use autoprefixer --replace \"dist/css/*.css\" \"!dist/css/*.min.css\"",
+    "build-mini": "cleancss -O1 --output dist/css/foxtail-tw.min.css dist/css/foxtail-tw.css && cleancss -O1 --output dist/css/foxtail-ui.min.css dist/css/foxtail-ui.css"
   },
   "author": {
     "name": "Qeet",
@@ -34,7 +35,6 @@
     "npm-run-all": "^4.1.5",
     "postcss": "^8.2.10",
     "postcss-cli": "^8.3.1",
-    "postcss-combine-media-query": "^1.0.1",
     "rollup": "^2.52.2",
     "sass": "^1.32.8",
     "terser": "^5.7.0"

@@ -1066,7 +1066,6 @@
   const MutationConfig = {
     attributes: true,
     attributeFilter: [ "class" ],
-    characterData: true,
     childList: true,
     subtree: true,
   };
@@ -1150,6 +1149,7 @@ border-color: rgba(229, 231, 235, var(--tw-border-opacity));
 
   var addElement = (el) => {
     var cl = el.classList;
+    if (!cl) return
     var i = 0, len = cl.length;
     while (i < len) {
       if (cl[i] == "fx-cloak") el.classList.remove("fx-cloak");
@@ -1159,21 +1159,23 @@ border-color: rgba(229, 231, 235, var(--tw-border-opacity));
   };
 
   var addNode = (node) => {
-    if (node instanceof HTMLElement) addElement(node);
-    var els = node.querySelectorAll('[class]');
-    var i = 0, len = els.length;
-    while (i < len) {
-      addElement(els[i]);
-      i++;
+    addElement(node);   
+    if (node.querySelectorAll) {
+      var els = node.querySelectorAll('[class]');
+      var i = 0, len = els.length;
+      while (i < len) {
+        addElement(els[i]);
+        i++;
+      }
     }
   };
 
   var start = () => {
     var body = document.body;
     if (body instanceof HTMLElement) {
-      var s = body.getAttribute("fx-screen");
+      var s = body.getAttribute("fx-screen") || body.getAttribute("data-fx-screen"); 
       if (s) setScreen(s);
-      if (body.hasAttribute("fx-prefix")) Prefix = true;
+      if (body.hasAttribute("fx-prefix") || body.hasAttribute("data-fx-prefix")) Prefix = true;
     }
 
     getStyle(BaseStyleId).textContent = BaseStyles; 
@@ -1183,14 +1185,14 @@ border-color: rgba(229, 231, 235, var(--tw-border-opacity));
     if (body instanceof HTMLElement) body.removeAttribute("hidden");
 
     const callback = function(mutationsList, observer) {
-      for(const mutation of mutationsList) {
+      for (const mutation of mutationsList) {
         if (mutation.type === 'childList') {
           for (var i=0; i<mutation.addedNodes.length; i++) {
             addNode(mutation.addedNodes[i]);
           }
         }
         else if (mutation.type === 'attributes') {
-          if (mutation.target && (mutation.target instanceof HTMLElement)) addElement(mutation.target);
+          if (mutation.target) addElement(mutation.target);
         }
       }
       updateStyles();
