@@ -1,9 +1,9 @@
 {
   "name": "foxtailcss",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "homepage": "https://foxtailcss.com",
-  "description": "A tiny library that provides Tailwind utilties for any CSS framework",
-  "main": "src/foxtail.js",
+  "description": "Add all Tailwind utilities to any CSS framework with a single ~8K file",
+  "main": "src/foxtail-bootstrap.js",
   "scripts": {
     "build": "npm-run-all build-js build-css",
     "build-js": "npm-run-all rollup-js compress-js",
@@ -24,6 +24,8 @@
     "css",
     "bootstrap",
     "bulma",
+    "uikit",
+    "foundation",
     "utility",
     "framework",
     "tailwind",

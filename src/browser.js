@@ -98,12 +98,10 @@ var addClass = (c) => {
 var addElement = (el) => {
   var cl = el.classList;
   if (!cl) return
-  var len = cl.length, cloak = false
-  for (var i=0; i < len; i++) {
-    if (cl[i] === "fx-cloak") cloak = true 
-    else addClass(cl[i])
+  var len = cl.length
+  for (var i=0; i < len; i++) { 
+    addClass(cl[i])
   }
-  if (cloak) cl.remove("fx-cloak")
 }
 
 var addNode = (node) => {
@@ -120,17 +118,11 @@ var addNode = (node) => {
 
 var start = () => {
   var body = document.body
-  if (body instanceof HTMLElement) {
-    /*
-    var s = body.getAttribute("fx-screen") || body.getAttribute("data-fx-screen") 
-    if (s) setScreen(s)
-      */
-    setScreen(GetScreen())
+  if (body && body.hasAttribute) {
     if (body.hasAttribute("fx-prefix") || body.hasAttribute("data-fx-prefix")) Prefix = true
   }
-
+  setScreen(GetScreen())
   getStyle(BaseStyleId).textContent = BaseStyles 
-
   addNode(document)
   updateStyles()
 
