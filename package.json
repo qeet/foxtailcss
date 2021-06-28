@@ -1,6 +1,6 @@
 {
   "name": "foxtailcss",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "homepage": "https://foxtailcss.com",
   "description": "Add all Tailwind utilities to any CSS framework with a single ~8K file",
   "main": "src/foxtail-bootstrap.js",
