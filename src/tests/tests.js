@@ -1,4 +1,4 @@
-import {compile} from "../compiler.js";
+import {setScreen, compile} from "../compiler.js";
 
 var tests = [
   ["decoration-slice", {"box-decoration-break": "slice", "-webkit-box-decoration-break": "slice"}],
@@ -940,6 +940,8 @@ var tests = [
   ["-", false],
   ["!", false],
 ]
+
+setScreen({ "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px" })
 
 var ntests = tests.length;
 for (var i=0; i<ntests;i++) {

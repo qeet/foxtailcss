@@ -1,14 +1,14 @@
 {
   "name": "foxtailcss",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "homepage": "https://foxtailcss.com",
   "description": "A tiny library that provides Tailwind utilties for any CSS framework",
   "main": "src/foxtail.js",
   "scripts": {
     "build": "npm-run-all build-js build-css",
     "build-js": "npm-run-all rollup-js compress-js",
-    "rollup-js": "rollup ./src/foxtail.js --file ./dist/foxtailcss.js --format iife",
-    "compress-js": "terser ./dist/foxtailcss.js -c -m > ./dist/foxtailcss.min.js",
+    "rollup-js": "rollup ./src/foxtail-bootstrap.js --file ./dist/foxtail-bootstrap.js --format iife && rollup ./src/foxtail-bulma.js --file ./dist/foxtail-bulma.js --format iife && rollup ./src/foxtail-uikit.js --file ./dist/foxtail-uikit.js --format iife && rollup ./src/foxtail-foundation.js --file ./dist/foxtail-foundation.js --format iife",
+    "compress-js": "terser ./dist/foxtail-bootstrap.js -c -m > ./dist/foxtail-bootstrap.min.js && terser ./dist/foxtail-bulma.js -c -m > ./dist/foxtail-bulma.min.js && terser ./dist/foxtail-uikit.js -c -m > ./dist/foxtail-uikit.min.js && terser ./dist/foxtail-foundation.js -c -m > ./dist/foxtail-foundation.min.js",
     "build-tests": "rollup ./src/tests/tests.js --file ./src/tests/run-tests.js --format cjs",
     "build-css": "npm-run-all build-sass build-prefix build-mini",
     "build-sass": "sass --style expanded --source-map --embed-sources --no-error-css scss/:dist/css",

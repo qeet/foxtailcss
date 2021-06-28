@@ -2,14 +2,7 @@
  * Lookups
  */
 
-const L_commonScreens = {
-  tailwind: { "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px" },
-  bootstrap: { "sm": "576px", "md": "768px", "lg": "992px", "xl": "1200px", "2xl": "1400px" },
-  bulma: { "sm": "640px", "md": "769px", "lg": "1024px", "xl": "1216px", "2xl": "1408px" },
-  uikit: { "sm": "640px", "md": "768px", "lg": "960px", "xl": "1200px", "2xl": "1600px" },
-}
-
-var L_screens = L_commonScreens["tailwind"]
+var L_screens = null
 
 const L_color = {
   'gray':   'F9FAFBF3F4F6E5E7EBD1D5DB9CA3AF6B72804B55633741511F2937111827',
@@ -986,8 +979,7 @@ export function compile(c) {
 }
 
 export function setScreen(s) {
-  s = L_commonScreens[s]
-  if (s) L_screens = s
+  L_screens = s
 }
 
 /*

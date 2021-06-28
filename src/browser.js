@@ -6,6 +6,7 @@ const BaseStyleId = "fx-base"
 var Prefix = false
 var Update = true
 var Rules = {}
+var GetScreen
 
 const MutationConfig = {
   attributes: true,
@@ -120,8 +121,11 @@ var addNode = (node) => {
 var start = () => {
   var body = document.body
   if (body instanceof HTMLElement) {
+    /*
     var s = body.getAttribute("fx-screen") || body.getAttribute("data-fx-screen") 
     if (s) setScreen(s)
+      */
+    setScreen(GetScreen())
     if (body.hasAttribute("fx-prefix") || body.hasAttribute("data-fx-prefix")) Prefix = true
   }
 
@@ -154,4 +158,8 @@ if (document.readyState === "loading") {
 }
 else {
   start();
+}
+
+export function screen(fn) {
+  GetScreen = fn
 }

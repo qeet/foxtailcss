@@ -4,14 +4,7 @@
  * Lookups
  */
 
-const L_commonScreens = {
-  tailwind: { "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px" },
-  bootstrap: { "sm": "576px", "md": "768px", "lg": "992px", "xl": "1200px", "2xl": "1400px" },
-  bulma: { "sm": "640px", "md": "769px", "lg": "1024px", "xl": "1216px", "2xl": "1408px" },
-  uikit: { "sm": "640px", "md": "768px", "lg": "960px", "xl": "1200px", "2xl": "1600px" },
-};
-
-var L_screens = L_commonScreens["tailwind"];
+var L_screens = null;
 
 const L_color = {
   'gray':   'F9FAFBF3F4F6E5E7EBD1D5DB9CA3AF6B72804B55633741511F2937111827',
@@ -987,6 +980,10 @@ function compile(c) {
   return false
 }
 
+function setScreen(s) {
+  L_screens = s;
+}
+
 var tests = [
   ["decoration-slice", {"box-decoration-break": "slice", "-webkit-box-decoration-break": "slice"}],
   ["decoration-clone", {"box-decoration-break": "clone", "-webkit-box-decoration-break": "clone"}],
@@ -1927,6 +1924,8 @@ var tests = [
   ["-", false],
   ["!", false],
 ];
+
+setScreen({ "sm": "640px", "md": "768px", "lg": "1024px", "xl": "1280px", "2xl": "1536px" });
 
 var ntests = tests.length;
 for (var i=0; i<ntests;i++) {
