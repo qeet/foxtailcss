@@ -2,6 +2,10 @@
 
 Extend you existing framework such as Bootstrap, Bulma etc. with all the utilities from Tailwind CSS. All you need to do is include one tiny \~8Kb Javascript file.
 
+Visit the website for full details & documentation:
+
+[https://foxtailcss.com](https://foxtailcss.com)
+
 ## Bootstrap Example.
 Add this file to your page:
 ```html
@@ -16,6 +20,4 @@ Now you can use any Tailwind utility class in your markup:
 </div>
 ```
 
-Visit the website for details:
 
-[http://foxtailcss.com](https://foxtailcss.com)
