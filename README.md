@@ -1,6 +1,6 @@
 # foxtailcss
 
-Extend you existing framework such as Bootstrap, Bulma etc. with all the utilities from Tailwind CSS. All you need to do is include one tiny \~8Kb Javascript file.
+Extend your existing framework such as Bootstrap, Bulma etc. with all the utilities from Tailwind CSS. All you need to do is include one tiny \~8Kb Javascript file.
 
 Visit the website for full details & documentation:
 
